@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Volume2, VolumeX, Menu, X, Heart, ShieldAlert, MessageCircle, Mail } from 'lucide-react';
+import { Volume2, VolumeX, Menu, X, Heart, ShieldAlert, PhoneCall } from 'lucide-react';
 import { toggleSound, isSoundEnabled, playClickSound } from '../utils/audio';
-import { CONTACT_INFO } from '../data/mockData';
 
 interface NavbarProps {
   activeSection: string;
@@ -100,29 +99,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </nav>
 
-        {/* Right Actions */}
+        {/* Right Actions matching PNG */}
         <div className="flex items-center gap-3">
           {/* Audio toggle */}
           <button
             onClick={handleSoundToggle}
             className="p-2.5 rounded-full text-[#4a2e1b] bg-[#faefe4] hover:bg-[#f2e2d2] border border-[#e5cfbd] transition-colors"
-            title={soundOn ? 'Sound effects enabled (Click to mute)' : 'Sound effects muted (Click to unmute)'}
+            title={soundOn ? 'Sound effects enabled' : 'Sound effects muted'}
             aria-label="Toggle Sound"
           >
             {soundOn ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5 opacity-60" />}
           </button>
-
-          {/* WhatsApp Direct Link */}
-          <a
-            href={CONTACT_INFO.whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold bg-[#25D366]/15 text-[#128C7E] hover:bg-[#25D366]/25 border border-[#25D366]/30 transition-all"
-            title={`WhatsApp: ${CONTACT_INFO.phone}`}
-          >
-            <MessageCircle className="w-3.5 h-3.5 text-[#128C7E]" />
-            <span>WhatsApp</span>
-          </a>
 
           {/* "Get Help" button matching PNG */}
           <button
@@ -176,15 +163,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               <ShieldAlert className="w-4 h-4" />
               <span>Report Abuse</span>
             </button>
-            <a
-              href={CONTACT_INFO.whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] text-white py-3 rounded-xl font-fredoka font-semibold shadow"
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenEmergency();
+              }}
+              className="flex-1 flex items-center justify-center gap-2 bg-[#4a2e1b] text-white py-3 rounded-xl font-fredoka font-semibold shadow"
             >
-              <MessageCircle className="w-4 h-4" />
-              <span>WhatsApp</span>
-            </a>
+              <PhoneCall className="w-4 h-4" />
+              <span>Get Help</span>
+            </button>
           </div>
         </div>
       )}

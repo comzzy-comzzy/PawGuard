@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Users, UserPlus, Shield, MessageCircle, Mail, CheckCircle, ExternalLink } from 'lucide-react';
+import { Users, UserPlus, Shield, CheckCircle } from 'lucide-react';
 import { playClickSound, playHeartPop } from '../utils/audio';
-import { CONTACT_INFO } from '../data/mockData';
 
 export const CommunitySection: React.FC = () => {
   const [showGuildModal, setShowGuildModal] = useState(false);
@@ -17,12 +16,6 @@ export const CommunitySection: React.FC = () => {
   const handleGuildSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     playHeartPop();
-    const whatsappUrl = CONTACT_INFO.getWhatsappVolunteerUrl(
-      vName,
-      vRole,
-      `${vLocation} (Phone: ${vPhone}) - Notes: ${vNotes || 'Ready to assist'}`
-    );
-    window.open(whatsappUrl, '_blank');
     setGuildJoined(true);
   };
 
@@ -114,25 +107,25 @@ export const CommunitySection: React.FC = () => {
           <div className="bg-white rounded-3xl p-6 border-2 border-[#ebd7c3] space-y-4 shadow-sm flex flex-col justify-between">
             <div className="space-y-3">
               <div className="w-12 h-12 rounded-2xl bg-[#faefe4] text-[#4a2e1b] flex items-center justify-center font-bold">
-                <MessageCircle className="w-6 h-6 text-[#128C7E]" />
+                <Shield className="w-6 h-6" />
               </div>
               <h3 className="font-fredoka text-xl font-bold text-[#26160d]">
-                Direct Community Desk
+                Field Spotters & Advocates
               </h3>
               <p className="text-xs sm:text-sm text-[#6e513e] leading-relaxed">
-                Connect directly with our operations team via WhatsApp or Email to coordinate local welfare initiatives, check-ins, and education.
+                Help verify welfare reports in your neighborhood, document conditions safely, and promote humane treatment in local communities.
               </p>
             </div>
 
-            <a
-              href={CONTACT_INFO.whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full bg-[#25D366] hover:bg-[#1ebd59] text-white font-fredoka text-xs font-semibold py-2.5 rounded-full flex items-center justify-center gap-1.5 shadow"
+            <button
+              onClick={() => {
+                setVRole('Field Spotter & Evidence');
+                setShowGuildModal(true);
+              }}
+              className="w-full bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka text-xs font-semibold py-2.5 rounded-full transition-colors"
             >
-              <MessageCircle className="w-3.5 h-3.5" />
-              <span>Chat on WhatsApp</span>
-            </a>
+              Enroll as Spotter
+            </button>
           </div>
 
         </div>
@@ -148,16 +141,16 @@ export const CommunitySection: React.FC = () => {
                     <CheckCircle className="w-10 h-10" />
                   </div>
                   <h3 className="font-fredoka text-2xl font-bold text-[#26160d]">
-                    Volunteer Application Sent
+                    Volunteer Application Received
                   </h3>
                   <p className="text-xs text-[#5e4537] max-w-sm mx-auto">
-                    Your details have been transmitted. You can follow up anytime via WhatsApp at <strong>{CONTACT_INFO.phone}</strong> or email <strong>{CONTACT_INFO.email}</strong>.
+                    Thank you for stepping up to protect dogs in need. Your enrollment has been recorded.
                   </p>
                   <button
                     onClick={() => setShowGuildModal(false)}
                     className="bg-[#4a2e1b] text-white font-fredoka text-xs px-6 py-3 rounded-full"
                   >
-                    Done
+                    Close
                   </button>
                 </div>
               ) : (
@@ -166,7 +159,7 @@ export const CommunitySection: React.FC = () => {
                     <h3 className="font-fredoka text-xl font-bold text-[#26160d]">
                       Volunteer Sign-Up Form
                     </h3>
-                    <p className="text-[#8a5b3a]">Connect directly with our team to help animals in your area.</p>
+                    <p className="text-[#8a5b3a]">Connect with our team to help animals in your area.</p>
                   </div>
 
                   <div>
@@ -201,7 +194,7 @@ export const CommunitySection: React.FC = () => {
                       <input
                         type="text"
                         required
-                        placeholder="e.g. Lagos, Abuja, etc."
+                        placeholder="e.g. City or Area"
                         value={vLocation}
                         onChange={(e) => setVLocation(e.target.value)}
                         className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
@@ -210,11 +203,11 @@ export const CommunitySection: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">WhatsApp Phone Number *</label>
+                    <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Contact Phone or Email *</label>
                     <input
-                      type="tel"
+                      type="text"
                       required
-                      placeholder="+234..."
+                      placeholder="Your phone number or email"
                       value={vPhone}
                       onChange={(e) => setVPhone(e.target.value)}
                       className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
@@ -242,10 +235,9 @@ export const CommunitySection: React.FC = () => {
                     </button>
                     <button
                       type="submit"
-                      className="w-2/3 bg-[#25D366] hover:bg-[#1ebd59] text-white font-fredoka font-semibold py-3 rounded-full shadow flex items-center justify-center gap-2"
+                      className="w-2/3 bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold py-3 rounded-full shadow"
                     >
-                      <MessageCircle className="w-4 h-4" />
-                      <span>Submit via WhatsApp</span>
+                      Submit Volunteer Registration
                     </button>
                   </div>
                 </form>

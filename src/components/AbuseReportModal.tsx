@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { X, ShieldAlert, MapPin, Camera, AlertTriangle, CheckCircle, Navigation, Lock, Send, Info, Link as ChainIcon, AlertCircle, Package, HeartPulse, Flame, MessageCircle, Mail, ExternalLink } from 'lucide-react';
+import { X, ShieldAlert, MapPin, Camera, AlertTriangle, CheckCircle, Navigation, Lock, Send, Info, Link as ChainIcon, AlertCircle, Package, HeartPulse, Flame } from 'lucide-react';
 import { playAlertSound, playClickSound } from '../utils/audio';
 import { RescueCase } from '../types';
-import { CONTACT_INFO } from '../data/mockData';
 
 interface AbuseReportModalProps {
   isOpen: boolean;
@@ -105,7 +104,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
       setIsSubmitting(false);
       setStep(3);
       onAddCase(newCase);
-    }, 1000);
+    }, 800);
   };
 
   const handleReset = () => {
@@ -149,7 +148,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
 
         {/* Step Indicator */}
         {step !== 3 && (
-          <div className="px-6 pt-4 pb-2 bg-[#faefe4] border-b border-[#ebd7c3] flex items-center justify-between text-xs font-fredoka font-semibold text-[#6b442b]">
+          <div className="px-6 pt-4 pb-2 bg-[#faefe4] border-b border-[#ebd7c3] flex items-center justify-between text-xs font-fredoka font-semibold text-[#6b4c38]">
             <div className={`flex items-center gap-1.5 ${step >= 1 ? 'text-[#4a2e1b] font-bold' : 'opacity-50'}`}>
               <span className="w-5 h-5 rounded-full bg-[#4a2e1b] text-white flex items-center justify-center text-[10px]">1</span>
               <span>Incident & Location</span>
@@ -162,7 +161,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
             <div className="w-8 h-[2px] bg-[#ebd7c3]"></div>
             <div className="opacity-50 flex items-center gap-1.5">
               <span className="w-5 h-5 rounded-full bg-[#8a5b3a] text-white flex items-center justify-center text-[10px]">3</span>
-              <span>Dispatch & Direct Transmission</span>
+              <span>Confirmation</span>
             </div>
           </div>
         )}
@@ -393,8 +392,8 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                       className="px-3 py-2 rounded-xl border border-[#ebd7c3] text-xs focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
                     />
                     <input
-                      type="tel"
-                      placeholder="Your Phone Number (Optional)"
+                      type="text"
+                      placeholder="Your Phone or Email (Optional)"
                       value={reporterPhone}
                       onChange={(e) => setReporterPhone(e.target.value)}
                       className="px-3 py-2 rounded-xl border border-[#ebd7c3] text-xs focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
@@ -459,40 +458,17 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                 </p>
               </div>
 
-              {/* Direct WhatsApp and Email Actions */}
-              <div className="bg-white p-5 rounded-2xl border border-[#ebd7c3] text-left text-xs text-[#5e4537] space-y-4 shadow-sm">
-                <p className="font-fredoka font-bold text-sm text-[#352018]">
-                  Transmitting to Rescue Dispatch:
-                </p>
+              <div className="bg-white p-5 rounded-2xl border border-[#ebd7c3] text-left text-xs text-[#5e4537] space-y-2 shadow-sm">
+                <p><strong>Incident:</strong> {submittedCase.type}</p>
                 <p><strong>Location:</strong> {submittedCase.location}</p>
-                <p><strong>Incident Type:</strong> {submittedCase.type} ({submittedCase.urgency.toUpperCase()})</p>
-                
-                <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <a
-                    href={CONTACT_INFO.getWhatsappReportUrl(submittedCase.id, submittedCase.type, submittedCase.location, submittedCase.description)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-[#25D366] hover:bg-[#1ebd59] text-white p-3 rounded-xl font-fredoka font-semibold flex items-center justify-center gap-2 shadow"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Send to WhatsApp ({CONTACT_INFO.phone})</span>
-                  </a>
-
-                  <a
-                    href={CONTACT_INFO.getEmailReportUrl(submittedCase.id, submittedCase.type, submittedCase.location, submittedCase.description)}
-                    className="bg-[#4a2e1b] hover:bg-[#352018] text-white p-3 rounded-xl font-fredoka font-semibold flex items-center justify-center gap-2 shadow"
-                  >
-                    <Mail className="w-4 h-4" />
-                    <span>Send via Email ({CONTACT_INFO.email})</span>
-                  </a>
-                </div>
+                <p><strong>Urgency:</strong> {submittedCase.urgency.toUpperCase()}</p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
+              <div className="flex justify-center">
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka font-semibold text-sm px-6 py-3.5 rounded-full border border-[#ebd7c3] transition-all flex-1"
+                  className="bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-sm px-8 py-3.5 rounded-full shadow"
                 >
                   Close & View Board
                 </button>

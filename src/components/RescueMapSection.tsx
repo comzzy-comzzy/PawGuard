@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { RescueCase } from '../types';
-import { ShieldAlert, MapPin, Clock, Navigation, Radio, Share2, AlertCircle, MessageCircle, Mail } from 'lucide-react';
+import { ShieldAlert, MapPin, Clock, Radio, Share2 } from 'lucide-react';
 import { playClickSound } from '../utils/audio';
-import { CONTACT_INFO } from '../data/mockData';
 
 interface RescueMapSectionProps {
   cases: RescueCase[];
@@ -68,7 +67,7 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
               Find & Rescue Dogs in Danger
             </h2>
             <p className="font-sans text-sm sm:text-base text-[#6b4c38] max-w-2xl">
-              Track reported dog abuse cases, review locations where animals require rescue, and communicate directly with our dispatch desk on WhatsApp or Email.
+              Track reported dog abuse cases, review locations where animals require rescue, and coordinate rescue interventions.
             </p>
           </div>
 
@@ -137,27 +136,17 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
                 No Rescue Cases Logged Yet
               </h3>
               <p className="font-sans text-xs sm:text-sm text-[#6b4c38] max-w-md mx-auto leading-relaxed">
-                If you know of any dog being abused, harassed, starved, abandoned, or in life-threatening danger, submit a report or contact us directly.
+                If you know of any dog being abused, harassed, starved, abandoned, or in danger, click the button below to submit a report.
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <div className="pt-2">
               <button
                 onClick={onOpenReport}
-                className="w-full sm:w-auto bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-xs sm:text-sm px-6 py-3 rounded-full shadow"
+                className="bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-sm px-7 py-3 rounded-full shadow"
               >
-                Submit a Report
+                Submit Incident Report
               </button>
-
-              <a
-                href={CONTACT_INFO.whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto bg-[#25D366] hover:bg-[#1ebd59] text-white font-fredoka font-semibold text-xs sm:text-sm px-6 py-3 rounded-full shadow flex items-center justify-center gap-1.5"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>Message WhatsApp ({CONTACT_INFO.phone})</span>
-              </a>
             </div>
           </div>
         ) : (
@@ -264,27 +253,6 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
                     <p className="text-xs text-[#6b4c38] font-medium">
                       <strong>Address:</strong> {selectedCase.location}
                     </p>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <a
-                      href={CONTACT_INFO.getWhatsappReportUrl(selectedCase.id, selectedCase.type, selectedCase.location, selectedCase.description)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-[#25D366] hover:bg-[#1ebd59] text-white font-fredoka font-semibold text-xs sm:text-sm p-3.5 rounded-full shadow flex items-center justify-center gap-2"
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                      <span>Message WhatsApp Dispatch</span>
-                    </a>
-
-                    <a
-                      href={CONTACT_INFO.getEmailReportUrl(selectedCase.id, selectedCase.type, selectedCase.location, selectedCase.description)}
-                      className="bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-xs sm:text-sm p-3.5 rounded-full shadow flex items-center justify-center gap-2"
-                    >
-                      <Mail className="w-4 h-4" />
-                      <span>Email Report Details</span>
-                    </a>
                   </div>
 
                 </div>

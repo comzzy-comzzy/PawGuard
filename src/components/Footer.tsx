@@ -46,21 +46,6 @@ export const Footer: React.FC<FooterProps> = ({
             <p className="text-sm text-[#e5cfbd] leading-relaxed max-w-sm">
               PawGuard — Protect Dogs, They Have Feelings Too. A community platform dedicated to preventing dog abuse, bullying, harassment, abandonment, and unnecessary killing.
             </p>
-
-            <div className="space-y-1.5 text-xs text-[#d7b89c] pt-2">
-              <p className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-[#b87d55]" />
-                <a href={CONTACT_INFO.emailUrl} className="hover:text-white underline">
-                  {CONTACT_INFO.email}
-                </a>
-              </p>
-              <p className="flex items-center gap-2">
-                <MessageCircle className="w-4 h-4 text-[#25D366]" />
-                <a href={CONTACT_INFO.whatsappUrl} target="_blank" rel="noopener noreferrer" className="hover:text-white underline">
-                  WhatsApp: {CONTACT_INFO.phone}
-                </a>
-              </p>
-            </div>
           </div>
 
           {/* Quick Links */}
@@ -129,26 +114,16 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Emergency Contact */}
           <div className="space-y-3">
             <h4 className="font-fredoka text-base font-bold text-white uppercase tracking-wider text-[#f5d7b7]">
-              Direct Contact
+              Emergency Help
             </h4>
             <div className="space-y-2.5 text-xs text-[#e5cfbd]">
-              <a
-                href={CONTACT_INFO.whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full bg-[#25D366] hover:bg-[#1ebd59] text-white font-fredoka font-semibold py-2.5 px-4 rounded-xl shadow text-center flex items-center justify-center gap-1.5 transition-colors"
+              <button
+                onClick={onOpenEmergency}
+                className="w-full bg-[#d94141] hover:bg-[#b82e2e] text-white font-fredoka font-semibold py-2.5 px-4 rounded-xl shadow text-center flex items-center justify-center gap-1.5 transition-colors"
               >
-                <MessageCircle className="w-4 h-4" />
-                <span>WhatsApp: {CONTACT_INFO.phone}</span>
-              </a>
-
-              <a
-                href={CONTACT_INFO.emailUrl}
-                className="w-full bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka font-semibold py-2.5 px-4 rounded-xl shadow text-center flex items-center justify-center gap-1.5 transition-colors"
-              >
-                <Mail className="w-4 h-4" />
-                <span>Email Support Desk</span>
-              </a>
+                <PhoneCall className="w-4 h-4" />
+                <span>Get Help Desk</span>
+              </button>
 
               <button
                 onClick={onOpenReport}

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { LostFoundDog } from '../types';
-import { Search, MapPin, Phone, Printer, PlusCircle, X, MessageCircle, Mail } from 'lucide-react';
+import { Search, MapPin, Phone, Printer, PlusCircle, X } from 'lucide-react';
 import { playClickSound, playAlertSound } from '../utils/audio';
-import { CONTACT_INFO } from '../data/mockData';
 
 interface LostAndFoundSectionProps {
   items: LostFoundDog[];
@@ -44,7 +43,7 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
       date: 'Just now',
       photoUrl: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop&q=80',
       contactName: contactName || 'Reporter',
-      contactPhone: contactPhone || CONTACT_INFO.phone,
+      contactPhone: contactPhone || 'Contact details provided',
       reward: reward ? `$${reward} Reward` : undefined,
       details,
       hasMicrochip: false
@@ -90,7 +89,7 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
               Lost, Abandoned & Injured Dogs
             </h2>
             <p className="font-sans text-sm sm:text-base text-[#6b4c38] max-w-2xl">
-              Post notices for missing pets, report found strays, or alert our network about injured dogs needing urgent medical transport.
+              Post notices for missing pets, report found strays, or alert our network about injured dogs needing urgent assistance.
             </p>
           </div>
 
@@ -120,27 +119,17 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
                 No Lost or Injured Dog Notices Currently
               </h3>
               <p className="font-sans text-xs sm:text-sm text-[#6b4c38] max-w-md mx-auto leading-relaxed">
-                If your pet is missing or you found an abandoned or injured dog, create a notice or message us directly on WhatsApp or Email.
+                If your pet is missing or you found an abandoned or injured dog, create a notice below to alert the community.
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <div className="pt-2">
               <button
                 onClick={() => setShowReportModal(true)}
-                className="w-full sm:w-auto bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-xs sm:text-sm px-6 py-3 rounded-full shadow"
+                className="bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-xs sm:text-sm px-6 py-3 rounded-full shadow"
               >
                 Post a Notice
               </button>
-
-              <a
-                href={CONTACT_INFO.whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto bg-[#25D366] hover:bg-[#1ebd59] text-white font-fredoka font-semibold text-xs sm:text-sm px-6 py-3 rounded-full shadow flex items-center justify-center gap-2"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>Message WhatsApp ({CONTACT_INFO.phone})</span>
-              </a>
             </div>
           </div>
         ) : (
@@ -168,13 +157,7 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
                 </div>
 
                 <div className="pt-3 border-t border-[#f4ece1] flex items-center justify-between gap-2">
-                  <a
-                    href={`tel:${item.contactPhone}`}
-                    className="flex-1 bg-[#faefe4] text-[#4a2e1b] text-xs font-fredoka font-semibold py-2 rounded-full flex items-center justify-center gap-1.5"
-                  >
-                    <Phone className="w-3.5 h-3.5" />
-                    <span>Call: {item.contactPhone}</span>
-                  </a>
+                  <span className="text-xs font-semibold text-[#4a2e1b]">Contact: {item.contactPhone}</span>
 
                   {item.status === 'lost' && (
                     <button
@@ -309,11 +292,11 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Contact Phone *</label>
+                    <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Contact Phone or Info *</label>
                     <input
-                      type="tel"
+                      type="text"
                       required
-                      placeholder="+234..."
+                      placeholder="Your phone number or email"
                       value={contactPhone}
                       onChange={(e) => setContactPhone(e.target.value)}
                       className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"

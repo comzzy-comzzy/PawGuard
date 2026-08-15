@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { AdoptableDog } from '../types';
-import { Home, Heart, MessageCircle, Mail, PlusCircle, Check, X, ShieldCheck, User, Phone } from 'lucide-react';
-import { playClickSound } from '../utils/audio';
-import { CONTACT_INFO } from '../data/mockData';
+import { Home, Heart, PlusCircle, X } from 'lucide-react';
+import { playClickSound, playHeartPop } from '../utils/audio';
 
 interface AdoptionSectionProps {
   dogs: AdoptableDog[];
@@ -13,8 +12,9 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({ dogs, onAddDog
   const [showInquiryModal, setShowInquiryModal] = useState(false);
   const [showListDogModal, setShowListDogModal] = useState(false);
   const [applicantName, setApplicantName] = useState('');
-  const [applicantPhone, setApplicantPhone] = useState('');
+  const [applicantContact, setApplicantContact] = useState('');
   const [inquiryNotes, setInquiryNotes] = useState('');
+  const [inquirySubmitted, setInquirySubmitted] = useState(false);
 
   // List Dog State
   const [newDogName, setNewDogName] = useState('');
@@ -24,16 +24,20 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({ dogs, onAddDog
 
   const handleInquirySubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const whatsappUrl = CONTACT_INFO.getWhatsappAdoptionUrl(
-      'Rescue Dog',
-      `${applicantName} (${applicantPhone}) - ${inquiryNotes}`
-    );
-    window.open(whatsappUrl, '_blank');
-    setShowInquiryModal(false);
+    playHeartPop();
+    setInquirySubmitted(true);
+    setTimeout(() => {
+      setInquirySubmitted(false);
+      setShowInquiryModal(false);
+      setApplicantName('');
+      setApplicantContact('');
+      setInquiryNotes('');
+    }, 2500);
   };
 
   const handleListDogSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    playClickSound();
     if (onAddDog) {
       const newDog: AdoptableDog = {
         id: `ADOPT-${Date.now()}`,
@@ -56,6 +60,10 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({ dogs, onAddDog
       onAddDog(newDog);
     }
     setShowListDogModal(false);
+    setNewDogName('');
+    setNewDogBreed('');
+    setNewDogAge('');
+    setNewDogStory('');
   };
 
   return (
@@ -112,28 +120,17 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({ dogs, onAddDog
                 No Adoption Listings Currently Active
               </h3>
               <p className="font-sans text-xs sm:text-sm text-[#6b4c38] max-w-md mx-auto leading-relaxed">
-                If you have rescued a dog needing a permanent home or foster placement, or if you would like to open your home to an animal in need, please reach out directly.
+                If you have rescued a dog needing a permanent home or foster placement, or if you would like to open your home to an animal in need, submit an inquiry or listing below.
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-              <a
-                href={CONTACT_INFO.whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto bg-[#25D366] hover:bg-[#1ebd59] text-white font-fredoka font-semibold text-xs sm:text-sm px-6 py-3 rounded-full shadow flex items-center justify-center gap-2"
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => setShowInquiryModal(true)}
+                className="bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-xs sm:text-sm px-6 py-3 rounded-full shadow"
               >
-                <MessageCircle className="w-4 h-4" />
-                <span>Contact on WhatsApp ({CONTACT_INFO.phone})</span>
-              </a>
-
-              <a
-                href={CONTACT_INFO.emailUrl}
-                className="w-full sm:w-auto bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-xs sm:text-sm px-6 py-3 rounded-full shadow flex items-center justify-center gap-2"
-              >
-                <Mail className="w-4 h-4" />
-                <span>Email ({CONTACT_INFO.email})</span>
-              </a>
+                Submit Adoption Inquiry
+              </button>
             </div>
           </div>
         ) : (
@@ -153,16 +150,13 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({ dogs, onAddDog
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-[#f4ece1] flex gap-2">
-                  <a
-                    href={CONTACT_INFO.getWhatsappAdoptionUrl(dog.name, 'Interested Adopter')}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 bg-[#25D366] text-white text-xs font-fredoka font-semibold py-2.5 rounded-full flex items-center justify-center gap-1.5 shadow"
+                <div className="pt-3 border-t border-[#f4ece1]">
+                  <button
+                    onClick={() => setShowInquiryModal(true)}
+                    className="w-full bg-[#4a2e1b] text-white text-xs font-fredoka font-semibold py-2.5 rounded-full shadow"
                   >
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    <span>Inquire (WhatsApp)</span>
-                  </a>
+                    Inquire About {dog.name}
+                  </button>
                 </div>
               </div>
             ))}
@@ -182,52 +176,59 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({ dogs, onAddDog
                 </button>
               </div>
 
-              <form onSubmit={handleInquirySubmit} className="space-y-3.5 text-xs">
-                <div>
-                  <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Your Full Name *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Alex Morgan"
-                    value={applicantName}
-                    onChange={(e) => setApplicantName(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
-                  />
+              {inquirySubmitted ? (
+                <div className="text-center py-6 space-y-2">
+                  <Heart className="w-10 h-10 text-[#3aa866] mx-auto" />
+                  <h4 className="font-fredoka text-lg font-bold text-[#26160d]">Inquiry Recorded</h4>
+                  <p className="text-xs text-[#6b4c38]">Thank you for your interest in adopting or fostering.</p>
                 </div>
+              ) : (
+                <form onSubmit={handleInquirySubmit} className="space-y-3.5 text-xs">
+                  <div>
+                    <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Your Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Alex Morgan"
+                      value={applicantName}
+                      onChange={(e) => setApplicantName(e.target.value)}
+                      className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Phone Number *</label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="+234..."
-                    value={applicantPhone}
-                    onChange={(e) => setApplicantPhone(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
-                  />
-                </div>
+                  <div>
+                    <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Contact Info (Phone / Email) *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Your phone number or email"
+                      value={applicantContact}
+                      onChange={(e) => setApplicantContact(e.target.value)}
+                      className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Adoption Preferences & Home Environment</label>
-                  <textarea
-                    rows={3}
-                    placeholder="Tell us about your home, previous pet experience, or preferred dog size..."
-                    value={inquiryNotes}
-                    onChange={(e) => setInquiryNotes(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
-                  ></textarea>
-                </div>
+                  <div>
+                    <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Adoption Preferences & Home Environment</label>
+                    <textarea
+                      rows={3}
+                      placeholder="Tell us about your home, previous pet experience, or preferred dog size..."
+                      value={inquiryNotes}
+                      onChange={(e) => setInquiryNotes(e.target.value)}
+                      className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
+                    ></textarea>
+                  </div>
 
-                <div className="pt-2 flex gap-2">
-                  <button
-                    type="submit"
-                    className="flex-1 bg-[#25D366] hover:bg-[#1ebd59] text-white font-fredoka font-semibold py-3 rounded-full shadow flex items-center justify-center gap-2"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Send via WhatsApp (+2348105463507)</span>
-                  </button>
-                </div>
-              </form>
+                  <div className="pt-2 flex gap-2">
+                    <button
+                      type="submit"
+                      className="flex-1 bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold py-3 rounded-full shadow"
+                    >
+                      Submit Adoption Inquiry
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
         )}
