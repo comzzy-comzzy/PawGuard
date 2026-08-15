@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { ShieldAlert, MapPin, Camera, AlertTriangle, CheckCircle, Navigation, Lock, Send, Info, Link as ChainIcon, AlertCircle, Package, HeartPulse, Flame, X, MessageCircle, Mail, ExternalLink, ArrowLeft } from 'lucide-react';
+import { ShieldAlert, MapPin, Camera, AlertTriangle, CheckCircle, Navigation, Lock, Send, Info, Link as ChainIcon, AlertCircle, Package, HeartPulse, Flame, X, ArrowLeft } from 'lucide-react';
 import { playAlertSound, playClickSound, playHeartPop } from '../utils/audio';
 import { RescueCase } from '../types';
-import { CONTACT_INFO } from '../data/mockData';
 
 interface ReportAbuseSectionProps {
   onAddCase: (newCase: RescueCase) => void;
@@ -117,7 +116,7 @@ export const ReportAbuseSection: React.FC<ReportAbuseSectionProps> = ({
 
   return (
     <section id="report" className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#fbf6f0]">
-      <div className="max-w-7xl mx-auto space-y-10">
+      <div className="max-w-4xl mx-auto space-y-10">
         
         {/* Back Navigation & Breadcrumb */}
         <div className="flex items-center justify-between">
@@ -130,474 +129,406 @@ export const ReportAbuseSection: React.FC<ReportAbuseSectionProps> = ({
           </button>
 
           <span className="text-xs font-fredoka font-semibold uppercase tracking-wider text-[#d94141] bg-[#fee2e2] px-3.5 py-1 rounded-full border border-[#fca5a5]">
-            Urgent Abuse Dispatch
+            Abuse Incident Dispatch
           </span>
         </div>
 
         {/* Page Header */}
-        <div className="text-center space-y-3 max-w-3xl mx-auto">
+        <div className="text-center space-y-3 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-1.5 bg-[#fee2e2] text-[#991b1b] border border-[#fca5a5] text-xs font-fredoka font-bold px-3.5 py-1 rounded-full uppercase tracking-wider">
             <ShieldAlert className="w-3.5 h-3.5" />
             <span>Official Cruelty & Rescue Dispatch</span>
           </div>
 
           <h1 className="font-fredoka text-3xl sm:text-4xl md:text-5xl font-bold text-[#26160d]">
-            Report Dog Abuse, Bullying or Danger
+            Report Dog Abuse or Danger
           </h1>
 
           <p className="font-sans text-sm sm:text-base text-[#6b4c38] leading-relaxed">
-            Report dogs being subjected to physical violence, continuous chaining, neglect, abandonment, or life-threatening distress. Every report is routed directly to volunteer rescue responders.
+            Report dogs being subjected to physical violence, continuous chaining, starvation, neglect, abandonment, or life-threatening distress.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Main Embedded Report Form */}
+        <div className="bg-white border-2 border-[#4a2e1b] rounded-3xl shadow-xl overflow-hidden">
           
-          {/* Main Embedded Report Form (8 Cols) */}
-          <div className="lg:col-span-8 bg-white border-2 border-[#4a2e1b] rounded-3xl shadow-xl overflow-hidden">
-            
-            {/* Header Banner */}
-            <div className="bg-[#4a2e1b] text-white px-6 py-5 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#d94141] flex items-center justify-center text-white shadow">
-                  <ShieldAlert className="w-6 h-6" />
-                </div>
-                <div>
-                  <h2 className="font-fredoka text-xl sm:text-2xl font-bold tracking-tight">
-                    Incident Report Portal
-                  </h2>
-                  <p className="text-xs text-[#f5d7b7]">
-                    Confidential, Safe & Direct Dispatch
-                  </p>
-                </div>
+          {/* Header Banner */}
+          <div className="bg-[#4a2e1b] text-white px-6 sm:px-8 py-5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-[#d94141] flex items-center justify-center text-white shadow">
+                <ShieldAlert className="w-6 h-6" />
               </div>
-
-              {step !== 3 && (
-                <span className="text-xs font-fredoka font-semibold bg-white/10 px-3 py-1 rounded-full text-[#fbf6f0]">
-                  Step {step} of 2
-                </span>
-              )}
+              <div>
+                <h2 className="font-fredoka text-xl sm:text-2xl font-bold tracking-tight">
+                  Incident Report Portal
+                </h2>
+                <p className="text-xs text-[#f5d7b7]">
+                  Confidential & Direct Rescue Dispatch
+                </p>
+              </div>
             </div>
 
-            {/* Step Progress Bar */}
             {step !== 3 && (
-              <div className="px-6 pt-4 pb-3 bg-[#faefe4] border-b border-[#ebd7c3] flex items-center justify-between text-xs font-fredoka font-semibold text-[#6b4c38]">
-                <div className={`flex items-center gap-1.5 ${step >= 1 ? 'text-[#4a2e1b] font-bold' : 'opacity-50'}`}>
-                  <span className="w-5 h-5 rounded-full bg-[#4a2e1b] text-white flex items-center justify-center text-[10px]">1</span>
-                  <span>Incident & Location</span>
-                </div>
-                <div className="w-8 sm:w-16 h-[2px] bg-[#ebd7c3]"></div>
-                <div className={`flex items-center gap-1.5 ${step >= 2 ? 'text-[#4a2e1b] font-bold' : 'opacity-50'}`}>
-                  <span className="w-5 h-5 rounded-full bg-[#4a2e1b] text-white flex items-center justify-center text-[10px]">2</span>
-                  <span>Evidence & Details</span>
-                </div>
-                <div className="w-8 sm:w-16 h-[2px] bg-[#ebd7c3]"></div>
-                <div className="opacity-50 flex items-center gap-1.5">
-                  <span className="w-5 h-5 rounded-full bg-[#8a5b3a] text-white flex items-center justify-center text-[10px]">3</span>
-                  <span>Confirmation</span>
-                </div>
-              </div>
+              <span className="text-xs font-fredoka font-semibold bg-white/10 px-3 py-1 rounded-full text-[#fbf6f0]">
+                Step {step} of 2
+              </span>
             )}
+          </div>
 
-            {/* Form Content */}
-            <div className="p-6 sm:p-8">
-              
-              {step === 1 && (
-                <div className="space-y-6">
-                  
-                  {/* Urgency Level Selector */}
-                  <div>
-                    <label className="block font-fredoka text-sm font-bold text-[#352018] mb-2 flex items-center gap-1.5">
-                      <AlertTriangle className="w-4 h-4 text-[#d94141]" />
-                      <span>Severity & Urgency Level</span>
-                    </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                      {[
-                        { id: 'critical', label: 'Critical Danger', desc: 'Active violence or life threat', color: 'border-[#d94141] bg-[#fee2e2] text-[#991b1b]' },
-                        { id: 'high', label: 'High Urgency', desc: 'Severe injury or starvation', color: 'border-[#ea8e24] bg-[#ffedd5] text-[#9a3412]' },
-                        { id: 'moderate', label: 'Needs Rescue', desc: 'Welfare check or abandoned', color: 'border-[#3aa866] bg-[#dcfce7] text-[#166534]' },
-                      ].map((lvl) => (
+          {/* Step Progress Bar */}
+          {step !== 3 && (
+            <div className="px-6 sm:px-8 pt-4 pb-3 bg-[#faefe4] border-b border-[#ebd7c3] flex items-center justify-between text-xs font-fredoka font-semibold text-[#6b4c38]">
+              <div className={`flex items-center gap-1.5 ${step >= 1 ? 'text-[#4a2e1b] font-bold' : 'opacity-50'}`}>
+                <span className="w-5 h-5 rounded-full bg-[#4a2e1b] text-white flex items-center justify-center text-[10px]">1</span>
+                <span>Incident & Location</span>
+              </div>
+              <div className="w-8 sm:w-20 h-[2px] bg-[#ebd7c3]"></div>
+              <div className={`flex items-center gap-1.5 ${step >= 2 ? 'text-[#4a2e1b] font-bold' : 'opacity-50'}`}>
+                <span className="w-5 h-5 rounded-full bg-[#4a2e1b] text-white flex items-center justify-center text-[10px]">2</span>
+                <span>Evidence & Details</span>
+              </div>
+              <div className="w-8 sm:w-20 h-[2px] bg-[#ebd7c3]"></div>
+              <div className="opacity-50 flex items-center gap-1.5">
+                <span className="w-5 h-5 rounded-full bg-[#8a5b3a] text-white flex items-center justify-center text-[10px]">3</span>
+                <span>Confirmation</span>
+              </div>
+            </div>
+          )}
+
+          {/* Form Content */}
+          <div className="p-6 sm:p-8">
+            
+            {step === 1 && (
+              <div className="space-y-6">
+                
+                {/* Urgency Level Selector */}
+                <div>
+                  <label className="block font-fredoka text-sm font-bold text-[#352018] mb-2 flex items-center gap-1.5">
+                    <AlertTriangle className="w-4 h-4 text-[#d94141]" />
+                    <span>Severity & Urgency Level</span>
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    {[
+                      { id: 'critical', label: 'Critical Danger', desc: 'Active violence or life threat', color: 'border-[#d94141] bg-[#fee2e2] text-[#991b1b]' },
+                      { id: 'high', label: 'High Urgency', desc: 'Severe injury or starvation', color: 'border-[#ea8e24] bg-[#ffedd5] text-[#9a3412]' },
+                      { id: 'moderate', label: 'Needs Rescue', desc: 'Welfare check or abandoned', color: 'border-[#3aa866] bg-[#dcfce7] text-[#166534]' },
+                    ].map((lvl) => (
+                      <button
+                        key={lvl.id}
+                        type="button"
+                        onClick={() => {
+                          playClickSound();
+                          setUrgency(lvl.id as RescueCase['urgency']);
+                        }}
+                        className={`p-3.5 rounded-2xl border-2 text-left transition-all ${
+                          urgency === lvl.id ? `${lvl.color} shadow-md scale-[1.02]` : 'border-[#ebd7c3] bg-white opacity-75 hover:opacity-100'
+                        }`}
+                      >
+                        <div className="font-fredoka text-xs sm:text-sm font-bold">{lvl.label}</div>
+                        <div className="text-[10px] mt-0.5 opacity-90">{lvl.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Abuse Category */}
+                <div>
+                  <label className="block font-fredoka text-sm font-bold text-[#352018] mb-2">
+                    Select Incident Category
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {abuseTypes.map((item) => {
+                      const IconComp = item.icon;
+                      return (
                         <button
-                          key={lvl.id}
+                          key={item.type}
                           type="button"
                           onClick={() => {
                             playClickSound();
-                            setUrgency(lvl.id as RescueCase['urgency']);
+                            setAbuseType(item.type);
                           }}
-                          className={`p-3.5 rounded-2xl border-2 text-left transition-all ${
-                            urgency === lvl.id ? `${lvl.color} shadow-md scale-[1.02]` : 'border-[#ebd7c3] bg-white opacity-75 hover:opacity-100'
+                          className={`p-3.5 rounded-2xl border-2 text-left flex items-start gap-3 transition-all ${
+                            abuseType === item.type
+                              ? 'border-[#4a2e1b] bg-[#faefe4] shadow-sm font-semibold'
+                              : 'border-[#ebd7c3] bg-white hover:bg-[#faf4ed]'
                           }`}
                         >
-                          <div className="font-fredoka text-xs sm:text-sm font-bold">{lvl.label}</div>
-                          <div className="text-[10px] mt-0.5 opacity-90">{lvl.desc}</div>
+                          <div className="w-8 h-8 rounded-xl bg-[#fbe9dd] text-[#4a2e1b] flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <IconComp className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <div className="font-fredoka text-xs sm:text-sm text-[#352018]">{item.label}</div>
+                            <div className="text-[11px] text-[#6b4c38] leading-tight mt-0.5">{item.desc}</div>
+                          </div>
                         </button>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
+                </div>
 
-                  {/* Abuse Category */}
-                  <div>
-                    <label className="block font-fredoka text-sm font-bold text-[#352018] mb-2">
-                      Select Incident Category
+                {/* Location Input */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="font-fredoka text-sm font-bold text-[#352018] flex items-center gap-1.5">
+                      <MapPin className="w-4 h-4 text-[#b87d55]" />
+                      <span>Exact Location or Street Address *</span>
                     </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      {abuseTypes.map((item) => {
-                        const IconComp = item.icon;
-                        return (
-                          <button
-                            key={item.type}
-                            type="button"
-                            onClick={() => {
-                              playClickSound();
-                              setAbuseType(item.type);
-                            }}
-                            className={`p-3.5 rounded-2xl border-2 text-left flex items-start gap-3 transition-all ${
-                              abuseType === item.type
-                                ? 'border-[#4a2e1b] bg-[#faefe4] shadow-sm font-semibold'
-                                : 'border-[#ebd7c3] bg-white hover:bg-[#faf4ed]'
-                            }`}
-                          >
-                            <div className="w-8 h-8 rounded-xl bg-[#fbe9dd] text-[#4a2e1b] flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <IconComp className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <div className="font-fredoka text-xs sm:text-sm text-[#352018]">{item.label}</div>
-                              <div className="text-[11px] text-[#6b4c38] leading-tight mt-0.5">{item.desc}</div>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Location Input */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <label className="font-fredoka text-sm font-bold text-[#352018] flex items-center gap-1.5">
-                        <MapPin className="w-4 h-4 text-[#b87d55]" />
-                        <span>Exact Location or Street Address *</span>
-                      </label>
-                      <button
-                        type="button"
-                        onClick={handleUseGPS}
-                        disabled={gpsLoading}
-                        className="text-xs font-fredoka font-semibold text-[#4a2e1b] hover:text-[#26160d] flex items-center gap-1 bg-[#faefe4] px-3 py-1 rounded-full border border-[#e5cfbd]"
-                      >
-                        <Navigation className="w-3 h-3" />
-                        <span>{gpsLoading ? 'Locating...' : 'Use Current GPS'}</span>
-                      </button>
-                    </div>
-                    
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Street name, city, district, or building number"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-[#ebd7c3] bg-white text-[#352018] text-sm focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
-                    />
-
-                    <input
-                      type="text"
-                      placeholder="Landmarks or access instructions (e.g. behind shop, near blue gate)"
-                      value={landmark}
-                      onChange={(e) => setLandmark(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-[#ebd7c3] bg-white text-[#352018] text-xs focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
-                    />
-                  </div>
-
-                  {/* Continue to Step 2 Button */}
-                  <div className="pt-2">
                     <button
                       type="button"
-                      onClick={() => {
-                        if (!location.trim()) {
-                          alert('Please provide a location so responders can find the dog.');
-                          return;
-                        }
-                        playClickSound();
-                        setStep(2);
-                      }}
-                      className="w-full bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-base py-3.5 rounded-2xl shadow hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                      onClick={handleUseGPS}
+                      disabled={gpsLoading}
+                      className="text-xs font-fredoka font-semibold text-[#4a2e1b] hover:text-[#26160d] flex items-center gap-1 bg-[#faefe4] px-3 py-1 rounded-full border border-[#e5cfbd]"
                     >
-                      <span>Continue to Evidence & Details</span>
+                      <Navigation className="w-3 h-3" />
+                      <span>{gpsLoading ? 'Locating...' : 'Use Current GPS'}</span>
                     </button>
                   </div>
-
-                </div>
-              )}
-
-              {step === 2 && (
-                <form onSubmit={handleSubmit} className="space-y-6">
                   
-                  {/* Dog description */}
-                  <div>
-                    <label className="block font-fredoka text-sm font-bold text-[#352018] mb-1.5">
-                      Dog Appearance & Condition Description *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Estimated breed, color, or size (e.g. Brown Shepherd mix, Medium)"
-                      value={dogBreed}
-                      onChange={(e) => setDogBreed(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-[#ebd7c3] bg-white text-[#352018] text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
-                    />
-                    <textarea
-                      required
-                      rows={3}
-                      placeholder="Describe the situation (e.g. Dog tied without water, visible injury, perpetrator actions...)"
-                      value={dogCondition}
-                      onChange={(e) => setDogCondition(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-[#ebd7c3] bg-white text-[#352018] text-sm focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
-                    ></textarea>
-                  </div>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Street name, city, district, or building number"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-[#ebd7c3] bg-white text-[#352018] text-sm focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
+                  />
 
-                  {/* Evidence Upload Simulator */}
-                  <div>
-                    <label className="block font-fredoka text-sm font-bold text-[#352018] mb-1.5 flex items-center gap-1.5">
-                      <Camera className="w-4 h-4 text-[#4a2e1b]" />
-                      <span>Attach Photo or Video Evidence</span>
-                    </label>
-                    
-                    <div className="border-2 border-dashed border-[#d5bba4] rounded-2xl p-4 bg-[#faefe4]/60 text-center hover:bg-[#faefe4] transition-colors relative">
-                      {evidencePreview ? (
-                        <div className="relative inline-block">
-                          <img
-                            src={evidencePreview}
-                            alt="Uploaded Evidence"
-                            className="h-36 object-cover rounded-xl shadow border border-[#4a2e1b]"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setEvidencePreview(null)}
-                            className="absolute -top-2 -right-2 bg-[#d94141] text-white rounded-full p-1 shadow"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <label className="cursor-pointer block py-4">
-                          <Camera className="w-8 h-8 text-[#8a5b3a] mx-auto mb-1.5" />
-                          <span className="font-fredoka text-sm text-[#4a2e1b] font-semibold block">
-                            Click to attach photo or evidence
-                          </span>
-                          <span className="text-xs text-[#7e5c46]">
-                            Supports JPG, PNG, MP4
-                          </span>
-                          <input
-                            type="file"
-                            accept="image/*,video/*"
-                            onChange={handleImageChange}
-                            className="hidden"
-                          />
-                        </label>
-                      )}
-                    </div>
-                  </div>
+                  <input
+                    type="text"
+                    placeholder="Landmarks or access instructions (e.g. behind shop, near blue gate)"
+                    value={landmark}
+                    onChange={(e) => setLandmark(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#ebd7c3] bg-white text-[#352018] text-xs focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
+                  />
+                </div>
 
-                  {/* Reporter Information & Anonymous Option */}
-                  <div className="p-4 rounded-2xl bg-[#faefe4] border border-[#ebd7c3] space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Lock className="w-4 h-4 text-[#4a2e1b]" />
-                        <span className="font-fredoka text-sm font-bold text-[#352018]">
-                          Reporter Identity Protection
-                        </span>
-                      </div>
-                      <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[#4a2e1b]">
-                        <input
-                          type="checkbox"
-                          checked={isAnonymous}
-                          onChange={(e) => setIsAnonymous(e.target.checked)}
-                          className="rounded text-[#4a2e1b] focus:ring-[#4a2e1b] w-4 h-4"
-                        />
-                        <span>Submit Anonymously</span>
-                      </label>
-                    </div>
+                {/* Continue to Step 2 Button */}
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!location.trim()) {
+                        alert('Please provide a location so responders can find the dog.');
+                        return;
+                      }
+                      playClickSound();
+                      setStep(2);
+                    }}
+                    className="w-full bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-base py-3.5 rounded-2xl shadow hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                  >
+                    <span>Continue to Evidence & Details</span>
+                  </button>
+                </div>
 
-                    {!isAnonymous ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                        <input
-                          type="text"
-                          placeholder="Your Name (Optional)"
-                          value={reporterName}
-                          onChange={(e) => setReporterName(e.target.value)}
-                          className="px-3 py-2 rounded-xl border border-[#ebd7c3] bg-white text-xs focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
+              </div>
+            )}
+
+            {step === 2 && (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                
+                {/* Dog description */}
+                <div>
+                  <label className="block font-fredoka text-sm font-bold text-[#352018] mb-1.5">
+                    Dog Appearance & Condition Description *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Estimated breed, color, or size (e.g. Brown Shepherd mix, Medium)"
+                    value={dogBreed}
+                    onChange={(e) => setDogBreed(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#ebd7c3] bg-white text-[#352018] text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
+                  />
+                  <textarea
+                    required
+                    rows={3}
+                    placeholder="Describe the situation (e.g. Dog tied without water, visible injury, perpetrator actions...)"
+                    value={dogCondition}
+                    onChange={(e) => setDogCondition(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#ebd7c3] bg-white text-[#352018] text-sm focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
+                  ></textarea>
+                </div>
+
+                {/* Evidence Upload Simulator */}
+                <div>
+                  <label className="block font-fredoka text-sm font-bold text-[#352018] mb-1.5 flex items-center gap-1.5">
+                    <Camera className="w-4 h-4 text-[#4a2e1b]" />
+                    <span>Attach Photo or Video Evidence</span>
+                  </label>
+                  
+                  <div className="border-2 border-dashed border-[#d5bba4] rounded-2xl p-4 bg-[#faefe4]/60 text-center hover:bg-[#faefe4] transition-colors relative">
+                    {evidencePreview ? (
+                      <div className="relative inline-block">
+                        <img
+                          src={evidencePreview}
+                          alt="Uploaded Evidence"
+                          className="h-36 object-cover rounded-xl shadow border border-[#4a2e1b]"
                         />
-                        <input
-                          type="text"
-                          placeholder="Your Phone or Email (Optional)"
-                          value={reporterPhone}
-                          onChange={(e) => setReporterPhone(e.target.value)}
-                          className="px-3 py-2 rounded-xl border border-[#ebd7c3] bg-white text-xs focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
-                        />
+                        <button
+                          type="button"
+                          onClick={() => setEvidencePreview(null)}
+                          className="absolute -top-2 -right-2 bg-[#d94141] text-white rounded-full p-1 shadow"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
                       </div>
                     ) : (
-                      <p className="text-xs text-[#7e5c46] italic flex items-center gap-1">
-                        <Info className="w-3.5 h-3.5 text-[#b87d55]" />
-                        Your contact information will be completely hidden on the public platform.
-                      </p>
+                      <label className="cursor-pointer block py-4">
+                        <Camera className="w-8 h-8 text-[#8a5b3a] mx-auto mb-1.5" />
+                        <span className="font-fredoka text-sm text-[#4a2e1b] font-semibold block">
+                          Click to attach photo or evidence
+                        </span>
+                        <span className="text-xs text-[#7e5c46]">
+                          Supports JPG, PNG, MP4
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*,video/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                      </label>
                     )}
                   </div>
+                </div>
 
-                  {/* Navigation buttons */}
-                  <div className="flex gap-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setStep(1)}
-                      className="w-1/3 bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka font-semibold text-sm py-3.5 rounded-2xl transition-all"
-                    >
-                      Back
-                    </button>
-
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-2/3 bg-[#d94141] hover:bg-[#b82e2e] text-white font-fredoka font-semibold text-base py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Submitting Report...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-4 h-4" />
-                          <span>Submit Emergency Report</span>
-                        </>
-                      )}
-                    </button>
+                {/* Reporter Information & Anonymous Option */}
+                <div className="p-4 rounded-2xl bg-[#faefe4] border border-[#ebd7c3] space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-[#4a2e1b]" />
+                      <span className="font-fredoka text-sm font-bold text-[#352018]">
+                        Reporter Identity Protection
+                      </span>
+                    </div>
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[#4a2e1b]">
+                      <input
+                        type="checkbox"
+                        checked={isAnonymous}
+                        onChange={(e) => setIsAnonymous(e.target.checked)}
+                        className="rounded text-[#4a2e1b] focus:ring-[#4a2e1b] w-4 h-4"
+                      />
+                      <span>Submit Anonymously</span>
+                    </label>
                   </div>
 
-                </form>
-              )}
-
-              {step === 3 && submittedCase && (
-                <div className="text-center py-6 space-y-6">
-                  
-                  <div className="w-20 h-20 rounded-full bg-[#3aa866]/20 text-[#3aa866] flex items-center justify-center mx-auto">
-                    <CheckCircle className="w-12 h-12 stroke-[2.5]" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <span className="text-xs font-fredoka font-semibold uppercase tracking-wider text-[#3aa866] bg-[#dcfce7] px-3 py-1 rounded-full border border-[#bbf7d0]">
-                      Report Logged Successfully
-                    </span>
-                    <h3 className="font-fredoka text-2xl sm:text-3xl font-bold text-[#26160d]">
-                      Case #{submittedCase.id}
-                    </h3>
-                    <p className="text-sm text-[#7e5c46]">
-                      Your report has been logged and published to the Find & Rescue dispatch board.
+                  {!isAnonymous ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                      <input
+                        type="text"
+                        placeholder="Your Name (Optional)"
+                        value={reporterName}
+                        onChange={(e) => setReporterName(e.target.value)}
+                        className="px-3 py-2 rounded-xl border border-[#ebd7c3] bg-white text-xs focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Your Phone or Email (Optional)"
+                        value={reporterPhone}
+                        onChange={(e) => setReporterPhone(e.target.value)}
+                        className="px-3 py-2 rounded-xl border border-[#ebd7c3] bg-white text-xs focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
+                      />
+                    </div>
+                  ) : (
+                    <p className="text-xs text-[#7e5c46] italic flex items-center gap-1">
+                      <Info className="w-3.5 h-3.5 text-[#b87d55]" />
+                      Your contact information will be completely hidden on the public platform.
                     </p>
-                  </div>
-
-                  <div className="bg-[#faefe4] p-5 rounded-2xl border border-[#ebd7c3] text-left text-xs text-[#5e4537] space-y-2 shadow-sm">
-                    <p><strong>Incident:</strong> {submittedCase.type}</p>
-                    <p><strong>Location:</strong> {submittedCase.location}</p>
-                    <p><strong>Urgency:</strong> {submittedCase.urgency.toUpperCase()}</p>
-                    <p><strong>Status:</strong> Awaiting Responder Dispatch</p>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => onNavigateSection('rescue')}
-                      className="bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-sm px-6 py-3 rounded-full shadow"
-                    >
-                      View on Find & Rescue Board
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleReset}
-                      className="bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka font-semibold text-sm px-6 py-3 rounded-full border border-[#ebd7c3]"
-                    >
-                      Report Another Incident
-                    </button>
-                  </div>
-
+                  )}
                 </div>
-              )}
 
-            </div>
+                {/* Navigation buttons */}
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="w-1/3 bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka font-semibold text-sm py-3.5 rounded-2xl transition-all"
+                  >
+                    Back
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-2/3 bg-[#d94141] hover:bg-[#b82e2e] text-white font-fredoka font-semibold text-base py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Submitting Report...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        <span>Submit Incident Report</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+              </form>
+            )}
+
+            {step === 3 && submittedCase && (
+              <div className="text-center py-6 space-y-6">
+                
+                <div className="w-20 h-20 rounded-full bg-[#3aa866]/20 text-[#3aa866] flex items-center justify-center mx-auto">
+                  <CheckCircle className="w-12 h-12 stroke-[2.5]" />
+                </div>
+
+                <div className="space-y-2">
+                  <span className="text-xs font-fredoka font-semibold uppercase tracking-wider text-[#3aa866] bg-[#dcfce7] px-3 py-1 rounded-full border border-[#bbf7d0]">
+                    Report Logged Successfully
+                  </span>
+                  <h3 className="font-fredoka text-2xl sm:text-3xl font-bold text-[#26160d]">
+                    Case #{submittedCase.id}
+                  </h3>
+                  <p className="text-sm text-[#7e5c46]">
+                    Your report has been logged and published to the Find & Rescue dispatch board.
+                  </p>
+                </div>
+
+                <div className="bg-[#faefe4] p-5 rounded-2xl border border-[#ebd7c3] text-left text-xs text-[#5e4537] space-y-2 shadow-sm max-w-md mx-auto">
+                  <p><strong>Incident:</strong> {submittedCase.type}</p>
+                  <p><strong>Location:</strong> {submittedCase.location}</p>
+                  <p><strong>Urgency:</strong> {submittedCase.urgency.toUpperCase()}</p>
+                  <p><strong>Status:</strong> Awaiting Responder Dispatch</p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => onNavigateSection('rescue')}
+                    className="bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-sm px-6 py-3 rounded-full shadow"
+                  >
+                    View on Find & Rescue Board
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    className="bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka font-semibold text-sm px-6 py-3 rounded-full border border-[#ebd7c3]"
+                  >
+                    Report Another Incident
+                  </button>
+                </div>
+
+              </div>
+            )}
 
           </div>
 
-          {/* Right Side Panel: Direct Channels & Guidance (4 Cols) */}
-          <div className="lg:col-span-4 space-y-6">
-            
-            {/* Direct Contact Channels */}
-            <div className="bg-white rounded-3xl p-6 border-2 border-[#ebd7c3] shadow-sm space-y-4">
-              <h3 className="font-fredoka text-base font-bold text-[#26160d] uppercase tracking-wider text-[#8a5b3a]">
-                Direct Contact Channels
-              </h3>
+        </div>
 
-              {/* WhatsApp Card */}
-              <a
-                href={CONTACT_INFO.whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-[#fbf6f0] p-4 rounded-2xl border-2 border-[#25D366]/40 hover:border-[#25D366] flex items-center justify-between gap-3 shadow-sm transition-all group block"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#25D366]/15 text-[#128C7E] flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-                    <MessageCircle className="w-5 h-5 text-[#128C7E]" />
-                  </div>
-                  <div>
-                    <div className="font-fredoka text-sm font-bold text-[#26160d]">
-                      WhatsApp Emergency Desk
-                    </div>
-                    <div className="text-[11px] text-[#7e5c46]">
-                      Instant chat for live location & photos
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-[#25D366] text-white font-fredoka text-xs font-semibold px-3 py-1.5 rounded-xl shadow flex items-center gap-1 group-hover:bg-[#20ba59] transition-colors flex-shrink-0">
-                  <span>Chat</span>
-                  <ExternalLink className="w-3 h-3" />
-                </div>
-              </a>
-
-              {/* Email Card */}
-              <a
-                href={CONTACT_INFO.emailUrl}
-                className="bg-[#fbf6f0] p-4 rounded-2xl border-2 border-[#b87d55]/40 hover:border-[#4a2e1b] flex items-center justify-between gap-3 shadow-sm transition-all group block"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#faefe4] text-[#4a2e1b] flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-                    <Mail className="w-5 h-5 text-[#4a2e1b]" />
-                  </div>
-                  <div>
-                    <div className="font-fredoka text-sm font-bold text-[#26160d]">
-                      Email Support Desk
-                    </div>
-                    <div className="text-[11px] text-[#7e5c46]">
-                      Send formal reports or files
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-[#4a2e1b] text-white font-fredoka text-xs font-semibold px-3 py-1.5 rounded-xl shadow flex items-center gap-1 group-hover:bg-[#352018] transition-colors flex-shrink-0">
-                  <span>Email</span>
-                  <ExternalLink className="w-3 h-3" />
-                </div>
-              </a>
-            </div>
-
-            {/* Emergency Guidance Protocol */}
-            <div className="bg-[#faefe4] p-5 rounded-3xl border border-[#ebd7c3] space-y-3 text-xs text-[#5e4537]">
-              <h4 className="font-fredoka font-bold text-[#352018] text-sm flex items-center gap-1.5">
-                <AlertTriangle className="w-4 h-4 text-[#b87d55]" />
-                <span>What to Do if You Witness Abuse:</span>
-              </h4>
-              <ol className="list-decimal list-inside space-y-1.5 text-[#6b4c38] pl-1">
-                <li><strong>Prioritize Safety:</strong> Do not put yourself in danger or confront aggressive abusers alone.</li>
-                <li><strong>Note Key Information:</strong> Record the exact address, visual landmarks, and take photo evidence safely.</li>
-                <li><strong>Reach Out:</strong> Send details directly via WhatsApp, Email, or use our online report tool.</li>
-              </ol>
-            </div>
-
-          </div>
-
+        {/* Safety Protocol Note (Clean guidance without contact spam) */}
+        <div className="bg-[#faefe4] p-5 rounded-3xl border border-[#ebd7c3] space-y-2 text-xs text-[#5e4537]">
+          <h4 className="font-fredoka font-bold text-[#352018] text-sm flex items-center gap-1.5">
+            <AlertTriangle className="w-4 h-4 text-[#b87d55]" />
+            <span>Safety Guidelines When Reporting Cruelty:</span>
+          </h4>
+          <ol className="list-decimal list-inside space-y-1.5 text-[#6b4c38] pl-1">
+            <li><strong>Prioritize Safety:</strong> Do not put yourself in danger or confront aggressive perpetrators alone.</li>
+            <li><strong>Document Safely:</strong> Record the exact address, visual landmarks, and take photo or video evidence safely.</li>
+            <li><strong>Report Accurately:</strong> Fill out the incident form above with clear location and condition details to mobilize responders.</li>
+          </ol>
         </div>
 
       </div>
