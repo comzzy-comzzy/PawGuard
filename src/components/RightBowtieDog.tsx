@@ -1,93 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { playPuppyBark, playHeartPop } from '../utils/audio';
 
-interface RightDogProps {
-  onPet?: () => void;
-}
-
-export const RightBowtieDog: React.FC<RightDogProps> = ({ onPet }) => {
+export const RightBowtieDog: React.FC = () => {
   const [isWinking, setIsWinking] = useState(false);
-  const [isBouncing, setIsBouncing] = useState(false);
-  const [showSpeech, setShowSpeech] = useState(false);
-  const [speechText, setSpeechText] = useState('Protect us, we love you! 💙');
-  const [hearts, setHearts] = useState<Array<{ id: number; x: number; y: number }>>([]);
 
-  // Auto-winking & looking around
+  // Natural winking loop
   useEffect(() => {
     const winkInterval = setInterval(() => {
       setIsWinking(true);
       setTimeout(() => setIsWinking(false), 240);
-    }, 4200 + Math.random() * 2500);
+    }, 4500 + Math.random() * 2500);
     return () => clearInterval(winkInterval);
   }, []);
 
-  // Periodic cute thoughts
-  useEffect(() => {
-    const speechPhrases = [
-      'Protect us, we love you! 💙',
-      'Look at my shiny bowtie! ✨',
-      'Adopt, don’t shop! 🏡',
-      'Report any puppy in danger! 🚨',
-      'Be our voice today! 🐾'
-    ];
-
-    const speechTimer = setInterval(() => {
-      const randomPhrase = speechPhrases[Math.floor(Math.random() * speechPhrases.length)];
-      setSpeechText(randomPhrase);
-      setShowSpeech(true);
-      setTimeout(() => setShowSpeech(false), 4500);
-    }, 16000);
-
-    return () => clearInterval(speechTimer);
-  }, []);
-
-  const handleClick = (e: React.MouseEvent) => {
-    playPuppyBark();
-    playHeartPop();
-    setIsBouncing(true);
-    if (onPet) onPet();
-
-    // Spawn floating heart
-    const newHeart = { id: Date.now(), x: e.nativeEvent.offsetX || 90, y: (e.nativeEvent.offsetY || 90) - 20 };
-    setHearts(prev => [...prev.slice(-5), newHeart]);
-
-    setSpeechText('Yip! Thank you for protecting us! 🐶💖');
-    setShowSpeech(true);
-
-    setTimeout(() => setIsBouncing(false), 1600);
-    setTimeout(() => setShowSpeech(false), 4000);
-  };
-
   return (
     <div 
-      className="absolute -right-8 sm:-right-12 md:-right-16 lg:-right-20 -bottom-10 sm:-bottom-12 md:-bottom-16 lg:-bottom-20 z-20 cursor-pointer select-none group"
-      onClick={handleClick}
-      title="Click to pet Oliver & hear him bark!"
+      className="absolute -right-8 sm:-right-12 md:-right-16 lg:-right-20 -bottom-10 sm:-bottom-12 md:-bottom-16 lg:-bottom-20 z-20 select-none pointer-events-none"
       style={{ width: 'clamp(150px, 24vw, 260px)' }}
     >
-      {/* Speech bubble */}
-      {showSpeech && (
-        <div className="absolute -top-14 right-1/2 translate-x-1/2 bg-[#352018] text-white text-xs font-fredoka py-1.5 px-3 rounded-2xl shadow-xl whitespace-nowrap animate-bounce z-30 pointer-events-none border border-[#3d97ca]/40 flex items-center gap-1.5">
-          <span>{speechText}</span>
-          <div className="absolute -bottom-1.5 right-1/2 translate-x-1/2 w-3 h-3 bg-[#352018] rotate-45 border-r border-b border-[#3d97ca]/40"></div>
-        </div>
-      )}
-
-      {/* Floating hearts */}
-      {hearts.map(h => (
-        <div
-          key={h.id}
-          className="absolute text-xl animate-float-heart pointer-events-none z-30"
-          style={{ left: `${h.x}px`, top: `${h.y}px` }}
-        >
-          💙
-        </div>
-      ))}
-
       {/* Main Vector Dog Illustration matching PNG exactly */}
-      <div className={`transition-transform duration-500 ease-out transform ${
-        isBouncing ? 'scale-110 -rotate-3' : 'group-hover:scale-105 group-hover:rotate-2'
-      }`}>
+      <div className="transform transition-transform duration-500">
         <svg 
           viewBox="0 0 300 320" 
           className="w-full h-auto drop-shadow-md overflow-visible animate-dog-right"
@@ -181,7 +112,6 @@ export const RightBowtieDog: React.FC<RightDogProps> = ({ onPet }) => {
               strokeLinecap="round"
               fill="none"
             />
-            {/* Tiny pink tongue */}
             <path
               d="M159 178 C159 184, 165 184, 165 178 Z"
               fill="#F78C8C"
@@ -189,7 +119,7 @@ export const RightBowtieDog: React.FC<RightDogProps> = ({ onPet }) => {
               strokeWidth="1.5"
             />
 
-            {/* Cute Sky-Blue Bowtie matching PNG */}
+            {/* Sky-Blue Bowtie */}
             <g className="bowtie animate-bowtie-sway">
               {/* Left Loop */}
               <path
@@ -199,7 +129,6 @@ export const RightBowtieDog: React.FC<RightDogProps> = ({ onPet }) => {
                 strokeWidth="4"
                 strokeLinejoin="round"
               />
-              {/* Left Bow highlight / crease */}
               <path d="M136 210 Q148 215 155 217" stroke="#68B4DF" strokeWidth="3" strokeLinecap="round" />
 
               {/* Right Loop */}
@@ -210,7 +139,6 @@ export const RightBowtieDog: React.FC<RightDogProps> = ({ onPet }) => {
                 strokeWidth="4"
                 strokeLinejoin="round"
               />
-              {/* Right Bow highlight */}
               <path d="M188 210 Q176 215 169 217" stroke="#68B4DF" strokeWidth="3" strokeLinecap="round" />
 
               {/* Center Knot */}
@@ -262,13 +190,6 @@ export const RightBowtieDog: React.FC<RightDogProps> = ({ onPet }) => {
             </g>
           </g>
         </svg>
-      </div>
-
-      {/* Interactive Badge */}
-      <div className="text-center mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <span className="inline-block bg-[#352018]/85 text-[#fbf6f0] text-[10px] px-2 py-0.5 rounded-full font-fredoka shadow">
-          Oliver 🎀 (Click to Pet)
-        </span>
       </div>
     </div>
   );

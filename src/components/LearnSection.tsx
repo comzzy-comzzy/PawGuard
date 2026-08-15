@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { EDUCATIONAL_ARTICLES } from '../data/mockData';
-import { BookOpen, ShieldCheck, HeartPulse, Eye, HelpCircle, CheckCircle2, XCircle, Award } from 'lucide-react';
+import { BookOpen, HelpCircle, CheckCircle2, XCircle, Award } from 'lucide-react';
 import { playClickSound, playHeartPop } from '../utils/audio';
-import confetti from 'canvas-confetti';
 
 export const LearnSection: React.FC = () => {
   const [selectedArticleId, setSelectedArticleId] = useState(EDUCATIONAL_ARTICLES[0].id);
@@ -19,32 +18,32 @@ export const LearnSection: React.FC = () => {
         "The dog is feeling playful and wants to wrestle",
         "The dog is feeling highly stressed, fearful, or defensive",
         "The dog is sleepy and bored",
-        "The dog is asserting alpha dominance"
+        "The dog is asserting dominance"
       ],
       correct: 1,
-      explanation: "'Whale eye' is a classic canine fear signal indicating the dog feels trapped, anxious, or threatened."
+      explanation: "'Whale eye' is a canine stress signal indicating the animal feels threatened, fearful, or defensive."
     },
     {
       question: "What is the safest emergency first-aid treatment for a dog suffering from severe heatstroke?",
       options: [
         "Submerge the entire dog in an ice water bath",
-        "Force 2 liters of ice cold water down the dog's throat",
+        "Force large volumes of ice cold water down the throat",
         "Move to shade, offer small water sips, and apply cool (not ice) water to paw pads and neck",
-        "Cover the dog in thick blankets to sweat out the heat"
+        "Cover the dog in thick blankets"
       ],
       correct: 2,
-      explanation: "Ice cold water causes peripheral vasoconstriction, trapping internal body heat and causing dangerous shock. Use cool water on extremities."
+      explanation: "Ice cold water causes peripheral vasoconstriction, trapping core internal heat. Use cool water on extremities."
     },
     {
-      question: "Under most modern animal cruelty laws, which of the following is considered illegal neglect?",
+      question: "Under animal cruelty laws, which of the following is considered illegal neglect?",
       options: [
-        "Feeding kibble instead of expensive raw meat",
+        "Feeding dry kibble instead of canned food",
         "Continuous 24/7 tethering on a short chain without potable water or weather shelter",
-        "Not dressing a dog in a winter sweater",
-        "Not taking a dog to a professional grooming salon every month"
+        "Not dressing a dog in winter clothing",
+        "Skipping a grooming session"
       ],
       correct: 1,
-      explanation: "Denial of clean potable water, failure to provide protection from extreme elements, and continuous chaining are legally enforceable misdemeanor or felony cruelty acts."
+      explanation: "Denial of potable water, failure to provide protection from extreme weather, and continuous restrictive chaining are legally actionable cruelty acts."
     }
   ];
 
@@ -63,15 +62,6 @@ export const LearnSection: React.FC = () => {
     setQuizScore(score);
     setQuizSubmitted(true);
     playHeartPop();
-
-    if (score === quizQuestions.length) {
-      confetti({
-        particleCount: 50,
-        spread: 70,
-        origin: { y: 0.7 },
-        colors: ['#3aa866', '#b87d55', '#3d97ca']
-      });
-    }
   };
 
   return (
@@ -82,7 +72,7 @@ export const LearnSection: React.FC = () => {
         <div className="text-center space-y-3 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-1.5 bg-[#fbe9dd] text-[#8a5b3a] border border-[#e5cfbd] text-xs font-fredoka font-bold px-3.5 py-1 rounded-full uppercase tracking-wider">
             <BookOpen className="w-3.5 h-3.5" />
-            <span>Humane Dog Education & Advocacy</span>
+            <span>Humane Education & Advocacy</span>
           </div>
 
           <h2 className="font-fredoka text-3xl sm:text-4xl md:text-5xl font-bold text-[#26160d]">
@@ -90,7 +80,7 @@ export const LearnSection: React.FC = () => {
           </h2>
 
           <p className="font-sans text-sm sm:text-base text-[#6b4c38]">
-            Knowledge saves lives. Learn how to decode dog body language, spot silent symptoms of neglect, legally document cruelty, and provide emergency first-aid.
+            Understand canine body language, spot silent symptoms of neglect, legally document cruelty, and administer emergency first-aid.
           </p>
         </div>
 
@@ -159,7 +149,7 @@ export const LearnSection: React.FC = () => {
                 onClick={() => {
                   playClickSound();
                   navigator.clipboard?.writeText(window.location.href);
-                  alert('Guide link copied! Share with friends to prevent cruelty.');
+                  alert('Guide link copied to clipboard.');
                 }}
                 className="text-xs font-fredoka font-semibold bg-[#4a2e1b] text-white px-4 py-2 rounded-full shadow"
               >
@@ -170,18 +160,18 @@ export const LearnSection: React.FC = () => {
 
         </div>
 
-        {/* Interactive "Dog-Smart Hero" Quiz */}
+        {/* Knowledge Check Quiz */}
         <div className="bg-white rounded-3xl border-2 border-[#4a2e1b] shadow-xl p-6 sm:p-10 space-y-8">
           <div className="text-center space-y-2 max-w-xl mx-auto">
             <div className="inline-flex items-center gap-1.5 bg-[#fbe9dd] text-[#8a5b3a] text-xs font-fredoka font-bold px-3 py-1 rounded-full uppercase">
               <HelpCircle className="w-4 h-4" />
-              <span>Cruelty Prevention Knowledge Check</span>
+              <span>Canine Welfare Assessment</span>
             </div>
             <h3 className="font-fredoka text-2xl sm:text-3xl font-bold text-[#26160d]">
-              Test Your Canine Welfare Knowledge
+              Test Your Knowledge on Canine Welfare
             </h3>
             <p className="text-xs sm:text-sm text-[#6e513e]">
-              See if you can spot the critical signs of dog suffering and choose the correct life-saving responses!
+              Review critical indicators of distress and appropriate emergency actions.
             </p>
           </div>
 
@@ -221,7 +211,7 @@ export const LearnSection: React.FC = () => {
 
                 {quizSubmitted && (
                   <p className="text-xs text-[#6e513e] bg-white p-3 rounded-xl border border-[#ebd7c3] italic">
-                    💡 <strong>Explanation:</strong> {q.explanation}
+                    <strong>Explanation:</strong> {q.explanation}
                   </p>
                 )}
               </div>
@@ -233,12 +223,12 @@ export const LearnSection: React.FC = () => {
                   <Award className="w-8 h-8" />
                 </div>
                 <h4 className="font-fredoka text-xl font-bold text-[#26160d]">
-                  Your Score: {quizScore} / {quizQuestions.length}
+                  Score: {quizScore} / {quizQuestions.length}
                 </h4>
                 <p className="text-xs text-[#5e4537]">
                   {quizScore === 3
-                    ? '🌟 Perfect score! You are a certified PawGuard Humane Guardian.'
-                    : 'Great effort! Review the explanations above to sharpen your animal rescue skills.'}
+                    ? 'Excellent score! You have strong knowledge of animal welfare and distress recognition.'
+                    : 'Review the explanations above to sharpen your animal welfare skills.'}
                 </p>
                 <button
                   onClick={() => {

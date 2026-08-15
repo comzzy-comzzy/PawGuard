@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, ShieldCheck, PhoneCall, Mail, MapPin, ExternalLink } from 'lucide-react';
+import { ShieldCheck, PhoneCall, Heart } from 'lucide-react';
 import { playClickSound } from '../utils/audio';
 
 interface FooterProps {
@@ -43,12 +43,11 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
 
             <p className="text-sm text-[#e5cfbd] leading-relaxed max-w-sm">
-              Protect Dogs, They Have Feelings Too. A compassionate community platform dedicated to preventing dog abuse, bullying, severe neglect, and unnecessary killing worldwide.
+              Protect Dogs, They Have Feelings Too. A compassionate community platform dedicated to preventing dog abuse, bullying, severe neglect, and unnecessary killing.
             </p>
 
             <div className="pt-2 flex items-center gap-2 text-xs text-[#d7b89c]">
-              <span>Made with love & care for all canines.</span>
-              <Heart className="w-4 h-4 text-[#d94141] fill-[#d94141]" />
+              <span>Dedicated to animal protection and welfare.</span>
             </div>
           </div>
 
@@ -86,7 +85,7 @@ export const Footer: React.FC<FooterProps> = ({
             </ul>
           </div>
 
-          {/* Learn & Community */}
+          {/* Resources */}
           <div className="space-y-3">
             <h4 className="font-fredoka text-base font-bold text-white uppercase tracking-wider text-[#f5d7b7]">
               Resources
@@ -121,13 +120,13 @@ export const Footer: React.FC<FooterProps> = ({
               Emergency Help
             </h4>
             <div className="space-y-2.5 text-xs text-[#e5cfbd]">
-              <p>Witnessing cruelty right now?</p>
+              <p>Witnessing animal cruelty?</p>
               <button
                 onClick={onOpenEmergency}
                 className="w-full bg-[#d94141] hover:bg-[#b82e2e] text-white font-fredoka font-semibold py-2.5 px-4 rounded-xl shadow text-center flex items-center justify-center gap-1.5 transition-colors"
               >
                 <PhoneCall className="w-4 h-4" />
-                <span>24/7 Hotline Desk</span>
+                <span>Emergency Hotline</span>
               </button>
               <button
                 onClick={onOpenReport}

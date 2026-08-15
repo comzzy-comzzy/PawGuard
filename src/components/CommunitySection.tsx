@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { VOLUNTEERS } from '../data/mockData';
 import { Users, UserPlus, Heart, MessageSquare, Send, Award, CheckCircle, Shield } from 'lucide-react';
 import { playClickSound, playHeartPop } from '../utils/audio';
-import confetti from 'canvas-confetti';
 
 interface CommunityPost {
   id: string;
@@ -22,7 +21,7 @@ export const CommunitySection: React.FC = () => {
       author: 'Marcus Vance',
       avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80',
       time: '25m ago',
-      content: 'Just arrived at District 4 to check on Teddy the chained puppy. Animal control officer accompanied us. Teddy is unchained, wrapped in a fleece blanket and having his first warm meal in months! 🐶❤️',
+      content: 'Just arrived at District 4 to check on the chained puppy. Humane officer accompanied us. The dog has been unchained, wrapped in a fleece blanket and given veterinary food.',
       likes: 42,
       badge: 'Rescue Responder'
     },
@@ -31,7 +30,7 @@ export const CommunitySection: React.FC = () => {
       author: 'Elena Rostova',
       avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80',
       time: '2h ago',
-      content: 'Mama hound and all 5 puppies are stable at St. Francis Clinic! Blood tests look great. Huge thank you to everyone who reported the coordinates so quickly.',
+      content: 'Mama hound and all 5 puppies are stable at St. Francis Clinic. Blood tests look positive. Thank you to everyone who reported the coordinates.',
       likes: 68,
       badge: 'Shelter Lead'
     },
@@ -40,7 +39,7 @@ export const CommunitySection: React.FC = () => {
       author: 'David Chen',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
       time: '5h ago',
-      content: 'Reminder for everyone in the North Valley area: temperatures are dropping below freezing tonight. If you see any dog left outside without insulated shelter, please submit an immediate PawGuard report.',
+      content: 'Reminder for the North Valley area: temperatures are dropping below freezing tonight. If you witness any animal left outdoors without adequate shelter, please submit a report immediately.',
       likes: 89,
       badge: 'Community Scout'
     }
@@ -77,7 +76,7 @@ export const CommunitySection: React.FC = () => {
 
     const newPost: CommunityPost = {
       id: `p-${Date.now()}`,
-      author: 'You (PawGuard Advocate)',
+      author: 'You (Community Advocate)',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80',
       time: 'Just now',
       content: newPostText,
@@ -93,13 +92,6 @@ export const CommunitySection: React.FC = () => {
     e.preventDefault();
     playHeartPop();
     setGuildJoined(true);
-
-    confetti({
-      particleCount: 50,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#b87d55', '#3aa866', '#4a2e1b']
-    });
   };
 
   return (
@@ -134,7 +126,7 @@ export const CommunitySection: React.FC = () => {
           </button>
         </div>
 
-        {/* Community Layout: Left Feed + Right Volunteer Leaderboard */}
+        {/* Community Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
           {/* Feed (7 cols) */}
@@ -144,11 +136,11 @@ export const CommunitySection: React.FC = () => {
             <form onSubmit={handlePostSubmit} className="bg-white rounded-3xl p-5 border border-[#ebd7c3] shadow-sm space-y-3">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-[#faefe4] text-[#4a2e1b] font-bold font-fredoka flex items-center justify-center border border-[#ebd7c3]">
-                  🐾
+                  <Users className="w-5 h-5 text-[#4a2e1b]" />
                 </div>
                 <input
                   type="text"
-                  placeholder="Share a rescue update, patrol tip, or dog welfare thought..."
+                  placeholder="Share a rescue update, welfare notice, or community tip..."
                   value={newPostText}
                   onChange={(e) => setNewPostText(e.target.value)}
                   className="flex-1 px-4 py-2.5 rounded-xl border border-[#ebd7c3] bg-[#faf4ed] text-xs sm:text-sm text-[#352018] focus:ring-2 focus:ring-[#4a2e1b] focus:outline-none"
@@ -209,7 +201,7 @@ export const CommunitySection: React.FC = () => {
                       }`}
                     >
                       <Heart className={`w-3.5 h-3.5 ${post.hasLiked ? 'fill-[#991b1b]' : ''}`} />
-                      <span>{post.likes} Paws of Support</span>
+                      <span>{post.likes} Endorsements</span>
                     </button>
 
                     <button
@@ -226,7 +218,7 @@ export const CommunitySection: React.FC = () => {
 
           </div>
 
-          {/* Volunteer Leaderboard & Impact (5 cols) */}
+          {/* Volunteer Leaderboard (5 cols) */}
           <div className="lg:col-span-5 space-y-6">
             
             {/* Top Volunteers */}
@@ -278,20 +270,20 @@ export const CommunitySection: React.FC = () => {
             <div className="bg-[#faefe4] rounded-3xl p-6 border border-[#ebd7c3] space-y-3">
               <h4 className="font-fredoka text-base font-bold text-[#352018] flex items-center gap-2">
                 <Shield className="w-4 h-4 text-[#4a2e1b]" />
-                <span>Ways You Can Help Today</span>
+                <span>Ways You Can Help</span>
               </h4>
               <ul className="text-xs text-[#5e4537] space-y-2">
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#4a2e1b]"></span>
-                  <span><strong>Emergency Transport:</strong> Drive rescued dogs from danger zones to vet clinics.</span>
+                  <span><strong>Emergency Transport:</strong> Drive rescued animals from incident sites to clinics.</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#4a2e1b]"></span>
-                  <span><strong>Foster Sanctuary:</strong> Host traumatized dogs for 2–4 weeks during recovery.</span>
+                  <span><strong>Foster Sanctuary:</strong> Provide temporary shelter during medical recovery.</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#4a2e1b]"></span>
-                  <span><strong>Field Spotter:</strong> Verify anonymous abuse reports and gather safe evidence.</span>
+                  <span><strong>Field Spotter:</strong> Verify reported abuse locations and document conditions safely.</span>
                 </li>
               </ul>
             </div>
@@ -311,10 +303,10 @@ export const CommunitySection: React.FC = () => {
                     <CheckCircle className="w-10 h-10" />
                   </div>
                   <h3 className="font-fredoka text-2xl font-bold text-[#26160d]">
-                    Welcome to the PawGuard Guild!
+                    Welcome to the PawGuard Guild
                   </h3>
                   <p className="text-xs text-[#5e4537] max-w-sm mx-auto">
-                    You have been enrolled as a volunteer responder for <strong>{vLocation || 'your district'}</strong>. Dispatch alerts will ping your contact phone.
+                    You have been enrolled as a volunteer responder for <strong>{vLocation || 'your district'}</strong>. Dispatch alerts will be sent to your phone.
                   </p>
                   <button
                     onClick={() => setShowGuildModal(false)}
@@ -329,7 +321,7 @@ export const CommunitySection: React.FC = () => {
                     <h3 className="font-fredoka text-xl font-bold text-[#26160d]">
                       Volunteer Sign-Up Form
                     </h3>
-                    <p className="text-[#8a6853]">Be the hands and heart that rescue dogs in peril.</p>
+                    <p className="text-[#8a6853]">Support animals in need across your neighborhood.</p>
                   </div>
 
                   <div>

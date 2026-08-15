@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { LostFoundDog } from '../types';
-import { Search, MapPin, Phone, Printer, PlusCircle, AlertTriangle, CheckCircle, Tag, X } from 'lucide-react';
-import { playClickSound, playAlertSound, playHeartPop } from '../utils/audio';
-import confetti from 'canvas-confetti';
+import { Search, MapPin, Phone, Printer, PlusCircle, X } from 'lucide-react';
+import { playClickSound, playAlertSound } from '../utils/audio';
 
 interface LostAndFoundSectionProps {
   items: LostFoundDog[];
@@ -53,13 +52,6 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
     onAddItem(newItem);
     setShowReportModal(false);
 
-    confetti({
-      particleCount: 40,
-      spread: 60,
-      origin: { y: 0.6 },
-      colors: ['#b87d55', '#4a2e1b', '#3aa866']
-    });
-
     // Reset form
     setDogName('');
     setBreed('');
@@ -74,11 +66,11 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
   const getStatusBadge = (s: LostFoundDog['status']) => {
     switch (s) {
       case 'lost':
-        return <span className="bg-[#fee2e2] text-[#991b1b] border border-[#fca5a5] text-[10px] font-fredoka font-bold px-2.5 py-0.5 rounded-full">🔍 MISSING PET</span>;
+        return <span className="bg-[#fee2e2] text-[#991b1b] border border-[#fca5a5] text-[10px] font-fredoka font-bold px-2.5 py-0.5 rounded-full">Missing Pet</span>;
       case 'found':
-        return <span className="bg-[#dcfce7] text-[#166534] border border-[#86efac] text-[10px] font-fredoka font-bold px-2.5 py-0.5 rounded-full">🐕 FOUND / SAFE</span>;
+        return <span className="bg-[#dcfce7] text-[#166534] border border-[#86efac] text-[10px] font-fredoka font-bold px-2.5 py-0.5 rounded-full">Found / Sheltered</span>;
       case 'injured_stray':
-        return <span className="bg-[#ffedd5] text-[#9a3412] border border-[#fdba74] text-[10px] font-fredoka font-bold px-2.5 py-0.5 rounded-full">🩹 INJURED STRAY</span>;
+        return <span className="bg-[#ffedd5] text-[#9a3412] border border-[#fdba74] text-[10px] font-fredoka font-bold px-2.5 py-0.5 rounded-full">Injured Stray</span>;
     }
   };
 
@@ -91,13 +83,13 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-fredoka font-bold text-[#b87d55] uppercase tracking-wider">
               <Search className="w-4 h-4 text-[#4a2e1b]" />
-              <span>Emergency Reunification Network</span>
+              <span>Reunification & Rescue Desk</span>
             </div>
             <h2 className="font-fredoka text-3xl sm:text-4xl font-bold text-[#26160d]">
               Lost, Found & Injured Dogs
             </h2>
             <p className="font-sans text-sm sm:text-base text-[#6b4c38] max-w-2xl">
-              Rapid community noticeboard to reunite separated families, protect vulnerable lost pets from harm, and provide emergency aid to injured street dogs.
+              Community noticeboard to reunite lost pets, locate stray animals in need of medical intervention, and coordinate local searches.
             </p>
           </div>
 
@@ -110,7 +102,7 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
               className="flex items-center gap-2 bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-sm px-6 py-3 rounded-full shadow hover:shadow-md transition-all"
             >
               <PlusCircle className="w-4 h-4" />
-              <span>Post Missing / Found Dog</span>
+              <span>Post Missing or Found Dog</span>
             </button>
           </div>
         </div>
@@ -119,9 +111,9 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
         <div className="flex items-center justify-center sm:justify-start gap-2 overflow-x-auto pb-1">
           {[
             { id: 'all', label: 'All Notices' },
-            { id: 'lost', label: '🔍 Missing / Lost' },
-            { id: 'found', label: '🏡 Found & Sheltered' },
-            { id: 'injured_stray', label: '🩹 Injured Strays' },
+            { id: 'lost', label: 'Missing / Lost' },
+            { id: 'found', label: 'Found & Sheltered' },
+            { id: 'injured_stray', label: 'Injured Strays' },
           ].map((f) => (
             <button
               key={f.id}
@@ -159,7 +151,7 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
 
                 {item.reward && (
                   <div className="absolute top-3 right-3 bg-[#f59e0b] text-[#78350f] font-fredoka font-bold text-xs px-2.5 py-0.5 rounded-full shadow border border-white">
-                    💰 {item.reward}
+                    {item.reward}
                   </div>
                 )}
               </div>
@@ -227,7 +219,7 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
               {/* Poster Content */}
               <div className="text-center space-y-3">
                 <div className="bg-[#d94141] text-white font-fredoka text-3xl font-extrabold py-2 px-4 rounded-xl uppercase tracking-wider inline-block">
-                  MISSING DOG!
+                  MISSING DOG
                 </div>
                 <h3 className="font-fredoka text-2xl font-bold text-[#26160d]">
                   PLEASE HELP FIND {posterDog.dogName?.toUpperCase()}
@@ -239,7 +231,7 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
 
                 {posterDog.reward && (
                   <div className="text-lg font-fredoka font-bold text-[#d94141] bg-[#fee2e2] py-1 px-4 rounded-full inline-block">
-                    💰 {posterDog.reward} REWARD FOR SAFE RETURN
+                    {posterDog.reward} FOR SAFE RETURN
                   </div>
                 )}
 
@@ -250,7 +242,7 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
                 </div>
 
                 <div className="bg-[#352018] text-white p-3 rounded-xl">
-                  <div className="text-xs uppercase font-fredoka text-[#f5d7b7]">If Seen, Please Immediately Call:</div>
+                  <div className="text-xs uppercase font-fredoka text-[#f5d7b7]">If Seen, Please Contact:</div>
                   <div className="text-lg font-mono font-bold">{posterDog.contactPhone}</div>
                   <div className="text-[11px] text-white/80">{posterDog.contactName}</div>
                 </div>
@@ -262,7 +254,7 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
                   className="flex-1 bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold py-3 rounded-full shadow flex items-center justify-center gap-2 text-sm"
                 >
                   <Printer className="w-4 h-4" />
-                  <span>Print Flyer (PDF / Paper)</span>
+                  <span>Print Flyer (PDF)</span>
                 </button>
                 <button
                   onClick={() => setPosterDog(null)}
@@ -297,9 +289,9 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
                     onChange={(e) => setStatus(e.target.value as LostFoundDog['status'])}
                     className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white font-medium"
                   >
-                    <option value="lost">🔍 I Lost My Dog (Missing Pet)</option>
-                    <option value="found">🏡 I Found a Stray Dog (Safe with me)</option>
-                    <option value="injured_stray">🩹 Injured Stray Needs Emergency Care</option>
+                    <option value="lost">Missing Pet (I lost my dog)</option>
+                    <option value="found">Found Dog (Safe with me)</option>
+                    <option value="injured_stray">Injured Stray (Needs medical attention)</option>
                   </select>
                 </div>
 
@@ -366,7 +358,7 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
                   <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Details & Identifying Features</label>
                   <textarea
                     rows={2}
-                    placeholder="Collar color, unique spots, microchip ID, behavior when approached..."
+                    placeholder="Collar color, unique markings, microchip ID, temperament..."
                     value={details}
                     onChange={(e) => setDetails(e.target.value)}
                     className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"

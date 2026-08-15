@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { X, ShieldAlert, MapPin, Camera, AlertTriangle, CheckCircle, Navigation, Lock, Send, Info } from 'lucide-react';
+import { X, ShieldAlert, MapPin, Camera, AlertTriangle, CheckCircle, Navigation, Lock, Send, Info, Link as ChainIcon, AlertCircle, Package, HeartPulse, Flame } from 'lucide-react';
 import { playAlertSound, playClickSound } from '../utils/audio';
-import confetti from 'canvas-confetti';
 import { RescueCase } from '../types';
 
 interface AbuseReportModalProps {
@@ -32,13 +31,13 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
 
   if (!isOpen) return null;
 
-  const abuseTypes: Array<{ type: RescueCase['type']; label: string; desc: string; icon: string }> = [
-    { type: 'Abuse/Violence', label: 'Physical Abuse / Violence', desc: 'Direct beating, kicking, torture, or intentional physical violence', icon: '🚨' },
-    { type: 'Severe Chaining', label: 'Continuous Chaining / Tethering', desc: 'Chained 24/7 on short tether without room to move or adequate shelter', icon: '⛓️' },
-    { type: 'Neglect/Starvation', label: 'Starvation & Severe Neglect', desc: 'Visible ribs/spine, denial of clean water, severe untreated mange or sickness', icon: '💔' },
-    { type: 'Abandoned', label: 'Abandonment / Desertion', desc: 'Left in empty house, dumped in box, or abandoned in woods/alleyway', icon: '📦' },
-    { type: 'Injured/Road Trauma', label: 'Injured / Hit & Run Stray', desc: 'Dog struck by vehicle, fractures, severe lacerations needing emergency vet care', icon: '🩹' },
-    { type: 'Dog Fighting', label: 'Dog Fighting / Baiting / Culling', desc: 'Suspected dog fighting ring, illegal cullers, or abusive baiting operations', icon: '⚔️' },
+  const abuseTypes: Array<{ type: RescueCase['type']; label: string; desc: string; icon: React.ComponentType<{ className?: string }> }> = [
+    { type: 'Abuse/Violence', label: 'Physical Abuse / Violence', desc: 'Direct beating, kicking, torture, or intentional physical violence', icon: ShieldAlert },
+    { type: 'Severe Chaining', label: 'Continuous Chaining / Tethering', desc: 'Chained 24/7 on short tether without room to move or shelter', icon: ChainIcon },
+    { type: 'Neglect/Starvation', label: 'Starvation & Severe Neglect', desc: 'Visible emaciation, denial of clean water, untreated wounds or sickness', icon: AlertCircle },
+    { type: 'Abandoned', label: 'Abandonment / Desertion', desc: 'Left in empty house, dumped in box, or abandoned in woods/alleyway', icon: Package },
+    { type: 'Injured/Road Trauma', label: 'Injured / Hit & Run Stray', desc: 'Dog struck by vehicle, fractures, severe lacerations needing emergency vet care', icon: HeartPulse },
+    { type: 'Dog Fighting', label: 'Dog Fighting / Baiting / Culling', desc: 'Suspected dog fighting ring, illegal cullers, or abusive baiting operations', icon: Flame },
   ];
 
   const handleUseGPS = () => {
@@ -48,7 +47,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setGpsLoading(false);
-          setLocation(`GPS: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)} (Near Current Location)`);
+          setLocation(`GPS: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)} (Current Location)`);
         },
         () => {
           setGpsLoading(false);
@@ -101,19 +100,12 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
         photoUrl: evidencePreview || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop&q=80',
         reporter: isAnonymous ? 'Anonymous Good Samaritan' : (reporterName || 'Concerned Citizen'),
         updates: [
-          { time: 'Just now', text: 'Report submitted with evidence. Automated emergency dispatch broadcasted to 12 nearby volunteers.', author: 'Dispatch System' }
+          { time: 'Just now', text: 'Report submitted with evidence. Automated emergency dispatch broadcasted to nearby volunteer units.', author: 'Dispatch System' }
         ]
       };
 
       onAddCase(newCase);
-
-      confetti({
-        particleCount: 60,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#b87d55', '#4a2e1b', '#3d97ca', '#3aa866']
-      });
-    }, 1500);
+    }, 1200);
   };
 
   const handleReset = () => {
@@ -135,14 +127,14 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
         <div className="bg-[#4a2e1b] text-white px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#d94141] flex items-center justify-center text-white shadow">
-              <ShieldAlert className="w-6 h-6 animate-pulse" />
+              <ShieldAlert className="w-6 h-6" />
             </div>
             <div>
               <h2 className="font-fredoka text-xl sm:text-2xl font-bold tracking-tight">
                 Report Dog Abuse or Danger
               </h2>
               <p className="text-xs text-[#f5d7b7]">
-                Official PawGuard Emergency Cruelty & Rescue Dispatch
+                Official PawGuard Cruelty & Rescue Dispatch
               </p>
             </div>
           </div>
@@ -217,27 +209,32 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                   Select Incident Category
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {abuseTypes.map((item) => (
-                    <button
-                      key={item.type}
-                      type="button"
-                      onClick={() => {
-                        playClickSound();
-                        setAbuseType(item.type);
-                      }}
-                      className={`p-3 rounded-2xl border-2 text-left flex items-start gap-3 transition-all ${
-                        abuseType === item.type
-                          ? 'border-[#4a2e1b] bg-[#faefe4] shadow-sm font-semibold'
-                          : 'border-[#ebd7c3] bg-white hover:bg-[#faf4ed]'
-                      }`}
-                    >
-                      <span className="text-2xl">{item.icon}</span>
-                      <div>
-                        <div className="font-fredoka text-xs sm:text-sm text-[#352018]">{item.label}</div>
-                        <div className="text-[11px] text-[#6b4c38] leading-tight mt-0.5">{item.desc}</div>
-                      </div>
-                    </button>
-                  ))}
+                  {abuseTypes.map((item) => {
+                    const IconComp = item.icon;
+                    return (
+                      <button
+                        key={item.type}
+                        type="button"
+                        onClick={() => {
+                          playClickSound();
+                          setAbuseType(item.type);
+                        }}
+                        className={`p-3.5 rounded-2xl border-2 text-left flex items-start gap-3 transition-all ${
+                          abuseType === item.type
+                            ? 'border-[#4a2e1b] bg-[#faefe4] shadow-sm font-semibold'
+                            : 'border-[#ebd7c3] bg-white hover:bg-[#faf4ed]'
+                        }`}
+                      >
+                        <div className="w-8 h-8 rounded-xl bg-[#fbe9dd] text-[#4a2e1b] flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <IconComp className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="font-fredoka text-xs sm:text-sm text-[#352018]">{item.label}</div>
+                          <div className="text-[11px] text-[#6b4c38] leading-tight mt-0.5">{item.desc}</div>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -327,7 +324,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
               <div>
                 <label className="block font-fredoka text-sm font-bold text-[#352018] mb-1.5 flex items-center gap-1.5">
                   <Camera className="w-4 h-4 text-[#4a2e1b]" />
-                  <span>Attach Photo or Video Evidence (Crucial for Law Enforcement)</span>
+                  <span>Attach Photo or Video Evidence</span>
                 </label>
                 
                 <div className="border-2 border-dashed border-[#d5bba4] rounded-2xl p-4 bg-[#faefe4]/60 text-center hover:bg-[#faefe4] transition-colors relative">
@@ -350,10 +347,10 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                     <label className="cursor-pointer block py-4">
                       <Camera className="w-8 h-8 text-[#8a5b3a] mx-auto mb-1.5" />
                       <span className="font-fredoka text-sm text-[#4a2e1b] font-semibold block">
-                        Click to upload photo or take picture
+                        Click to upload photo or evidence file
                       </span>
                       <span className="text-xs text-[#7e5c46]">
-                        Supports JPG, PNG, MP4 up to 50MB (Timestamp auto-recorded)
+                        Supports JPG, PNG, MP4 up to 50MB (Timestamp recorded)
                       </span>
                       <input
                         type="file"
@@ -406,7 +403,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                 ) : (
                   <p className="text-xs text-[#7e5c46] italic flex items-center gap-1">
                     <Info className="w-3.5 h-3.5 text-[#b87d55]" />
-                    Your contact info is completely hidden. The report will be dispatched with anonymous protection.
+                    Your contact info is hidden. The report will be dispatched with anonymous protection.
                   </p>
                 )}
               </div>
@@ -446,7 +443,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
           {step === 3 && (
             <div className="text-center py-6 space-y-6">
               
-              <div className="w-20 h-20 rounded-full bg-[#3aa866]/20 text-[#3aa866] flex items-center justify-center mx-auto animate-bounce">
+              <div className="w-20 h-20 rounded-full bg-[#3aa866]/20 text-[#3aa866] flex items-center justify-center mx-auto">
                 <CheckCircle className="w-12 h-12 stroke-[2.5]" />
               </div>
 
@@ -455,7 +452,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                   Emergency Alert Broadcasted
                 </span>
                 <h3 className="font-fredoka text-2xl sm:text-3xl font-bold text-[#26160d]">
-                  Rescue Ticket Generated!
+                  Rescue Ticket Generated
                 </h3>
                 <p className="text-sm font-semibold text-[#8a5b3a]">
                   Case ID: <span className="text-[#4a2e1b] font-mono text-base font-bold bg-white px-2 py-0.5 rounded border border-[#ebd7c3]">{submittedCaseId}</span>
@@ -464,12 +461,12 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
 
               <div className="bg-white p-5 rounded-2xl border border-[#ebd7c3] text-left text-xs text-[#5e4537] space-y-2.5 max-w-lg mx-auto shadow-inner">
                 <div className="flex items-center gap-2 text-[#3aa866] font-bold text-sm">
-                  <div className="w-2 h-2 rounded-full bg-[#3aa866] animate-ping"></div>
+                  <div className="w-2 h-2 rounded-full bg-[#3aa866]"></div>
                   <span>14 Registered Volunteers & Shelters Alerted</span>
                 </div>
-                <p>📍 <strong>Target Location:</strong> {location}</p>
-                <p>🚨 <strong>Severity:</strong> {urgency.toUpperCase()} - {abuseType}</p>
-                <p>🛡️ <strong>Status:</strong> Immediate volunteer assignment in progress. Our dispatch center has alerted field rescue units.</p>
+                <p><strong>Target Location:</strong> {location}</p>
+                <p><strong>Severity:</strong> {urgency.toUpperCase()} - {abuseType}</p>
+                <p><strong>Status:</strong> Immediate volunteer assignment in progress. Field rescue units have been notified.</p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">

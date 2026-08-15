@@ -111,7 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {soundOn ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5 opacity-60" />}
           </button>
 
-          {/* Quick Hotline dropdown trigger */}
+          {/* Quick Hotline trigger */}
           <button
             onClick={onOpenEmergency}
             className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold bg-[#faebd7] text-[#9c4221] hover:bg-[#f6dfc4] border border-[#e7caa8] transition-all"
@@ -130,7 +130,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-2 bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-medium text-sm sm:text-base px-5 py-2.5 rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all"
           >
             <span>Get Help</span>
-            <Heart className="w-4 h-4 fill-white text-white animate-pulse" />
+            <Heart className="w-4 h-4 fill-white text-white" />
           </button>
 
           {/* Mobile hamburger menu */}
@@ -158,7 +158,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <span>{item.label}</span>
-              {activeSection === item.id && <span className="text-xs">🐾 Active</span>}
+              {activeSection === item.id && <span className="text-xs font-semibold text-white/80">Active</span>}
             </button>
           ))}
           

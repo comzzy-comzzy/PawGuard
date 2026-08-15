@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { LeftPeekingDog } from './LeftPeekingDog';
 import { RightBowtieDog } from './RightBowtieDog';
-import { playClickSound, playTreatSound, playPuppyBark, playHeartPop } from '../utils/audio';
-import confetti from 'canvas-confetti';
+import { playClickSound } from '../utils/audio';
 
 interface HeroSectionProps {
   onOpenReport: () => void;
@@ -13,70 +12,19 @@ interface HeroSectionProps {
 export const HeroSection: React.FC<HeroSectionProps> = ({
   onOpenReport,
   onOpenEmergency,
-  onNavigateSection,
 }) => {
-  const [petCount, setPetCount] = useState(1482);
-  const [treatGiven, setTreatGiven] = useState(false);
-  const [lastAction, setLastAction] = useState<string | null>(null);
-
-  const handlePetDog = () => {
-    setPetCount(prev => prev + 1);
-  };
-
-  const handleGiveTreat = () => {
-    playTreatSound();
-    playPuppyBark();
-    setTreatGiven(true);
-    setLastAction('Teddy and Oliver are happily munching biscuits! 🦴✨');
-
-    confetti({
-      particleCount: 35,
-      spread: 60,
-      origin: { y: 0.6 },
-      colors: ['#b87d55', '#faebd7', '#3d97ca', '#eac49d']
-    });
-
-    setTimeout(() => {
-      setTreatGiven(false);
-    }, 3500);
-  };
-
-  const handleThrowBall = () => {
-    playHeartPop();
-    playPuppyBark();
-    setLastAction('🎾 You threw a tennis ball! The puppies caught it with joy!');
-
-    setTimeout(() => setLastAction(null), 4000);
-  };
-
-  const handleShowerLove = () => {
-    playHeartPop();
-    confetti({
-      particleCount: 50,
-      spread: 80,
-      origin: { y: 0.5 },
-      colors: ['#e25c80', '#b87d55', '#3d97ca', '#f5d7b7']
-    });
-    setLastAction('💖 You sent love to 12,000+ rescued dogs across our community!');
-    setTimeout(() => setLastAction(null), 4000);
-  };
-
   return (
     <section className="relative terracotta-tile-grid py-14 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden transition-all">
-      
-      {/* Background ambient lighting accents */}
-      <div className="absolute inset-0 bg-radial-gradient from-white/10 via-transparent to-black/10 pointer-events-none"></div>
-
       <div className="max-w-4xl mx-auto relative">
         
         {/* Main White Hero Card Container matching PNG */}
         <div className="hero-card-container relative px-6 sm:px-12 md:px-16 py-12 sm:py-16 md:py-20 text-center z-10">
           
           {/* Animated Left Peeking Dog */}
-          <LeftPeekingDog onPet={handlePetDog} />
+          <LeftPeekingDog />
 
           {/* Animated Right Bowtie Puppy Dog */}
-          <RightBowtieDog onPet={handlePetDog} />
+          <RightBowtieDog />
 
           {/* Main Headline matching PNG */}
           <h1 className="font-fredoka text-4xl sm:text-5xl md:text-6xl lg:text-[4.25rem] font-bold text-[#26160d] tracking-tight leading-[1.1] mb-4 sm:mb-6">
@@ -88,10 +36,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             Stop abuse, bullying, harassment and killing.
           </p>
 
-          {/* Subheading line 2 matching PNG with brown heart */}
+          {/* Subheading line 2 matching PNG with single clean heart */}
           <p className="font-sans text-base sm:text-lg md:text-xl font-bold text-[#402416] mb-5 sm:mb-7 flex items-center justify-center gap-2">
             <span>Dogs have feelings too.</span>
-            <span className="text-xl sm:text-2xl inline-block transform hover:scale-125 transition-transform cursor-pointer">🤎</span>
+            <span className="text-xl sm:text-2xl inline-block text-[#8a5b3a]">🤎</span>
           </p>
 
           {/* Descriptive body paragraph matching PNG */}
@@ -139,61 +87,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </button>
           </div>
 
-          {/* Wholesome pup companion interaction strip */}
-          <div className="mt-8 pt-6 border-t border-[#f2e2d2] flex flex-wrap items-center justify-center gap-2.5 text-xs text-[#6b4c38] font-medium">
-            <span className="text-[#8d674c] hidden sm:inline">Interactive Pup Care:</span>
-            
-            <button
-              onClick={handleGiveTreat}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] transition-all hover:scale-105"
-            >
-              <span>🦴 Give Biscuit</span>
-            </button>
-
-            <button
-              onClick={handleThrowBall}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] transition-all hover:scale-105"
-            >
-              <span>🎾 Play Ball</span>
-            </button>
-
-            <button
-              onClick={handleShowerLove}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] transition-all hover:scale-105"
-            >
-              <span>💖 Shower Love</span>
-            </button>
-
-            <span className="ml-1 text-[11px] bg-[#faebd7] text-[#6b442b] px-2.5 py-1 rounded-full border border-[#ecd5bf]">
-              🐾 {petCount.toLocaleString()} Paws Petted Today
-            </span>
-          </div>
-
-          {/* Interactive alert toast note */}
-          {lastAction && (
-            <div className="mt-3 text-xs font-semibold text-[#4a2e1b] bg-[#faebd7] py-1.5 px-4 rounded-xl inline-block border border-[#e8ceb5] animate-fadeIn">
-              {lastAction}
-            </div>
-          )}
-        </div>
-
-        {/* Live Rescue Ticker Banner */}
-        <div className="mt-6 bg-[#352018]/90 text-white rounded-2xl px-5 py-3 shadow-lg backdrop-blur-sm flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#3aa866] animate-ping inline-block"></span>
-            <span className="font-fredoka font-semibold text-[#f8dfc7]">LIVE RESCUE RADAR:</span>
-            <span className="text-[#fbf6f0]">4 Active Rescue Units on Patrol</span>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <span className="text-white/80">Case #PG-8942: Volunteer Marcus Vance en route</span>
-            <button
-              onClick={() => onNavigateSection('rescue')}
-              className="text-[#f5d7b7] underline hover:text-white font-semibold"
-            >
-              View Map →
-            </button>
-          </div>
         </div>
 
       </div>

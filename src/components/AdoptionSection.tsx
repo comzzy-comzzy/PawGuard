@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { AdoptableDog } from '../types';
-import { Heart, Sparkles, Home, Check, ShieldCheck, X, Calendar, User, Phone, Mail, Award } from 'lucide-react';
+import { Heart, Home, Check, ShieldCheck, X, Calendar, User, Phone, Mail, Award, Users } from 'lucide-react';
 import { playClickSound, playHeartPop } from '../utils/audio';
-import confetti from 'canvas-confetti';
 
 interface AdoptionSectionProps {
   dogs: AdoptableDog[];
@@ -37,14 +36,6 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({ dogs }) => {
     e.stopPropagation();
     playHeartPop();
     setSponsorSuccess(dog.name);
-
-    confetti({
-      particleCount: 40,
-      spread: 60,
-      origin: { y: 0.7 },
-      colors: ['#3d97ca', '#b87d55', '#eac49d']
-    });
-
     setTimeout(() => setSponsorSuccess(null), 4000);
   };
 
@@ -52,13 +43,6 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({ dogs }) => {
     e.preventDefault();
     playHeartPop();
     setApplicationSuccess(true);
-
-    confetti({
-      particleCount: 70,
-      spread: 80,
-      origin: { y: 0.6 },
-      colors: ['#b87d55', '#4a2e1b', '#3aa866', '#f5d7b7']
-    });
   };
 
   return (
@@ -77,16 +61,16 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({ dogs }) => {
           </h2>
 
           <p className="font-sans text-sm sm:text-base text-[#6b4c38]">
-            Every one of these courageous pups survived abuse, neglect, or abandonment. They are rehabilitated, vetted, and waiting to shower your family with unconditional love.
+            Every one of these courageous dogs survived abuse, neglect, or abandonment. They are rehabilitated, vetted, and ready for a responsible forever home.
           </p>
 
           {/* Size Filter */}
           <div className="flex items-center justify-center gap-2 pt-2">
             {[
               { id: 'all', label: 'All Pups' },
-              { id: 'small', label: 'Small Pups' },
-              { id: 'medium', label: 'Medium Dogs' },
-              { id: 'large', label: 'Large Guardians' },
+              { id: 'small', label: 'Small Size' },
+              { id: 'medium', label: 'Medium Size' },
+              { id: 'large', label: 'Large Size' },
             ].map((f) => (
               <button
                 key={f.id}
@@ -106,11 +90,11 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({ dogs }) => {
           </div>
         </div>
 
-        {/* Sponsor Banner Toast */}
+        {/* Sponsor Toast */}
         {sponsorSuccess && (
-          <div className="max-w-md mx-auto bg-[#dcfce7] border border-[#86efac] text-[#166534] p-3.5 rounded-2xl text-xs font-fredoka font-semibold text-center flex items-center justify-center gap-2 animate-bounce">
+          <div className="max-w-md mx-auto bg-[#dcfce7] border border-[#86efac] text-[#166534] p-3.5 rounded-2xl text-xs font-fredoka font-semibold text-center flex items-center justify-center gap-2">
             <Heart className="w-4 h-4 text-[#d94141] fill-[#d94141]" />
-            <span>You virtually sponsored {sponsorSuccess}! Thank you for covering meals & medical care!</span>
+            <span>You virtually sponsored {sponsorSuccess}. Thank you for supporting medical and food care.</span>
           </div>
         )}
 
@@ -166,7 +150,7 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({ dogs }) => {
                         key={i}
                         className="text-[11px] font-fredoka bg-[#fbe9dd] text-[#6b442b] px-2.5 py-0.5 rounded-full"
                       >
-                        ✨ {trait}
+                        {trait}
                       </span>
                     ))}
                   </div>
@@ -179,15 +163,15 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({ dogs }) => {
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Check className="w-3.5 h-3.5 text-[#3aa866]" />
-                      <span>{dog.isNeutered ? 'Spayed/Neutered' : 'Intact'}</span>
+                      <span>{dog.isNeutered ? 'Spayed / Neutered' : 'Intact'}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs">👶</span>
-                      <span>{dog.goodWithKids ? 'Kid-Friendly' : 'Adults Preferred'}</span>
+                      <Users className="w-3.5 h-3.5 text-[#3d97ca]" />
+                      <span>{dog.goodWithKids ? 'Good with Kids' : 'Adults Preferred'}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs">🐱</span>
-                      <span>{dog.goodWithCats ? 'Cat-Friendly' : 'No Cats'}</span>
+                      <Check className="w-3.5 h-3.5 text-[#3aa866]" />
+                      <span>{dog.goodWithDogs ? 'Dog Friendly' : 'Single Dog Home'}</span>
                     </div>
                   </div>
                 </div>
@@ -246,10 +230,10 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({ dogs }) => {
                       <Award className="w-10 h-10" />
                     </div>
                     <h4 className="font-fredoka text-2xl font-bold text-[#26160d]">
-                      Application Sent for {selectedDog.name}!
+                      Application Sent for {selectedDog.name}
                     </h4>
                     <p className="text-xs sm:text-sm text-[#5e4537] max-w-md mx-auto leading-relaxed">
-                      Our adoption coordinator will review your application and contact you at <strong>{applicantPhone || applicantEmail}</strong> within 24 hours to finalize the meet-and-greet!
+                      Our adoption coordinator will review your application and contact you at <strong>{applicantPhone || applicantEmail}</strong> within 24 hours to schedule the meet-and-greet.
                     </p>
                     <button
                       onClick={() => setSelectedDog(null)}
@@ -379,7 +363,7 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({ dogs }) => {
                     </div>
 
                     <p className="text-[11px] text-[#7e5c46] italic">
-                      🐾 PawGuard Adoption Guarantee: All adoptions include complete veterinary health passport, lifetime microchip registration, and 30-day behavioral support.
+                      PawGuard Adoption Policy: All adoptions include veterinary health check, microchip registration, and 30-day post-adoption behavioral support.
                     </p>
 
                     <button

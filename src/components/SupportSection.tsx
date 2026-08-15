@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Heart, ShieldCheck, CheckCircle2, Gift, DollarSign, Stethoscope, Utensils, Home } from 'lucide-react';
-import { playHeartPop, playClickSound } from '../utils/audio';
-import confetti from 'canvas-confetti';
+import { Heart, ShieldCheck, CheckCircle2, Gift, Stethoscope, Utensils, Home } from 'lucide-react';
+import { playHeartPop } from '../utils/audio';
 
 export const SupportSection: React.FC = () => {
   const [customAmount, setCustomAmount] = useState('50');
@@ -10,10 +9,10 @@ export const SupportSection: React.FC = () => {
   const goalAmount = 25000;
 
   const tiers = [
-    { amount: '15', label: 'Emergency Food Kit', desc: 'Provides 2 weeks of nutritious recovery kibble and vitamins for a starved dog', icon: Utensils },
-    { amount: '35', label: 'Vaccines & Deworming', desc: 'Full medical checkup, microchip, rabies & core shots for a rescued stray', icon: ShieldCheck },
-    { amount: '75', label: 'Emergency Vet Triage', desc: 'Wound suturing, IV fluids, pain medication, and trauma care', icon: Stethoscope },
-    { amount: '150', label: 'Orthopedic Surgery & Shelter', desc: 'Complex bone fracture surgery and 1 month warm rehabilitation foster stay', icon: Home },
+    { amount: '15', label: 'Emergency Food Kit', desc: 'Provides 2 weeks of nutritious recovery food for a rescued dog', icon: Utensils },
+    { amount: '35', label: 'Vaccines & Deworming', desc: 'Full medical checkup, microchip, and vaccinations for a stray', icon: ShieldCheck },
+    { amount: '75', label: 'Emergency Vet Triage', desc: 'Wound care, IV fluids, pain medication, and trauma treatment', icon: Stethoscope },
+    { amount: '150', label: 'Surgery & Rehabilitation', desc: 'Surgical fracture treatment and 1 month foster shelter support', icon: Home },
   ];
 
   const handleDonate = (amount: string) => {
@@ -21,14 +20,6 @@ export const SupportSection: React.FC = () => {
     playHeartPop();
     setTotalRaised(prev => prev + num);
     setDonated(true);
-
-    confetti({
-      particleCount: 60,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#b87d55', '#4a2e1b', '#3aa866', '#d94141']
-    });
-
     setTimeout(() => setDonated(false), 5000);
   };
 
@@ -42,7 +33,7 @@ export const SupportSection: React.FC = () => {
         <div className="text-center space-y-3 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-1.5 bg-[#fbe9dd] text-[#8a5b3a] border border-[#e5cfbd] text-xs font-fredoka font-bold px-3.5 py-1 rounded-full uppercase tracking-wider">
             <Heart className="w-3.5 h-3.5 text-[#d94141]" />
-            <span>Lifesaving Emergency Fund</span>
+            <span>Emergency Medical Fund</span>
           </div>
 
           <h2 className="font-fredoka text-3xl sm:text-4xl md:text-5xl font-bold text-[#26160d]">
@@ -50,7 +41,7 @@ export const SupportSection: React.FC = () => {
           </h2>
 
           <p className="font-sans text-sm sm:text-base text-[#6b4c38]">
-            100% of community contributions go directly to medical surgeries, thermal transport crates, emergency shelter food, and legal anti-cruelty enforcement.
+            Contributions go directly to medical surgeries, transport crates, emergency shelter food, and legal animal protection advocacy.
           </p>
         </div>
 
@@ -59,7 +50,7 @@ export const SupportSection: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <div className="text-xs font-fredoka font-semibold uppercase text-[#8a5b3a]">
-                August Emergency Vet Medical Drive
+                Emergency Veterinary Medical Drive
               </div>
               <div className="font-fredoka text-2xl sm:text-3xl font-bold text-[#26160d]">
                 ${totalRaised.toLocaleString()}{' '}
@@ -84,16 +75,16 @@ export const SupportSection: React.FC = () => {
           </div>
 
           <div className="flex justify-between text-xs text-[#8a6853]">
-            <span>🐾 48 Rescued Dogs Treated This Month</span>
-            <span>🎯 Next Target: Emergency Mobile Ambulance Kit</span>
+            <span>48 Rescued Dogs Treated This Month</span>
+            <span>Target: Mobile Clinic Medical Supplies</span>
           </div>
         </div>
 
-        {/* Donation Toast */}
+        {/* Donation Message */}
         {donated && (
-          <div className="max-w-md mx-auto bg-[#dcfce7] border border-[#86efac] text-[#166534] p-4 rounded-2xl text-xs font-fredoka font-semibold text-center flex items-center justify-center gap-2 animate-bounce shadow">
+          <div className="max-w-md mx-auto bg-[#dcfce7] border border-[#86efac] text-[#166534] p-4 rounded-2xl text-xs font-fredoka font-semibold text-center flex items-center justify-center gap-2 shadow">
             <CheckCircle2 className="w-5 h-5 text-[#3aa866]" />
-            <span>Thank you for your kindness! You just provided critical care for dogs in danger. 🐶🤎</span>
+            <span>Thank you for your support. Your contribution directly funds animal medical care.</span>
           </div>
         )}
 
@@ -139,7 +130,7 @@ export const SupportSection: React.FC = () => {
         {/* Custom Amount Form */}
         <div className="max-w-md mx-auto bg-white rounded-3xl p-6 border border-[#ebd7c3] shadow-sm text-center space-y-4">
           <div className="font-fredoka text-sm font-bold text-[#352018]">
-            Or Enter a Custom Lifesaving Amount
+            Or Enter a Custom Contribution
           </div>
 
           <div className="flex items-center gap-2">
@@ -162,7 +153,7 @@ export const SupportSection: React.FC = () => {
             </button>
           </div>
           <p className="text-[11px] text-[#8a6853]">
-            🔒 Secure SSL donation simulation. 100% transparent shelter audit.
+            Secure donation simulation for animal medical care.
           </p>
         </div>
 

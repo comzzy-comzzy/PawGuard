@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { EMERGENCY_HOTLINES } from '../data/mockData';
-import { PhoneCall, ShieldAlert, X, AlertTriangle, CheckCircle, Radio, Copy, ExternalLink } from 'lucide-react';
+import { PhoneCall, ShieldAlert, X, AlertTriangle, CheckCircle, Radio, Copy } from 'lucide-react';
 import { playAlertSound, playClickSound } from '../utils/audio';
 
 interface EmergencyHotlineModalProps {
@@ -40,14 +40,14 @@ export const EmergencyHotlineModal: React.FC<EmergencyHotlineModalProps> = ({
         <div className="bg-[#d94141] text-white px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-white text-[#d94141] flex items-center justify-center shadow">
-              <PhoneCall className="w-6 h-6 animate-bounce" />
+              <PhoneCall className="w-6 h-6" />
             </div>
             <div>
               <h2 className="font-fredoka text-xl sm:text-2xl font-bold tracking-tight">
-                24/7 Emergency Dog Hotlines & SOS
+                Emergency Hotlines & SOS Dispatch
               </h2>
               <p className="text-xs text-[#fee2e2]">
-                Immediate Assistance for Dogs in Severe Danger or Suffering
+                Immediate Assistance for Animals in Severe Danger
               </p>
             </div>
           </div>
@@ -66,11 +66,11 @@ export const EmergencyHotlineModal: React.FC<EmergencyHotlineModalProps> = ({
           {/* Quick SOS Trigger Button */}
           <div className="bg-[#fee2e2] border-2 border-[#fca5a5] p-4 rounded-2xl text-center space-y-2">
             <div className="text-xs font-fredoka font-bold text-[#991b1b] uppercase tracking-wider flex items-center justify-center gap-1.5">
-              <Radio className="w-4 h-4 text-[#d94141] animate-ping" />
+              <Radio className="w-4 h-4 text-[#d94141]" />
               <span>Instant Emergency SOS Broadcast</span>
             </div>
             <p className="text-xs text-[#7f1d1d]">
-              If you are currently witnessing active dog cruelty, dog fighting, or critical life-threatening injury:
+              If you are witnessing active cruelty, dog fighting, or life-threatening trauma:
             </p>
             
             <button
@@ -84,7 +84,7 @@ export const EmergencyHotlineModal: React.FC<EmergencyHotlineModalProps> = ({
             {sosSent && (
               <div className="bg-white text-[#166534] border border-[#86efac] p-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 animate-fadeIn">
                 <CheckCircle className="w-4 h-4 text-[#3aa866]" />
-                <span>Emergency SOS broadcast sent to 14 active response units in your region!</span>
+                <span>Emergency SOS broadcast transmitted to 14 active response units in your area.</span>
               </div>
             )}
           </div>
@@ -92,7 +92,7 @@ export const EmergencyHotlineModal: React.FC<EmergencyHotlineModalProps> = ({
           {/* Hotline Numbers List */}
           <div className="space-y-3">
             <h3 className="font-fredoka text-sm font-bold text-[#352018] uppercase tracking-wider text-[#8a5b3a]">
-              Direct Phone Hotlines (Toll-Free & 24/7):
+              Direct Phone Hotlines (24/7):
             </h3>
 
             <div className="space-y-2.5">
@@ -138,12 +138,12 @@ export const EmergencyHotlineModal: React.FC<EmergencyHotlineModalProps> = ({
           <div className="bg-[#faefe4] p-4 rounded-2xl border border-[#ebd7c3] space-y-2 text-xs text-[#5e4537]">
             <h4 className="font-fredoka font-bold text-[#352018] flex items-center gap-1.5">
               <AlertTriangle className="w-4 h-4 text-[#b87d55]" />
-              <span>What to Do if You Witness Abuse Right Now:</span>
+              <span>What to Do if You Witness Abuse:</span>
             </h4>
             <ol className="list-decimal list-inside space-y-1 text-[#6b4c38] pl-1">
-              <li><strong>Prioritize Personal Safety:</strong> Do not confront violent abusers directly.</li>
-              <li><strong>Document Evidence:</strong> Note exact street address, license plates, and take discreet photos/video.</li>
-              <li><strong>Call Dispatch or Report on PawGuard:</strong> Our team liaises directly with humane officers and police.</li>
+              <li><strong>Personal Safety:</strong> Do not confront violent offenders directly.</li>
+              <li><strong>Document Evidence:</strong> Note exact street address, license plate numbers, and take photo/video safely.</li>
+              <li><strong>Submit a Report:</strong> PawGuard directly connects evidence with humane law enforcement and rescue patrols.</li>
             </ol>
           </div>
 

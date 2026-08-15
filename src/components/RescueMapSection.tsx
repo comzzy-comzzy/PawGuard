@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { RescueCase } from '../types';
-import { ShieldAlert, MapPin, Clock, CheckCircle, Navigation, Radio, Share2, HeartHandshake, Eye, AlertCircle } from 'lucide-react';
-import { playClickSound, playAlertSound, playHeartPop } from '../utils/audio';
-import confetti from 'canvas-confetti';
+import { ShieldAlert, MapPin, Clock, CheckCircle, Navigation, Radio, Share2, HeartHandshake, AlertCircle } from 'lucide-react';
+import { playClickSound, playAlertSound } from '../utils/audio';
 
 interface RescueMapSectionProps {
   cases: RescueCase[];
@@ -31,13 +30,12 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
 
   const handleVolunteer = (caseItem: RescueCase) => {
     playAlertSound();
-    playHeartPop();
     const updated: RescueCase = {
       ...caseItem,
       status: 'volunteer_en_route',
       assignedVolunteer: 'You (Volunteer Responder)',
       updates: [
-        { time: 'Just now', text: 'You signed up to assist with this rescue mission! Dispatch instructions sent to your phone.', author: 'PawGuard HQ' },
+        { time: 'Just now', text: 'You signed up to assist with this rescue mission. Dispatch instructions sent to your phone.', author: 'PawGuard HQ' },
         ...caseItem.updates,
       ],
     };
@@ -45,37 +43,30 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
     setSelectedCase(updated);
     setVolunteerAccepted(caseItem.id);
 
-    confetti({
-      particleCount: 50,
-      spread: 70,
-      origin: { y: 0.7 },
-      colors: ['#3aa866', '#4a2e1b', '#3d97ca']
-    });
-
     setTimeout(() => setVolunteerAccepted(null), 4500);
   };
 
   const getUrgencyBadge = (urgency: RescueCase['urgency']) => {
     switch (urgency) {
       case 'critical':
-        return <span className="bg-[#fee2e2] text-[#991b1b] border border-[#fca5a5] text-[10px] font-fredoka font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">🔴 CRITICAL</span>;
+        return <span className="bg-[#fee2e2] text-[#991b1b] border border-[#fca5a5] text-[10px] font-fredoka font-bold px-2.5 py-0.5 rounded-full">Critical Danger</span>;
       case 'high':
-        return <span className="bg-[#ffedd5] text-[#9a3412] border border-[#fdba74] text-[10px] font-fredoka font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">🟠 HIGH URGENCY</span>;
+        return <span className="bg-[#ffedd5] text-[#9a3412] border border-[#fdba74] text-[10px] font-fredoka font-bold px-2.5 py-0.5 rounded-full">High Urgency</span>;
       case 'moderate':
-        return <span className="bg-[#dcfce7] text-[#166534] border border-[#86efac] text-[10px] font-fredoka font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">🟡 IN PROGRESS</span>;
+        return <span className="bg-[#dcfce7] text-[#166534] border border-[#86efac] text-[10px] font-fredoka font-bold px-2.5 py-0.5 rounded-full">In Progress</span>;
     }
   };
 
   const getStatusBadge = (status: RescueCase['status']) => {
     switch (status) {
       case 'reported':
-        return <span className="bg-[#f3f4f6] text-[#374151] text-[11px] font-fredoka font-medium px-2.5 py-1 rounded-full">⏳ Searching Volunteers</span>;
+        return <span className="bg-[#f3f4f6] text-[#374151] text-[11px] font-fredoka font-medium px-2.5 py-1 rounded-full">Searching Volunteers</span>;
       case 'volunteer_en_route':
-        return <span className="bg-[#dbeafe] text-[#1e40af] text-[11px] font-fredoka font-medium px-2.5 py-1 rounded-full animate-pulse">🚗 Responder En Route</span>;
+        return <span className="bg-[#dbeafe] text-[#1e40af] text-[11px] font-fredoka font-medium px-2.5 py-1 rounded-full">Responder En Route</span>;
       case 'at_vet':
-        return <span className="bg-[#fef3c7] text-[#92400e] text-[11px] font-fredoka font-medium px-2.5 py-1 rounded-full">🩺 Under Vet Care</span>;
+        return <span className="bg-[#fef3c7] text-[#92400e] text-[11px] font-fredoka font-medium px-2.5 py-1 rounded-full">Under Vet Care</span>;
       case 'rescued_safe':
-        return <span className="bg-[#dcfce7] text-[#166534] text-[11px] font-fredoka font-medium px-2.5 py-1 rounded-full">🏡 Safe & Protected</span>;
+        return <span className="bg-[#dcfce7] text-[#166534] text-[11px] font-fredoka font-medium px-2.5 py-1 rounded-full">Safe & Sheltered</span>;
       default:
         return null;
     }
@@ -89,7 +80,7 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-[#e8d5c4] pb-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs font-fredoka font-bold text-[#b87d55] uppercase tracking-wider">
-              <Radio className="w-4 h-4 text-[#d94141] animate-pulse" />
+              <Radio className="w-4 h-4 text-[#d94141]" />
               <span>Real-Time GPS Rescue Radar</span>
             </div>
             <h2 className="font-fredoka text-3xl sm:text-4xl font-bold text-[#26160d]">
@@ -131,9 +122,9 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
           <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
             {[
               { id: 'all', label: 'All Cases' },
-              { id: 'critical', label: '🔴 Critical' },
-              { id: 'high', label: '🟠 High Urgency' },
-              { id: 'moderate', label: '🟡 Active' },
+              { id: 'critical', label: 'Critical' },
+              { id: 'high', label: 'High Urgency' },
+              { id: 'moderate', label: 'Active' },
             ].map((f) => (
               <button
                 key={f.id}
@@ -188,11 +179,6 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
                           alt={c.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         />
-                        <div className="absolute top-1 left-1">
-                          {c.urgency === 'critical' && (
-                            <span className="w-2.5 h-2.5 rounded-full bg-[#d94141] block animate-ping"></span>
-                          )}
-                        </div>
                       </div>
 
                       {/* Info */}
@@ -253,7 +239,7 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
                     onClick={() => {
                       playClickSound();
                       navigator.clipboard?.writeText(window.location.href);
-                      alert('Rescue alert link copied to clipboard!');
+                      alert('Rescue alert link copied to clipboard.');
                     }}
                     className="flex items-center gap-1.5 text-xs font-fredoka font-semibold text-[#4a2e1b] bg-[#faefe4] hover:bg-[#ebd7c3] px-3.5 py-2 rounded-full border border-[#ebd7c3] transition-colors self-start sm:self-auto"
                   >
@@ -262,31 +248,26 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
                   </button>
                 </div>
 
-                {/* Simulated Radar Map Pin Display */}
+                {/* Radar Map Pin Display */}
                 <div className="relative h-48 sm:h-56 rounded-2xl overflow-hidden terracotta-tile-grid border border-[#4a2e1b] shadow-inner flex items-center justify-center text-center p-4">
                   <div className="absolute inset-0 bg-black/20"></div>
 
-                  {/* Pulsing Target Radar Circles */}
                   <div className="relative z-10 space-y-2">
-                    <div className="relative inline-block">
-                      <div className="w-16 h-16 rounded-full bg-[#d94141]/30 animate-ping absolute inset-0"></div>
-                      <div className="w-16 h-16 rounded-full bg-[#352018] border-2 border-white shadow-xl flex items-center justify-center text-white relative">
-                        <MapPin className="w-8 h-8 text-[#f5d7b7] animate-bounce" />
-                      </div>
+                    <div className="w-14 h-14 rounded-full bg-[#352018] border-2 border-white shadow-xl flex items-center justify-center text-white mx-auto">
+                      <MapPin className="w-7 h-7 text-[#f5d7b7]" />
                     </div>
-                    <div className="bg-[#352018]/90 backdrop-blur-sm text-white px-4 py-1.5 rounded-full text-xs font-fredoka shadow inline-block border border-white/20">
-                      📍 {selectedCase.location} ({selectedCase.distance})
+                    <div className="bg-[#352018]/90 text-white px-4 py-1.5 rounded-full text-xs font-fredoka shadow inline-block border border-white/20">
+                      {selectedCase.location} ({selectedCase.distance})
                     </div>
                   </div>
 
-                  {/* Coordinates overlay */}
                   <div className="absolute bottom-2 right-2 bg-black/70 text-white/80 text-[10px] font-mono px-2 py-0.5 rounded">
                     GPS: {selectedCase.coordinates[0].toFixed(4)}, {selectedCase.coordinates[1].toFixed(4)}
                   </div>
                 </div>
 
                 {/* Case Description & Details */}
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <h4 className="font-fredoka text-sm font-bold text-[#352018]">
                     Incident Report & Animal Condition:
                   </h4>
@@ -304,17 +285,17 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
                   <div>
                     <span className="text-[#8a5b3a] block font-semibold">Assigned Responder:</span>
                     <span className="font-bold text-[#352018]">
-                      {selectedCase.assignedVolunteer || '⚠️ No volunteer assigned yet'}
+                      {selectedCase.assignedVolunteer || 'No volunteer assigned yet'}
                     </span>
                   </div>
                 </div>
 
                 {/* Timeline updates */}
-                <div className="space-y-2.5">
+                <div className="space-y-2">
                   <h4 className="font-fredoka text-xs font-bold uppercase tracking-wider text-[#8a5b3a]">
-                    Live Mission Log:
+                    Mission Log:
                   </h4>
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     {selectedCase.updates.map((u, i) => (
                       <div key={i} className="flex items-start gap-2.5 text-xs text-[#5e4537] bg-white p-2.5 rounded-xl border border-[#ebd7c3]">
                         <span className="font-mono text-[10px] text-[#b87d55] font-bold mt-0.5 whitespace-nowrap">{u.time}</span>
@@ -327,11 +308,11 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
                   </div>
                 </div>
 
-                {/* Success alert toast after volunteering */}
+                {/* Success message after volunteering */}
                 {volunteerAccepted === selectedCase.id && (
                   <div className="bg-[#dcfce7] border border-[#86efac] text-[#166534] p-3.5 rounded-2xl text-xs font-fredoka font-semibold flex items-center gap-2 animate-fadeIn">
                     <CheckCircle className="w-5 h-5 text-[#3aa866]" />
-                    <span>Thank you! You are now assigned to this rescue mission. Dispatch coordinates have been transmitted.</span>
+                    <span>You are assigned to this rescue mission. Dispatch coordinates have been transmitted.</span>
                   </div>
                 )}
 

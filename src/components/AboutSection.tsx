@@ -1,24 +1,24 @@
 import React from 'react';
-import { ShieldCheck, Heart, Eye, Users, AlertTriangle, Sparkles } from 'lucide-react';
+import { ShieldCheck, Heart, Eye, Users, Sparkles } from 'lucide-react';
 
 export const AboutSection: React.FC = () => {
   const pillars = [
     {
       icon: ShieldCheck,
       title: 'Zero Tolerance for Cruelty',
-      desc: 'We actively combat direct physical abuse, dog fighting, cruel confinement, intentional poisoning, and extreme chaining.',
+      desc: 'We actively combat physical abuse, dog fighting, cruel confinement, intentional poisoning, and extreme chaining.',
       color: '#d94141'
     },
     {
       icon: Heart,
       title: 'Dogs Have Feelings Too',
-      desc: 'Canine neurobiology proves dogs experience intense fear, sorrow, loyalty, and joy. They feel pain just as deeply as humans.',
+      desc: 'Canine neurobiology proves dogs experience fear, sorrow, loyalty, and joy. They feel physical and emotional pain just as humans do.',
       color: '#b87d55'
     },
     {
       icon: Eye,
       title: 'Rapid Location Dispatch',
-      desc: 'Our real-time reporting radar connects eyewitness evidence directly with nearby volunteer rescuers and law enforcement.',
+      desc: 'Our real-time reporting radar connects eyewitness evidence directly with nearby volunteer rescuers and humane officers.',
       color: '#3d97ca'
     },
     {
@@ -39,7 +39,7 @@ export const AboutSection: React.FC = () => {
           <div className="lg:col-span-6 space-y-6">
             <div className="inline-flex items-center gap-1.5 bg-[#faebd7] text-[#8a5b3a] border border-[#e5cfbd] text-xs font-fredoka font-bold px-3.5 py-1 rounded-full uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Our Sacred Mission</span>
+              <span>Our Mission</span>
             </div>
 
             <h2 className="font-fredoka text-3xl sm:text-4xl md:text-5xl font-bold text-[#26160d] leading-tight">
@@ -47,17 +47,17 @@ export const AboutSection: React.FC = () => {
             </h2>
 
             <p className="font-sans text-sm sm:text-base text-[#5e4537] leading-relaxed">
-              Every day, thousands of dogs suffer in silence — trapped at the end of heavy chains, starved in filthy alleys, beaten behind closed doors, abandoned in bitter cold, or subjected to unnecessary killings and cruel cullings.
+              Every day, dogs suffer in silence — tied on heavy chains without shelter, starved in back alleys, abandoned in extreme weather, or subjected to cruelty and unnecessary killing.
             </p>
 
             <p className="font-sans text-sm sm:text-base text-[#5e4537] leading-relaxed">
-              PawGuard was founded on one undeniable truth: <strong>Dogs are sentient beings capable of deep love, fear, joy, and sorrow.</strong> When they are silenced by cruelty, we become their voice. When they are broken by neglect, we become their refuge.
+              PawGuard was founded on one clear premise: <strong>Dogs are sentient companions deserving of dignity, safety, and respect.</strong> When they are silenced by neglect, we become their voice. When they are injured, we coordinate their rescue.
             </p>
 
             <div className="p-4 rounded-2xl bg-[#faefe4] border border-[#ebd7c3] text-xs font-medium text-[#4a2e1b] flex items-start gap-3">
-              <span className="text-xl">🤎</span>
+              <span className="text-xl text-[#8a5b3a]">🤎</span>
               <div>
-                <strong>The PawGuard Promise:</strong> No report is ignored. Every dog in peril deserves a swift rescue, immediate medical intervention, and a loving forever family.
+                <strong>The PawGuard Promise:</strong> No report is ignored. Every dog in peril deserves swift rescue, medical triage, and a caring forever family.
               </div>
             </div>
           </div>
@@ -79,7 +79,7 @@ export const AboutSection: React.FC = () => {
                   100%
                 </div>
                 <div>
-                  <div className="font-fredoka text-sm font-bold text-[#352018]">No-Kill Rescue Advocacy</div>
+                  <div className="font-fredoka text-sm font-bold text-[#352018]">Humane Rescue Advocacy</div>
                   <div className="text-[11px] text-[#7e5c46]">Compassion & Rehabilitation First</div>
                 </div>
               </div>
