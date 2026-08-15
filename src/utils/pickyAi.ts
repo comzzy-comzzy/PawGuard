@@ -20,33 +20,6 @@ export interface PickyConversationContext {
   draftData?: Record<string, any>;
 }
 
-// 0G Compute Configuration
-export interface ZeroGConfig {
-  apiKey?: string;
-  endpoint?: string;
-  model?: string;
-}
-
-export const getZeroGConfig = (): ZeroGConfig => {
-  try {
-    const saved = localStorage.getItem('pawguard_0g_config');
-    if (saved) return JSON.parse(saved);
-  } catch {}
-  return {
-    apiKey: (import.meta as any).env?.VITE_0G_API_KEY || '',
-    endpoint: (import.meta as any).env?.VITE_0G_COMPUTE_ENDPOINT || 'https://api.0g.ai/v1/chat/completions',
-    model: (import.meta as any).env?.VITE_0G_MODEL || '0g-deepseek-r1',
-  };
-};
-
-export const saveZeroGConfig = (config: ZeroGConfig) => {
-  try {
-    localStorage.setItem('pawguard_0g_config', JSON.stringify(config));
-  } catch (e) {
-    console.error('Failed to save 0G config:', e);
-  }
-};
-
 /**
  * Saves recorded intake details to the PawGuard Admin Inbox in localStorage
  */
@@ -69,63 +42,6 @@ export const saveToAdminInbox = (record: {
     return newEntry;
   } catch (e) {
     console.error('Failed to save to admin inbox:', e);
-    return null;
-  }
-};
-
-/**
- * Attempts to call 0G Compute LLM API if key is present; returns null if unavailable/errors
- */
-export const queryZeroGCompute = async (
-  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
-  config?: ZeroGConfig
-): Promise<string | null> => {
-  const currentConfig = config || getZeroGConfig();
-  if (!currentConfig.apiKey || !currentConfig.endpoint) {
-    return null;
-  }
-
-  try {
-    const systemPrompt = `You are Picky, an enthusiastic, caring, and smart girl tiny puppy dog assistant for PawGuard (a community platform dedicated to protecting dogs, preventing abuse, cruelty, neglect, chaining, and abandonment).
-You talk with puppy warmth, empathy, and joy (using cute touches like "Woof!", "Tail wags!", and 🐾 emojis occasionally).
-You know all about PawGuard features:
-1. Report Abuse: Step-by-step logging for physical abuse, chaining, starvation, hit-and-runs, fighting.
-2. Find & Rescue: Location-based rescue reports board.
-3. Adoption: Loving rescued dogs looking for foster and forever homes.
-4. Lost & Found: Missing pet notices and printable flyer generation.
-5. Learn: Humane canine care, detecting neglect, whale eye stress signals, heatstroke triage.
-6. Community & Volunteer: Rescue drivers, foster homes, spotters.
-7. Support Us: Crypto medical funding (BTC, ETH, BNB) for surgeries, vaccines, nutrition kits, foster crates.
-8. Get Help Desk: Direct emergency channels.
-Help users fill forms, collect all necessary report/inquiry details for admins, answer dog questions, and guide them to the right pages.`;
-
-    const response = await fetch(currentConfig.endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${currentConfig.apiKey}`
-      },
-      body: JSON.stringify({
-        model: currentConfig.model || '0g-deepseek-r1',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...messages
-        ],
-        temperature: 0.7,
-        max_tokens: 600
-      })
-    });
-
-    if (!response.ok) {
-      console.warn('0G Compute returned non-OK status:', response.status);
-      return null;
-    }
-
-    const data = await response.json();
-    const replyText = data.choices?.[0]?.message?.content;
-    return replyText || null;
-  } catch (err) {
-    console.warn('0G Compute API fetch error, falling back to built-in puppy engine:', err);
     return null;
   }
 };
@@ -460,7 +376,7 @@ export const processPickyMessage = (
   if (text.includes('hi') || text.includes('hello') || text.includes('hey') || text.includes('picky') || text.includes('who are you')) {
     return {
       response: {
-        reply: `*Woof woof!* 🐶 Hi there! I'm **Picky**, your tiny puppy assistant! 🎀🐾\n\nHow may I help you today? I can help you report animal abuse, guide you through adoption, create lost dog flyers, answer dog care questions, or record messages for the admins!`,
+        reply: `*Woof woof!* 🐶 Hi there! I'm **Picky**, your tiny girl puppy assistant! 🎀🐾\n\nHow may I help you today? I can help you report animal abuse, guide you through adoption, create lost dog flyers, answer dog care questions, or record messages for the admins!`,
         suggestedPrompts: ['🚨 Report dog abuse', '🏡 Adopt a rescued dog', '🔍 Post missing/found dog', '🪙 Support medical fund']
       },
       newContext: { activeFlow: null, step: 0, draftData: {} }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageCircle, X, Send, Sparkles, Settings, ArrowRight, RotateCcw, Volume2, VolumeX, CheckCircle, ShieldCheck, Heart } from 'lucide-react';
-import { playClickSound, playPuppyBark, playHeartPop } from '../utils/audio';
-import { processPickyMessage, queryZeroGCompute, getZeroGConfig, saveZeroGConfig, ZeroGConfig, PickyConversationContext } from '../utils/pickyAi';
+import { X, Send, ArrowRight, RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import { playClickSound, playPuppyBark } from '../utils/audio';
+import { processPickyMessage, PickyConversationContext } from '../utils/pickyAi';
 
 interface PickyChatBoxProps {
   onNavigateSection: (sectionId: string) => void;
@@ -25,8 +25,6 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [showConfig, setShowConfig] = useState(false);
-  const [zeroGConfig, setZeroGConfigState] = useState<ZeroGConfig>(getZeroGConfig());
   const [unreadCount, setUnreadCount] = useState(1);
   
   // Picky conversation context
@@ -76,7 +74,7 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
     setIsOpen(!isOpen);
   };
 
-  const handleSendMessage = async (textToSend?: string) => {
+  const handleSendMessage = (textToSend?: string) => {
     const text = (textToSend || inputText).trim();
     if (!text) return;
 
@@ -92,18 +90,7 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
     setInputText('');
     setIsTyping(true);
 
-    // 1. Check if 0G Compute API is configured
-    let aiReplyText: string | null = null;
-    if (zeroGConfig.apiKey && zeroGConfig.apiKey.trim().length > 0) {
-      const history = messages.slice(-4).map(m => ({
-        role: (m.sender === 'picky' ? 'assistant' : 'user') as 'assistant' | 'user',
-        content: m.text
-      }));
-      history.push({ role: 'user', content: text });
-      aiReplyText = await queryZeroGCompute(history, zeroGConfig);
-    }
-
-    // 2. Process with Picky built-in intake engine
+    // Process with Picky built-in intake engine
     const { response, newContext } = processPickyMessage(text, context);
     setContext(newContext);
 
@@ -138,14 +125,14 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
       const pickyMsg: Message = {
         id: `picky-${Date.now()}`,
         sender: 'picky',
-        text: aiReplyText || response.reply,
+        text: response.reply,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         actionLink: response.actionLink,
         suggestedPrompts: response.suggestedPrompts
       };
 
       setMessages((prev) => [...prev, pickyMsg]);
-    }, 600);
+    }, 500);
   };
 
   const handleResetChat = () => {
@@ -165,13 +152,6 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
         ]
       }
     ]);
-  };
-
-  const handleSaveConfig = (e: React.FormEvent) => {
-    e.preventDefault();
-    playHeartPop();
-    saveZeroGConfig(zeroGConfig);
-    setShowConfig(false);
   };
 
   return (
@@ -259,15 +239,6 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
                 <RotateCcw className="w-4 h-4" />
               </button>
 
-              {/* 0G Config Button */}
-              <button
-                onClick={() => setShowConfig(!showConfig)}
-                className={`p-1.5 rounded-full hover:bg-white/10 hover:text-white transition-colors ${showConfig ? 'text-[#f5d7b7] bg-white/10' : ''}`}
-                title="0G Compute API Settings"
-              >
-                <Settings className="w-4 h-4" />
-              </button>
-
               {/* Close Button */}
               <button
                 onClick={handleOpen}
@@ -278,55 +249,6 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
               </button>
             </div>
           </div>
-
-          {/* 0G Compute Configuration Drawer */}
-          {showConfig && (
-            <div className="bg-[#faefe4] border-b border-[#ebd7c3] p-4 text-xs space-y-3 animate-fadeIn">
-              <div className="flex items-center justify-between">
-                <span className="font-fredoka font-bold text-[#352018] flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#b87d55]" />
-                  <span>0G Compute AI Integration (Optional)</span>
-                </span>
-                <button
-                  onClick={() => setShowConfig(false)}
-                  className="text-[#8a5b3a] hover:text-[#352018]"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <p className="text-[11px] text-[#6b4c38] leading-tight">
-                Picky operates with her smart built-in puppy assistant. You can optionally connect your custom 0G Compute API key below.
-              </p>
-
-              <form onSubmit={handleSaveConfig} className="space-y-2">
-                <input
-                  type="text"
-                  placeholder="0G API Key (e.g. 0g-comp-...)"
-                  value={zeroGConfig.apiKey || ''}
-                  onChange={(e) => setZeroGConfigState({ ...zeroGConfig, apiKey: e.target.value })}
-                  className="w-full p-2 rounded-lg border border-[#ebd7c3] bg-white text-xs"
-                />
-
-                <input
-                  type="text"
-                  placeholder="0G Endpoint URL"
-                  value={zeroGConfig.endpoint || ''}
-                  onChange={(e) => setZeroGConfigState({ ...zeroGConfig, endpoint: e.target.value })}
-                  className="w-full p-2 rounded-lg border border-[#ebd7c3] bg-white text-xs"
-                />
-
-                <div className="flex justify-end gap-2 pt-1">
-                  <button
-                    type="submit"
-                    className="bg-[#4a2e1b] text-white font-fredoka text-xs px-4 py-1.5 rounded-lg shadow"
-                  >
-                    Save 0G Settings
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
 
           {/* Chat Messages List */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3.5 text-xs">
