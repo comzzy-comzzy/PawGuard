@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Volume2, VolumeX, Menu, X, Heart, ShieldAlert, PhoneCall } from 'lucide-react';
-import { toggleSound, isSoundEnabled, playClickSound } from '../utils/audio';
+import { Volume2, VolumeX, Menu, X, Heart, ShieldAlert, PhoneCall, Music } from 'lucide-react';
+import { toggleCalmPuppyMusic, isPuppyMusicPlaying, playClickSound } from '../utils/audio';
 
 interface NavbarProps {
   activeSection: string;
@@ -15,7 +15,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenReport,
   onOpenEmergency,
 }) => {
-  const [soundOn, setSoundOn] = useState(isSoundEnabled());
+  const [musicOn, setMusicOn] = useState(isPuppyMusicPlaying());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
@@ -45,25 +45,22 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
   };
 
-  const handleSoundToggle = () => {
-    const newState = toggleSound();
-    setSoundOn(newState);
-    if (newState) {
-      playClickSound();
-    }
+  const handleMusicToggle = () => {
+    const newState = toggleCalmPuppyMusic();
+    setMusicOn(newState);
   };
 
   return (
     <header className="sticky top-0 z-40 bg-[#fbf6f0]/95 backdrop-blur-md border-b border-[#ebdcca]/80 transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-2 sm:gap-4">
         
-        {/* Logo matching PNG */}
+        {/* Logo matching PNG with flex-shrink-0 to prevent any overlap */}
         <button 
           onClick={() => handleNavClick('home')}
-          className="flex items-center gap-2.5 group text-left focus:outline-none"
+          className="flex items-center gap-2.5 group text-left focus:outline-none flex-shrink-0 mr-2 sm:mr-4 z-10"
         >
           {/* Paw Icon SVG */}
-          <div className="w-10 h-10 rounded-2xl bg-[#4a2e1b] flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
+          <div className="w-10 h-10 rounded-2xl bg-[#4a2e1b] flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform flex-shrink-0">
             <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
               <circle cx="12" cy="15" r="4.5" />
               <circle cx="6.5" cy="10" r="2.2" />
@@ -72,24 +69,22 @@ export const Navbar: React.FC<NavbarProps> = ({
               <circle cx="15" cy="6" r="2.2" />
             </svg>
           </div>
-          <div>
-            <span className="font-fredoka text-2xl sm:text-3xl font-bold tracking-tight text-[#352018] group-hover:text-[#4a2e1b] transition-colors">
-              PawGuard
-            </span>
-          </div>
+          <span className="font-fredoka text-2xl sm:text-3xl font-bold tracking-tight text-[#352018] group-hover:text-[#4a2e1b] transition-colors whitespace-nowrap">
+            PawGuard
+          </span>
         </button>
 
-        {/* Center Navigation items matching PNG */}
-        <nav className="hidden lg:flex items-center gap-1.5 xl:gap-2">
+        {/* Center Navigation items with responsive padding so it never crowds or overlaps */}
+        <nav className="hidden lg:flex items-center gap-1 xl:gap-2 flex-shrink-0">
           {navItems.map((item) => {
             const isActive = activeSection === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className={`font-fredoka text-sm xl:text-base font-medium px-4 py-2 rounded-full transition-all duration-200 ${
+                className={`font-fredoka text-xs xl:text-sm font-medium px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-full transition-all duration-200 whitespace-nowrap ${
                   isActive
-                    ? 'bg-[#4a2e1b] text-white shadow-sm font-semibold scale-105'
+                    ? 'bg-[#4a2e1b] text-white shadow-sm font-semibold'
                     : 'text-[#352018] hover:text-[#4a2e1b] hover:bg-[#faefe4]'
                 }`}
               >
@@ -100,15 +95,27 @@ export const Navbar: React.FC<NavbarProps> = ({
         </nav>
 
         {/* Right Actions matching PNG */}
-        <div className="flex items-center gap-3">
-          {/* Audio toggle */}
+        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          
+          {/* Calm Puppy Music Button */}
           <button
-            onClick={handleSoundToggle}
-            className="p-2.5 rounded-full text-[#4a2e1b] bg-[#faefe4] hover:bg-[#f2e2d2] border border-[#e5cfbd] transition-colors"
-            title={soundOn ? 'Sound effects enabled' : 'Sound effects muted'}
-            aria-label="Toggle Sound"
+            onClick={handleMusicToggle}
+            className={`p-2.5 rounded-full border transition-all flex items-center gap-1.5 ${
+              musicOn
+                ? 'bg-[#4a2e1b] text-white border-[#4a2e1b] shadow-md ring-2 ring-[#4a2e1b]/20 animate-pulse'
+                : 'text-[#4a2e1b] bg-[#faefe4] hover:bg-[#f2e2d2] border-[#e5cfbd]'
+            }`}
+            title={musicOn ? 'Pause Calm Puppy Music' : 'Play Calm Puppy Music'}
+            aria-label="Toggle Calm Puppy Music"
           >
-            {soundOn ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5 opacity-60" />}
+            {musicOn ? (
+              <>
+                <Music className="w-4 h-4" />
+                <span className="text-[11px] font-fredoka font-semibold hidden md:inline">Puppy Music</span>
+              </>
+            ) : (
+              <VolumeX className="w-5 h-5 opacity-60" />
+            )}
           </button>
 
           {/* "Get Help" button matching PNG */}
@@ -117,7 +124,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               playClickSound();
               onOpenEmergency();
             }}
-            className="flex items-center gap-2 bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-medium text-sm sm:text-base px-5 py-2.5 rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all"
+            className="flex items-center gap-1.5 sm:gap-2 bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-medium text-xs sm:text-sm md:text-base px-4 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all whitespace-nowrap"
           >
             <span>Get Help</span>
             <Heart className="w-4 h-4 fill-white text-white" />

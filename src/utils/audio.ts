@@ -1,6 +1,10 @@
-// Web Audio API Synthesizer for wholesome dog and UI sounds
+// Web Audio API Synthesizer for calm puppy music and UI sound effects
 let audioCtx: AudioContext | null = null;
-let soundEnabled = true;
+let musicGainNode: GainNode | null = null;
+let musicDelayNode: DelayNode | null = null;
+let isMusicPlaying = false;
+let musicIntervalId: number | null = null;
+let noteIndex = 0;
 
 function getAudioContext(): AudioContext | null {
   if (typeof window === 'undefined') return null;
@@ -16,88 +20,224 @@ function getAudioContext(): AudioContext | null {
   return audioCtx;
 }
 
-export const toggleSound = (enabled?: boolean): boolean => {
-  if (enabled !== undefined) {
-    soundEnabled = enabled;
-  } else {
-    soundEnabled = !soundEnabled;
-  }
-  return soundEnabled;
-};
+// Relaxing, gentle puppy lullaby note frequencies (Hz) in C-Major Pentatonic / Warm Lydian
+// Frequencies: C3=130.81, G3=196.00, A3=220.00, C4=261.63, D4=293.66, E4=329.63, G4=392.00, A4=440.00, C5=523.25, D5=587.33, E5=659.25, G5=783.99
+const PUPPY_LULLABY_NOTES = [
+  // Measure 1: Gentle C major opening
+  { note: 261.63, bass: 130.81, duration: 0.9 }, // C4 + C3
+  { note: 329.63, bass: null,   duration: 0.8 }, // E4
+  { note: 392.00, bass: 196.00, duration: 1.1 }, // G4 + G3
+  { note: 523.25, bass: null,   duration: 0.9 }, // C5
 
-export const isSoundEnabled = (): boolean => soundEnabled;
+  // Measure 2: Soothing descent
+  { note: 440.00, bass: 174.61, duration: 1.0 }, // A4 + F3
+  { note: 392.00, bass: null,   duration: 0.8 }, // G4
+  { note: 329.63, bass: 196.00, duration: 1.2 }, // E4 + G3
+  { note: 293.66, bass: null,   duration: 0.9 }, // D4
+
+  // Measure 3: Warm peaceful melody
+  { note: 329.63, bass: 130.81, duration: 0.9 }, // E4 + C3
+  { note: 392.00, bass: null,   duration: 0.8 }, // G4
+  { note: 440.00, bass: 220.00, duration: 1.1 }, // A4 + A3
+  { note: 587.33, bass: null,   duration: 0.9 }, // D5
+
+  // Measure 4: Gentle cuddle cadence
+  { note: 523.25, bass: 196.00, duration: 1.2 }, // C5 + G3
+  { note: 440.00, bass: null,   duration: 0.8 }, // A4
+  { note: 392.00, bass: 130.81, duration: 1.4 }, // G4 + C3
+  { note: 261.63, bass: null,   duration: 1.2 }, // C4
+
+  // Measure 5: Sweet dream variation
+  { note: 392.00, bass: 174.61, duration: 0.9 }, // G4 + F3
+  { note: 523.25, bass: null,   duration: 0.8 }, // C5
+  { note: 659.25, bass: 196.00, duration: 1.2 }, // E5 + G3
+  { note: 587.33, bass: null,   duration: 0.9 }, // D5
+
+  // Measure 6: Peaceful resolution
+  { note: 523.25, bass: 220.00, duration: 1.0 }, // C5 + A3
+  { note: 392.00, bass: null,   duration: 0.8 }, // G4
+  { note: 329.63, bass: 196.00, duration: 1.0 }, // E4 + G3
+  { note: 293.66, bass: 130.81, duration: 1.6 }, // D4 + C3
+];
 
 /**
- * Plays an adorable puppy playful bark synthesized with oscillators
+ * Synthesizes a soft, warm music-box / kalimba bell tone with gentle harmonic overtones
  */
-export const playPuppyBark = () => {
-  if (!soundEnabled) return;
+function playTone(freq: number, isBass = false) {
+  const ctx = getAudioContext();
+  if (!ctx || !musicGainNode) return;
+
+  const now = ctx.currentTime;
+
+  // Primary soft sine oscillator
+  const osc1 = ctx.createOscillator();
+  const osc2 = ctx.createOscillator();
+  const gain = ctx.createGain();
+  const filter = ctx.createBiquadFilter();
+
+  osc1.type = 'sine';
+  osc1.frequency.setValueAtTime(freq, now);
+
+  // Subtle warm overtone (soft triangle)
+  osc2.type = 'triangle';
+  osc2.frequency.setValueAtTime(freq * (isBass ? 2 : 2.003), now);
+
+  // Warm gentle low-pass filter
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(isBass ? 450 : 1200, now);
+  filter.frequency.exponentialRampToValueAtTime(isBass ? 200 : 500, now + (isBass ? 1.4 : 1.0));
+
+  const peakVol = isBass ? 0.08 : 0.09;
+  const decayTime = isBass ? 1.5 : 1.2;
+
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(peakVol, now + 0.04);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + decayTime);
+
+  osc1.connect(filter);
+  osc2.connect(filter);
+  filter.connect(gain);
+  gain.connect(musicGainNode);
+
+  if (musicDelayNode) {
+    gain.connect(musicDelayNode);
+  }
+
+  osc1.start(now);
+  osc2.start(now);
+  osc1.stop(now + decayTime + 0.1);
+  osc2.stop(now + decayTime + 0.1);
+}
+
+/**
+ * Starts the calm, peaceful puppy background music
+ */
+export const startCalmPuppyMusic = () => {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  if (isMusicPlaying) return;
+  isMusicPlaying = true;
+
+  // Create Master Music Gain with soft fade-in
+  musicGainNode = ctx.createGain();
+  musicGainNode.gain.setValueAtTime(0.001, ctx.currentTime);
+  musicGainNode.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 1.2);
+  musicGainNode.connect(ctx.destination);
+
+  // Create warm spatial delay for peaceful ambient resonance
+  musicDelayNode = ctx.createDelay();
+  musicDelayNode.delayTime.setValueAtTime(0.32, ctx.currentTime);
+
+  const delayFeedback = ctx.createGain();
+  delayFeedback.gain.setValueAtTime(0.22, ctx.currentTime);
+
+  const delayFilter = ctx.createBiquadFilter();
+  delayFilter.type = 'lowpass';
+  delayFilter.frequency.setValueAtTime(900, ctx.currentTime);
+
+  musicDelayNode.connect(delayFilter);
+  delayFilter.connect(delayFeedback);
+  delayFeedback.connect(musicDelayNode);
+  delayFilter.connect(musicGainNode);
+
+  noteIndex = 0;
+
+  // Step function for melody
+  const step = () => {
+    if (!isMusicPlaying) return;
+
+    const current = PUPPY_LULLABY_NOTES[noteIndex % PUPPY_LULLABY_NOTES.length];
+    
+    // Play melody note
+    playTone(current.note, false);
+
+    // Play bass root if present
+    if (current.bass) {
+      playTone(current.bass, true);
+    }
+
+    noteIndex++;
+    musicIntervalId = window.setTimeout(step, 620); // Peaceful tempo ~96 BPM
+  };
+
+  step();
+};
+
+/**
+ * Stops the calm puppy background music with a soft fade-out
+ */
+export const stopCalmPuppyMusic = () => {
+  if (!isMusicPlaying) return;
+  isMusicPlaying = false;
+
+  if (musicIntervalId !== null) {
+    clearTimeout(musicIntervalId);
+    musicIntervalId = null;
+  }
+
+  if (musicGainNode && audioCtx) {
+    try {
+      const now = audioCtx.currentTime;
+      musicGainNode.gain.setValueAtTime(musicGainNode.gain.value, now);
+      musicGainNode.gain.linearRampToValueAtTime(0.0001, now + 0.6);
+      setTimeout(() => {
+        musicGainNode?.disconnect();
+        musicGainNode = null;
+      }, 700);
+    } catch {
+      musicGainNode = null;
+    }
+  }
+};
+
+/**
+ * Toggle the calm puppy music on and off
+ */
+export const toggleCalmPuppyMusic = (): boolean => {
+  if (isMusicPlaying) {
+    stopCalmPuppyMusic();
+    return false;
+  } else {
+    startCalmPuppyMusic();
+    return true;
+  }
+};
+
+export const isPuppyMusicPlaying = (): boolean => isMusicPlaying;
+
+/**
+ * Plays a discrete gentle UI click
+ */
+export const playClickSound = () => {
   try {
     const ctx = getAudioContext();
     if (!ctx) return;
     const now = ctx.currentTime;
-
-    // First woof syllable
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    const filter = ctx.createBiquadFilter();
 
-    osc.type = 'triangle';
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(1200, now);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(800, now);
+    osc.frequency.exponentialRampToValueAtTime(400, now + 0.04);
 
-    osc.frequency.setValueAtTime(320, now);
-    osc.frequency.exponentialRampToValueAtTime(540, now + 0.04);
-    osc.frequency.exponentialRampToValueAtTime(280, now + 0.14);
+    gain.gain.setValueAtTime(0.04, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
 
-    gain.gain.setValueAtTime(0.01, now);
-    gain.gain.linearRampToValueAtTime(0.35, now + 0.03);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
-
-    osc.connect(filter);
-    filter.connect(gain);
+    osc.connect(gain);
     gain.connect(ctx.destination);
 
     osc.start(now);
-    osc.stop(now + 0.17);
-
-    // Second smaller companion woof
-    setTimeout(() => {
-      if (!ctx || ctx.state === 'closed') return;
-      const now2 = ctx.currentTime;
-      const osc2 = ctx.createOscillator();
-      const gain2 = ctx.createGain();
-      const filter2 = ctx.createBiquadFilter();
-
-      osc2.type = 'triangle';
-      filter2.type = 'lowpass';
-      filter2.frequency.setValueAtTime(1400, now2);
-
-      osc2.frequency.setValueAtTime(380, now2);
-      osc2.frequency.exponentialRampToValueAtTime(620, now2 + 0.03);
-      osc2.frequency.exponentialRampToValueAtTime(320, now2 + 0.12);
-
-      gain2.gain.setValueAtTime(0.01, now2);
-      gain2.gain.linearRampToValueAtTime(0.28, now2 + 0.03);
-      gain2.gain.exponentialRampToValueAtTime(0.001, now2 + 0.14);
-
-      osc2.connect(filter2);
-      filter2.connect(gain2);
-      gain2.connect(ctx.destination);
-
-      osc2.start(now2);
-      osc2.stop(now2 + 0.15);
-    }, 120);
+    osc.stop(now + 0.06);
   } catch {
     // Graceful fallback
   }
 };
 
 /**
- * Plays a cheerful happy heart pop sound
+ * Heart pop sound
  */
 export const playHeartPop = () => {
-  if (!soundEnabled) return;
   try {
     const ctx = getAudioContext();
     if (!ctx) return;
@@ -108,94 +248,45 @@ export const playHeartPop = () => {
 
     osc.type = 'sine';
     osc.frequency.setValueAtTime(440, now);
-    osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+    osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
 
-    gain.gain.setValueAtTime(0.2, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+    gain.gain.setValueAtTime(0.06, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
 
     osc.connect(gain);
     gain.connect(ctx.destination);
 
     osc.start(now);
-    osc.stop(now + 0.2);
-  } catch {}
+    osc.stop(now + 0.13);
+  } catch {
+    // Graceful fallback
+  }
 };
 
 /**
- * Plays a wholesome treat munch/cheer sound
- */
-export const playTreatSound = () => {
-  if (!soundEnabled) return;
-  try {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-    const now = ctx.currentTime;
-
-    [0, 0.08, 0.16].forEach((delay, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(520 + i * 110, now + delay);
-      osc.frequency.exponentialRampToValueAtTime(700 + i * 80, now + delay + 0.06);
-
-      gain.gain.setValueAtTime(0.18, now + delay);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.08);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now + delay);
-      osc.stop(now + delay + 0.09);
-    });
-  } catch {}
-};
-
-/**
- * Plays a gentle emergency alert / dispatch chime
+ * Alert chime
  */
 export const playAlertSound = () => {
-  if (!soundEnabled) return;
-  try {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-    const now = ctx.currentTime;
-
-    const freqs = [659.25, 880, 1046.5]; // E5, A5, C6
-    freqs.forEach((freq, idx) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, now + idx * 0.08);
-
-      gain.gain.setValueAtTime(0.15, now + idx * 0.08);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.25);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now + idx * 0.08);
-      osc.stop(now + idx * 0.08 + 0.26);
-    });
-  } catch {}
-};
-
-/**
- * Plays a warm button click tap
- */
-export const playClickSound = () => {
-  if (!soundEnabled) return;
   try {
     const ctx = getAudioContext();
     if (!ctx) return;
     const now = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(600, now);
-    osc.frequency.exponentialRampToValueAtTime(300, now + 0.03);
-    gain.gain.setValueAtTime(0.1, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(523.25, now); // C5
+    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+
+    gain.gain.setValueAtTime(0.05, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
     osc.connect(gain);
     gain.connect(ctx.destination);
+
     osc.start(now);
-    osc.stop(now + 0.05);
-  } catch {}
+    osc.stop(now + 0.36);
+  } catch {
+    // Graceful fallback
+  }
 };
