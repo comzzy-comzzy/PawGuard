@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, ShieldCheck, Stethoscope, Utensils, Home, Copy, Check, Coins, Gift, ArrowLeft } from 'lucide-react';
+import { Heart, ShieldCheck, Stethoscope, Utensils, Home, Copy, Check, Coins, Gift, ArrowLeft, Sparkles } from 'lucide-react';
 import { playHeartPop, playClickSound } from '../utils/audio';
 import { DONATION_WALLETS } from '../data/mockData';
 
@@ -13,11 +13,70 @@ export const SupportSection: React.FC<SupportSectionProps> = ({ onNavigateSectio
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const supportCategories = [
-    { label: 'Emergency Nutrition Kits', desc: 'Sponsor recovery food and vitamins for starved or rescued dogs', icon: Utensils },
-    { label: 'Vaccines & Preventive Care', desc: 'Fund core vaccinations, deworming, and microchipping for rescued strays', icon: ShieldCheck },
-    { label: 'Veterinary Trauma & Surgery', desc: 'Direct support for wound suturing, emergency orthopedic surgery, and pain relief', icon: Stethoscope },
-    { label: 'Shelter & Foster Supplies', desc: 'Provide transport crates, warm blankets, and safe shelter accommodations', icon: Home },
+    {
+      id: 'nutrition',
+      label: 'Emergency Nutrition Kits',
+      desc: 'Sponsor recovery food and vitamins for starved or rescued dogs',
+      icon: Utensils,
+      statement: '100% of donations to this initiative fund specialized recovery food, electrolytes, clinical recovery paste, and therapeutic refeeding kits for starved and emaciated dogs.'
+    },
+    {
+      id: 'vaccines',
+      label: 'Vaccines & Preventive Care',
+      desc: 'Fund core vaccinations, deworming, and microchipping for rescued strays',
+      icon: ShieldCheck,
+      statement: '100% of donations to this initiative fund essential core vaccinations, deworming treatments, tick and flea preventatives, and microchipping for rescued dogs.'
+    },
+    {
+      id: 'surgery',
+      label: 'Veterinary Trauma & Surgery',
+      desc: 'Direct support for wound suturing, emergency orthopedic surgery, and pain relief',
+      icon: Stethoscope,
+      statement: '100% of donations to this initiative fund emergency surgeries, fracture plating, wound suturing, anesthesia, and intensive surgical triage for injured and abused dogs.'
+    },
+    {
+      id: 'shelter',
+      label: 'Shelter & Foster Supplies',
+      desc: 'Provide transport crates, warm blankets, and safe shelter accommodations',
+      icon: Home,
+      statement: '100% of donations to this initiative provide safe transport crates, warm orthopedic blankets, recovery pens, and essential care supplies for dogs in foster shelters.'
+    },
   ];
+
+  const getCauseContent = (category: string | null) => {
+    switch (category) {
+      case 'Emergency Nutrition Kits':
+        return {
+          title: 'Emergency Nutrition & Starvation Recovery',
+          badge: 'Emergency Nutrition Kits',
+          statement: '100% of donations to this initiative fund specialized recovery food, electrolytes, clinical recovery paste, and therapeutic refeeding kits for starved and emaciated dogs.',
+        };
+      case 'Vaccines & Preventive Care':
+        return {
+          title: 'Vaccines & Preventive Healthcare',
+          badge: 'Vaccines & Preventive Care',
+          statement: '100% of donations to this initiative fund essential core vaccinations, deworming treatments, tick and flea preventatives, and microchipping for rescued dogs.',
+        };
+      case 'Veterinary Trauma & Surgery':
+        return {
+          title: 'Veterinary Trauma & Emergency Surgery',
+          badge: 'Veterinary Trauma & Surgery',
+          statement: '100% of donations to this initiative fund emergency surgeries, fracture plating, wound suturing, anesthesia, and intensive surgical triage for injured and abused dogs.',
+        };
+      case 'Shelter & Foster Supplies':
+        return {
+          title: 'Shelter & Foster Accommodation Supplies',
+          badge: 'Shelter & Foster Supplies',
+          statement: '100% of donations to this initiative provide safe transport crates, warm orthopedic blankets, recovery pens, and essential care supplies for dogs in foster shelters.',
+        };
+      default:
+        return {
+          title: 'PawGuard Rescue & Medical Support',
+          badge: 'General Medical Support',
+          statement: '100% of contributions directly support emergency rescue operations, life-saving veterinary treatment, and urgent care for dogs in critical distress.',
+        };
+    }
+  };
 
   const handleOpenWalletsForCause = (category: string) => {
     playHeartPop();
@@ -59,6 +118,8 @@ export const SupportSection: React.FC<SupportSectionProps> = ({ onNavigateSectio
     },
   ];
 
+  const currentCause = getCauseContent(selectedCategory);
+
   return (
     <section id="support" className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#faefe4]">
       <div className="max-w-7xl mx-auto space-y-10">
@@ -92,7 +153,7 @@ export const SupportSection: React.FC<SupportSectionProps> = ({ onNavigateSectio
           </h1>
 
           <p className="font-sans text-sm sm:text-base text-[#6b4c38]">
-            Every penny counts. Your contributions directly fund emergency veterinary medical surgeries, rescue transport, food, and shelter for dogs in danger.
+            Every penny counts. Choose a specific rescue initiative below to direct your contribution to the cause that matters most to you.
           </p>
 
           <div className="flex items-center justify-center gap-3 pt-3">
@@ -167,6 +228,8 @@ export const SupportSection: React.FC<SupportSectionProps> = ({ onNavigateSectio
         {/* Tab 2: Embedded Crypto Donation Wallets */}
         {activeTab === 'wallets' && (
           <div className="max-w-2xl mx-auto bg-white rounded-3xl border-2 border-[#4a2e1b] shadow-xl p-6 sm:p-10 space-y-6 animate-fadeIn">
+            
+            {/* Header of Wallets */}
             <div className="border-b border-[#ebd7c3] pb-4 space-y-1">
               <div className="flex items-center justify-between">
                 <h3 className="font-fredoka text-2xl font-bold text-[#26160d] flex items-center gap-2">
@@ -174,24 +237,55 @@ export const SupportSection: React.FC<SupportSectionProps> = ({ onNavigateSectio
                   <span>PawGuard Medical Support Wallets</span>
                 </h3>
                 <button
-                  onClick={() => setActiveTab('causes')}
+                  onClick={() => {
+                    setSelectedCategory(null);
+                    setActiveTab('causes');
+                  }}
                   className="text-xs font-fredoka font-bold text-[#8a5b3a] hover:underline"
                 >
                   ← Back to Causes
                 </button>
               </div>
-              <p className="text-xs text-[#6b4c38]">
-                {selectedCategory ? `Designated Cause: ${selectedCategory}` : '100% of contributions fund immediate rescue operations and medical care.'}
+              <p className="text-xs font-semibold text-[#8a5b3a]">
+                Designated Cause: {currentCause.badge}
               </p>
             </div>
 
-            {/* Heartwarming Banner */}
-            <div className="bg-[#faefe4] border border-[#ebd7c3] p-4 rounded-2xl text-center space-y-1">
-              <div className="font-fredoka text-base font-bold text-[#26160d]">
-                Every Penny Counts
+            {/* Quick Cause Switcher Pills */}
+            <div className="flex flex-wrap items-center gap-1.5 pb-1">
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className={`text-[11px] font-fredoka px-3 py-1 rounded-full transition-all ${
+                  selectedCategory === null
+                    ? 'bg-[#4a2e1b] text-white font-bold'
+                    : 'bg-[#faefe4] text-[#6b442b] hover:bg-[#ebd7c3]'
+                }`}
+              >
+                All Medical
+              </button>
+              {supportCategories.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setSelectedCategory(c.label)}
+                  className={`text-[11px] font-fredoka px-3 py-1 rounded-full transition-all ${
+                    selectedCategory === c.label
+                      ? 'bg-[#4a2e1b] text-white font-bold'
+                      : 'bg-[#faefe4] text-[#6b442b] hover:bg-[#ebd7c3]'
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Cause-Specific Tailored Statement Banner */}
+            <div className="bg-[#faefe4] border border-[#ebd7c3] p-5 rounded-2xl space-y-1.5">
+              <div className="font-fredoka text-base font-bold text-[#26160d] flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-[#d94141]" />
+                <span>{currentCause.title}</span>
               </div>
               <p className="text-xs text-[#6b4c38] leading-relaxed">
-                100% of donations go towards immediate emergency veterinary medical care, food supplies, and safe rescue transport for dogs suffering from abuse and abandonment.
+                {currentCause.statement}
               </p>
             </div>
 
@@ -245,7 +339,10 @@ export const SupportSection: React.FC<SupportSectionProps> = ({ onNavigateSectio
 
             <div className="pt-2">
               <button
-                onClick={() => setActiveTab('causes')}
+                onClick={() => {
+                  setSelectedCategory(null);
+                  setActiveTab('causes');
+                }}
                 className="w-full bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka font-semibold text-xs sm:text-sm py-3.5 rounded-full border border-[#ebd7c3] transition-colors"
               >
                 Return to Rescue Causes
