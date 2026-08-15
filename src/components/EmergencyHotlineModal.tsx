@@ -67,16 +67,13 @@ export const EmergencyHotlineModal: React.FC<EmergencyHotlineModalProps> = ({
                   <div className="font-fredoka text-base font-bold text-[#26160d]">
                     WhatsApp Emergency Desk
                   </div>
-                  <div className="font-mono text-sm font-bold text-[#128C7E]">
-                    {CONTACT_INFO.phone}
-                  </div>
                   <div className="text-xs text-[#7e5c46]">
                     Click to open chat and send instant location or photos
                   </div>
                 </div>
               </div>
 
-              <div className="bg-[#25D366] text-white font-fredoka text-xs font-semibold px-4 py-2 rounded-xl shadow flex items-center gap-1">
+              <div className="bg-[#25D366] text-white font-fredoka text-xs font-semibold px-4 py-2 rounded-xl shadow flex items-center gap-1 group-hover:bg-[#20ba59] transition-colors">
                 <span>Chat</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </div>
@@ -95,16 +92,13 @@ export const EmergencyHotlineModal: React.FC<EmergencyHotlineModalProps> = ({
                   <div className="font-fredoka text-base font-bold text-[#26160d]">
                     Email Support Desk
                   </div>
-                  <div className="font-mono text-sm font-bold text-[#4a2e1b]">
-                    {CONTACT_INFO.email}
-                  </div>
                   <div className="text-xs text-[#7e5c46]">
                     Click to send formal report or evidence files
                   </div>
                 </div>
               </div>
 
-              <div className="bg-[#4a2e1b] text-white font-fredoka text-xs font-semibold px-4 py-2 rounded-xl shadow flex items-center gap-1">
+              <div className="bg-[#4a2e1b] text-white font-fredoka text-xs font-semibold px-4 py-2 rounded-xl shadow flex items-center gap-1 group-hover:bg-[#352018] transition-colors">
                 <span>Email</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </div>
@@ -120,7 +114,7 @@ export const EmergencyHotlineModal: React.FC<EmergencyHotlineModalProps> = ({
             <ol className="list-decimal list-inside space-y-1 text-[#6b4c38] pl-1">
               <li><strong>Prioritize Safety:</strong> Do not put yourself in danger or confront aggressive abusers alone.</li>
               <li><strong>Note Key Information:</strong> Record the exact address, visual landmarks, and take photo evidence safely.</li>
-              <li><strong>Reach Out:</strong> Send details directly via WhatsApp ({CONTACT_INFO.phone}), Email ({CONTACT_INFO.email}), or use our online report tool.</li>
+              <li><strong>Reach Out:</strong> Send details directly via WhatsApp, Email, or use our online report tool.</li>
             </ol>
           </div>
 

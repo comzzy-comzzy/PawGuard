@@ -1,7 +1,6 @@
 import React from 'react';
-import { ShieldCheck, PhoneCall, Mail, MessageCircle } from 'lucide-react';
+import { ShieldCheck, PhoneCall } from 'lucide-react';
 import { playClickSound } from '../utils/audio';
-import { CONTACT_INFO } from '../data/mockData';
 
 interface FooterProps {
   onOpenReport: () => void;
