@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { LostFoundDog } from '../types';
-import { Search, MapPin, Phone, Printer, PlusCircle, X } from 'lucide-react';
+import { Search, MapPin, Phone, Printer, PlusCircle, X, MessageCircle, Mail } from 'lucide-react';
 import { playClickSound, playAlertSound } from '../utils/audio';
+import { CONTACT_INFO } from '../data/mockData';
 
 interface LostAndFoundSectionProps {
   items: LostFoundDog[];
@@ -42,8 +43,8 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
       lastSeenLocation: location || 'Reported Area',
       date: 'Just now',
       photoUrl: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop&q=80',
-      contactName: contactName || 'Rescue Coordinator',
-      contactPhone: contactPhone || '+1 (555) 000-HELP',
+      contactName: contactName || 'Reporter',
+      contactPhone: contactPhone || CONTACT_INFO.phone,
       reward: reward ? `$${reward} Reward` : undefined,
       details,
       hasMicrochip: false
@@ -83,13 +84,13 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-fredoka font-bold text-[#b87d55] uppercase tracking-wider">
               <Search className="w-4 h-4 text-[#4a2e1b]" />
-              <span>Reunification & Rescue Desk</span>
+              <span>Reunification & Rescue Noticeboard</span>
             </div>
             <h2 className="font-fredoka text-3xl sm:text-4xl font-bold text-[#26160d]">
-              Lost, Found & Injured Dogs
+              Lost, Abandoned & Injured Dogs
             </h2>
             <p className="font-sans text-sm sm:text-base text-[#6b4c38] max-w-2xl">
-              Community noticeboard to reunite lost pets, locate stray animals in need of medical intervention, and coordinate local searches.
+              Post notices for missing pets, report found strays, or alert our network about injured dogs needing urgent medical transport.
             </p>
           </div>
 
@@ -107,79 +108,69 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
           </div>
         </div>
 
-        {/* Filter Bar */}
-        <div className="flex items-center justify-center sm:justify-start gap-2 overflow-x-auto pb-1">
-          {[
-            { id: 'all', label: 'All Notices' },
-            { id: 'lost', label: 'Missing / Lost' },
-            { id: 'found', label: 'Found & Sheltered' },
-            { id: 'injured_stray', label: 'Injured Strays' },
-          ].map((f) => (
-            <button
-              key={f.id}
-              onClick={() => {
-                playClickSound();
-                setFilterType(f.id);
-              }}
-              className={`font-fredoka text-xs sm:text-sm px-4 py-2 rounded-full transition-all ${
-                filterType === f.id
-                  ? 'bg-[#4a2e1b] text-white font-bold shadow'
-                  : 'bg-white text-[#6b442b] hover:bg-[#faefe4] border border-[#ebd7c3]'
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
+        {/* Noticeboard Display */}
+        {filteredItems.length === 0 ? (
+          <div className="bg-white rounded-3xl p-10 sm:p-14 border-2 border-[#ebd7c3] text-center max-w-2xl mx-auto space-y-5 shadow-sm">
+            <div className="w-16 h-16 rounded-2xl bg-[#faefe4] text-[#4a2e1b] flex items-center justify-center mx-auto">
+              <Search className="w-8 h-8 text-[#b87d55]" />
+            </div>
 
-        {/* Noticeboard Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-3xl overflow-hidden border border-[#ebd7c3] shadow-sm hover:shadow-lg transition-all flex flex-col justify-between"
-            >
-              <div className="relative h-52 bg-[#faefe4] overflow-hidden">
-                <img
-                  src={item.photoUrl}
-                  alt={item.dogName}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-3 left-3">
-                  {getStatusBadge(item.status)}
-                </div>
+            <div className="space-y-2">
+              <h3 className="font-fredoka text-2xl font-bold text-[#26160d]">
+                No Lost or Injured Dog Notices Currently
+              </h3>
+              <p className="font-sans text-xs sm:text-sm text-[#6b4c38] max-w-md mx-auto leading-relaxed">
+                If your pet is missing or you found an abandoned or injured dog, create a notice or message us directly on WhatsApp or Email.
+              </p>
+            </div>
 
-                {item.reward && (
-                  <div className="absolute top-3 right-3 bg-[#f59e0b] text-[#78350f] font-fredoka font-bold text-xs px-2.5 py-0.5 rounded-full shadow border border-white">
-                    {item.reward}
-                  </div>
-                )}
-              </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => setShowReportModal(true)}
+                className="w-full sm:w-auto bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-xs sm:text-sm px-6 py-3 rounded-full shadow"
+              >
+                Post a Notice
+              </button>
 
-              <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
+              <a
+                href={CONTACT_INFO.whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto bg-[#25D366] hover:bg-[#1ebd59] text-white font-fredoka font-semibold text-xs sm:text-sm px-6 py-3 rounded-full shadow flex items-center justify-center gap-2"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>Message WhatsApp ({CONTACT_INFO.phone})</span>
+              </a>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredItems.map((item) => (
+              <div
+                key={item.id}
+                className="bg-white rounded-3xl overflow-hidden border border-[#ebd7c3] shadow-sm p-6 space-y-4 flex flex-col justify-between"
+              >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <h3 className="font-fredoka text-xl font-bold text-[#26160d]">
                       {item.dogName}
                     </h3>
-                    <span className="text-xs text-[#8a5b3a] font-semibold">{item.breed}</span>
+                    {getStatusBadge(item.status)}
                   </div>
-
-                  <div className="space-y-1 text-xs text-[#5e4537]">
-                    <p className="flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-[#b87d55] flex-shrink-0" />
-                      <span className="truncate"><strong>Last Seen:</strong> {item.lastSeenLocation}</span>
-                    </p>
-                    <p className="text-[#7e5c46] line-clamp-2 bg-[#fbf6f0] p-2.5 rounded-xl border border-[#ebd7c3]">
-                      {item.details}
-                    </p>
-                  </div>
+                  <p className="text-xs text-[#8a5b3a] font-semibold">{item.breed} • {item.color}</p>
+                  <p className="text-xs text-[#5e4537] flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-[#b87d55]" />
+                    <span>{item.lastSeenLocation}</span>
+                  </p>
+                  <p className="text-xs text-[#5e4537] bg-[#faefe4] p-3 rounded-xl">
+                    {item.details}
+                  </p>
                 </div>
 
                 <div className="pt-3 border-t border-[#f4ece1] flex items-center justify-between gap-2">
                   <a
                     href={`tel:${item.contactPhone}`}
-                    className="flex items-center gap-1.5 bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] text-xs font-fredoka font-semibold px-3 py-2 rounded-full transition-colors flex-1 justify-center"
+                    className="flex-1 bg-[#faefe4] text-[#4a2e1b] text-xs font-fredoka font-semibold py-2 rounded-full flex items-center justify-center gap-1.5"
                   >
                     <Phone className="w-3.5 h-3.5" />
                     <span>Call: {item.contactPhone}</span>
@@ -187,22 +178,18 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
 
                   {item.status === 'lost' && (
                     <button
-                      onClick={() => {
-                        playClickSound();
-                        setPosterDog(item);
-                      }}
-                      className="p-2 rounded-full bg-[#4a2e1b] hover:bg-[#352018] text-white transition-colors"
-                      title="Generate Printable Missing Poster"
+                      onClick={() => setPosterDog(item)}
+                      className="p-2 rounded-full bg-[#4a2e1b] text-white"
+                      title="Print Flyer"
                     >
                       <Printer className="w-4 h-4" />
                     </button>
                   )}
                 </div>
-
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Printable Poster Modal */}
         {posterDog && (
@@ -224,16 +211,6 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
                 <h3 className="font-fredoka text-2xl font-bold text-[#26160d]">
                   PLEASE HELP FIND {posterDog.dogName?.toUpperCase()}
                 </h3>
-
-                <div className="w-48 h-48 mx-auto rounded-2xl overflow-hidden border-2 border-black shadow">
-                  <img src={posterDog.photoUrl} alt={posterDog.dogName} className="w-full h-full object-cover" />
-                </div>
-
-                {posterDog.reward && (
-                  <div className="text-lg font-fredoka font-bold text-[#d94141] bg-[#fee2e2] py-1 px-4 rounded-full inline-block">
-                    {posterDog.reward} FOR SAFE RETURN
-                  </div>
-                )}
 
                 <div className="text-left text-xs space-y-1 bg-[#faefe4] p-4 rounded-xl text-[#352018]">
                   <p><strong>Breed / Color:</strong> {posterDog.breed} ({posterDog.color})</p>
@@ -310,7 +287,7 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
                     <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Breed & Color</label>
                     <input
                       type="text"
-                      placeholder="e.g. Golden Retriever, Cream"
+                      placeholder="e.g. Golden, Brown"
                       value={breed}
                       onChange={(e) => setBreed(e.target.value)}
                       className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
@@ -323,7 +300,7 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Oak Ridge Park, 5th Ave Gate"
+                    placeholder="e.g. Area, street name, district"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
@@ -336,7 +313,7 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
                     <input
                       type="tel"
                       required
-                      placeholder="+1 (555) 000-0000"
+                      placeholder="+234..."
                       value={contactPhone}
                       onChange={(e) => setContactPhone(e.target.value)}
                       className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
@@ -346,7 +323,7 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
                     <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Reward (Optional)</label>
                     <input
                       type="text"
-                      placeholder="e.g. 500"
+                      placeholder="Optional reward amount"
                       value={reward}
                       onChange={(e) => setReward(e.target.value)}
                       className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
@@ -358,7 +335,7 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
                   <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Details & Identifying Features</label>
                   <textarea
                     rows={2}
-                    placeholder="Collar color, unique markings, microchip ID, temperament..."
+                    placeholder="Collar color, unique markings, behavioral traits..."
                     value={details}
                     onChange={(e) => setDetails(e.target.value)}
                     className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
@@ -369,7 +346,7 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
                   type="submit"
                   className="w-full bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-sm py-3 rounded-full shadow transition-all mt-2"
                 >
-                  Publish Emergency Notice
+                  Publish Notice
                 </button>
               </form>
             </div>

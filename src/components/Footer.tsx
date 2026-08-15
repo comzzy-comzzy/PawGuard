@@ -1,6 +1,7 @@
 import React from 'react';
-import { ShieldCheck, PhoneCall, Heart } from 'lucide-react';
+import { ShieldCheck, PhoneCall, Mail, MessageCircle } from 'lucide-react';
 import { playClickSound } from '../utils/audio';
+import { CONTACT_INFO } from '../data/mockData';
 
 interface FooterProps {
   onOpenReport: () => void;
@@ -43,11 +44,22 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
 
             <p className="text-sm text-[#e5cfbd] leading-relaxed max-w-sm">
-              Protect Dogs, They Have Feelings Too. A compassionate community platform dedicated to preventing dog abuse, bullying, severe neglect, and unnecessary killing.
+              PawGuard — Protect Dogs, They Have Feelings Too. A community platform dedicated to preventing dog abuse, bullying, harassment, abandonment, and unnecessary killing.
             </p>
 
-            <div className="pt-2 flex items-center gap-2 text-xs text-[#d7b89c]">
-              <span>Dedicated to animal protection and welfare.</span>
+            <div className="space-y-1.5 text-xs text-[#d7b89c] pt-2">
+              <p className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-[#b87d55]" />
+                <a href={CONTACT_INFO.emailUrl} className="hover:text-white underline">
+                  {CONTACT_INFO.email}
+                </a>
+              </p>
+              <p className="flex items-center gap-2">
+                <MessageCircle className="w-4 h-4 text-[#25D366]" />
+                <a href={CONTACT_INFO.whatsappUrl} target="_blank" rel="noopener noreferrer" className="hover:text-white underline">
+                  WhatsApp: {CONTACT_INFO.phone}
+                </a>
+              </p>
             </div>
           </div>
 
@@ -69,7 +81,7 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <button onClick={() => handleNav('rescue')} className="hover:text-white transition-colors">
-                  Rescue Radar Map
+                  Rescue Reports
                 </button>
               </li>
               <li>
@@ -93,12 +105,12 @@ export const Footer: React.FC<FooterProps> = ({
             <ul className="space-y-2 text-sm text-[#e5cfbd]">
               <li>
                 <button onClick={() => handleNav('learn')} className="hover:text-white transition-colors">
-                  Canine Body Language
+                  Humane Education
                 </button>
               </li>
               <li>
                 <button onClick={() => handleNav('learn')} className="hover:text-white transition-colors">
-                  Cruelty Prevention Quiz
+                  Knowledge Assessment
                 </button>
               </li>
               <li>
@@ -108,26 +120,36 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <button onClick={() => handleNav('support')} className="hover:text-white transition-colors">
-                  Emergency Medical Fund
+                  Support Initiatives
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Emergency SOS Column */}
+          {/* Emergency Contact */}
           <div className="space-y-3">
             <h4 className="font-fredoka text-base font-bold text-white uppercase tracking-wider text-[#f5d7b7]">
-              Emergency Help
+              Direct Contact
             </h4>
             <div className="space-y-2.5 text-xs text-[#e5cfbd]">
-              <p>Witnessing animal cruelty?</p>
-              <button
-                onClick={onOpenEmergency}
-                className="w-full bg-[#d94141] hover:bg-[#b82e2e] text-white font-fredoka font-semibold py-2.5 px-4 rounded-xl shadow text-center flex items-center justify-center gap-1.5 transition-colors"
+              <a
+                href={CONTACT_INFO.whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full bg-[#25D366] hover:bg-[#1ebd59] text-white font-fredoka font-semibold py-2.5 px-4 rounded-xl shadow text-center flex items-center justify-center gap-1.5 transition-colors"
               >
-                <PhoneCall className="w-4 h-4" />
-                <span>Emergency Hotline</span>
-              </button>
+                <MessageCircle className="w-4 h-4" />
+                <span>WhatsApp: {CONTACT_INFO.phone}</span>
+              </a>
+
+              <a
+                href={CONTACT_INFO.emailUrl}
+                className="w-full bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka font-semibold py-2.5 px-4 rounded-xl shadow text-center flex items-center justify-center gap-1.5 transition-colors"
+              >
+                <Mail className="w-4 h-4" />
+                <span>Email Support Desk</span>
+              </a>
+
               <button
                 onClick={onOpenReport}
                 className="w-full bg-[#b87d55] hover:bg-[#a36c45] text-white font-fredoka font-semibold py-2.5 px-4 rounded-xl shadow text-center flex items-center justify-center gap-1.5 transition-colors"
@@ -144,11 +166,9 @@ export const Footer: React.FC<FooterProps> = ({
         <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#d7b89c]">
           <p>© 2026 PawGuard. Protect Dogs, They Have Feelings Too. All Rights Reserved.</p>
           <div className="flex items-center gap-4">
-            <span className="hover:text-white cursor-pointer">Privacy & Anonymous Reporting</span>
+            <span className="hover:text-white">Privacy & Protection</span>
             <span>•</span>
-            <span className="hover:text-white cursor-pointer">Animal Welfare Policy</span>
-            <span>•</span>
-            <span className="hover:text-white cursor-pointer">No-Kill Manifesto</span>
+            <span className="hover:text-white">Animal Welfare Policy</span>
           </div>
         </div>
 

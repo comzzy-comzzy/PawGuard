@@ -1,70 +1,67 @@
 # PawGuard — Protect Dogs, They Have Feelings Too
 
-PawGuard is a community platform dedicated to preventing dog abuse, abandonment, neglect, and unnecessary harm. It provides a real-time reporting system for dogs in danger, tracks rescue operations, lists verified adoptions, reunites lost pets with their owners, and educates the public on humane animal care.
+PawGuard is a community platform dedicated to preventing dog abuse, bullying, harassment, abandonment, and unnecessary killing. It provides a platform where people can report dogs being abused or in danger, share their location and evidence, and connect the report with rescue groups and volunteers.
 
 ---
 
-## Overview of Platform Capabilities
+## Contact & Dispatch Desk
 
-### 1. Hero Interface & Interactive Illustrations
-- Clean responsive layout matching the design specifications.
-- Animated character illustrations (Teddy and Oliver) with smooth continuous breathing, blinking, ear movement, and tail animations.
-- Quick action routing to emergency reporting and support desks.
+- **Email**: [kane69251@gmail.com](mailto:kane69251@gmail.com)
+- **WhatsApp**: [+2348105463507](https://wa.me/2348105463507)
 
-### 2. Cruelty & Danger Reporting System
-- Incident classification: Physical Abuse, Continuous Chaining, Starvation/Neglect, Abandonment, Dog Fighting, and Road Trauma.
-- Urgency level triage: Critical Danger, High Urgency, and In Progress.
-- Automatic GPS coordinate resolution and street address capture.
-- Secure photo and video evidence upload with timestamp tracking.
-- Anonymous reporting toggle to protect witness identity.
-- Automated dispatch simulation generating official Case IDs and notifying regional volunteers.
+---
 
-### 3. Real-Time Rescue Radar & Mission Tracking
-- Interactive incident board with status pipeline: Reported, Responder En Route, Under Vet Care, and Safe & Sheltered.
-- One-click volunteer assignment allowing community responders to accept active rescue dispatches.
-- Integrated GPS routing and case sharing.
+## Key Modules
 
-### 4. Adoption & Foster Management
-- Profiles for rescued dogs featuring health certifications, vaccination status, and temperament details.
-- Size and compatibility filters (good with children, dogs, or single-pet homes).
-- Multi-step adoption application form with meet-and-greet scheduling.
-- Virtual sponsorship program for ongoing medical and nutrition support.
+### 1. Hero & Animated Dogs
+- Responsive card container layout matching design specifications.
+- Animated canine character illustrations with natural head bobs, ear twitches, eye blinking, and tail wagging.
+- Quick action triggers to Report Abuse and Get Help.
 
-### 5. Lost, Found & Injured Animals Noticeboard
+### 2. Dog Abuse & Danger Reporting System
+- Classification for physical abuse, continuous chaining, neglect, abandonment, road trauma, and illegal culling.
+- Urgency level triage (Critical Danger, High Urgency, In Progress).
+- GPS coordinate detection and manual location entry with landmark notes.
+- Photo and video evidence upload simulator.
+- Anonymous reporting toggle.
+- Direct dispatch routing to WhatsApp (`+2348105463507`) and Email (`kane69251@gmail.com`).
+
+### 3. Location-Based Rescue Reports
+- Interactive case list and detail inspector for submitted reports.
+- Real-time status tracking and direct communication with rescue dispatch.
+
+### 4. Adoption & Foster Network
+- Interface to inquire about fostering/adopting or to list a rescued dog in need of a home.
+- Direct contact with the adoption desk via WhatsApp and Email.
+
+### 5. Lost, Abandoned & Injured Dogs Noticeboard
 - Public noticeboard for missing pets, found dogs, and injured strays.
-- Automated flyer generator producing printable missing pet posters with contact information.
+- Built-in printable flyer generator for missing dog alerts.
 
-### 6. Humane Education & Legal Guide
-- Canine body language decoder highlighting subtle distress and pain signals.
-- Legal overview of animal cruelty laws, tethering regulations, and evidence documentation standards.
-- Emergency first-aid guidance for heatstroke, toxin exposure, and trauma care.
-- Knowledge evaluation assessment with scoring and explanations.
+### 6. Humane Education & Care Guidance
+- Educational guides on preventing abuse, recognizing silent symptoms of neglect, ending abandonment, and humane treatment standards.
+- Interactive canine welfare knowledge assessment.
 
-### 7. Volunteer Network & Community Coordination
-- Dedicated volunteer roles: Rescue Transport Drivers, Foster Sanctuaries, Field Spotters, and Veterinary Assistants.
-- Community update feed for verified rescue stories and alerts.
-- Regional volunteer enrollment system.
+### 7. Volunteer Network
+- Volunteer registration form for rescue drivers, foster homes, and community spotters.
+- Direct enrollment linked with WhatsApp dispatch.
 
-### 8. Emergency Medical Fund
-- Transparent progress tracker for veterinary surgical interventions and medical equipment.
-- Direct funding tiers for emergency food kits, vaccination protocols, and trauma surgeries.
-
-### 9. 24/7 Emergency Dispatch Hotline
-- Direct access to round-the-clock emergency numbers, poison control centers, and rapid SOS broadcasts.
+### 8. Support & Medical Care Inquiries
+- Inquiries desk for veterinary medical supplies, nutrition sponsorships, and rescue transport support.
 
 ---
 
 ## Technology Stack
 
-- Frontend Framework: React 18 with TypeScript
-- Build Tool: Vite 6
-- Styling: Tailwind CSS and custom CSS keyframe animations
-- Icons: Lucide React
-- Audio Synthesis: Web Audio API (native browser oscillators)
+- **Frontend**: React 18 with TypeScript
+- **Build Tool**: Vite 6
+- **Styling**: Tailwind CSS with custom CSS keyframes
+- **Icons**: Lucide React
+- **Audio Synthesis**: Web Audio API
 
 ---
 
-## Local Setup
+## Local Development
 
 1. Clone the repository:
    ```bash
@@ -77,7 +74,7 @@ PawGuard is a community platform dedicated to preventing dog abuse, abandonment,
    npm install
    ```
 
-3. Start the development server:
+3. Start development server:
    ```bash
    npm run dev
    ```
@@ -86,26 +83,10 @@ PawGuard is a community platform dedicated to preventing dog abuse, abandonment,
 
 ---
 
-## Production Build & Deployment
-
-To generate an optimized production bundle:
-
-```bash
-npm run build
-```
-
-The output files will be created in the `dist` directory.
-
-### Deploying on Vercel
+## Deployment on Vercel
 
 1. Import the repository on [Vercel](https://vercel.com).
 2. Framework Preset: **Vite**
 3. Build Command: `npm run build`
 4. Output Directory: `dist`
 5. Click **Deploy**.
-
----
-
-## License
-
-This project is open-source and intended for animal welfare advocacy.

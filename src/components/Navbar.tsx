@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Volume2, VolumeX, Menu, X, Heart, ShieldAlert, PhoneCall } from 'lucide-react';
+import { Volume2, VolumeX, Menu, X, Heart, ShieldAlert, MessageCircle, Mail } from 'lucide-react';
 import { toggleSound, isSoundEnabled, playClickSound } from '../utils/audio';
+import { CONTACT_INFO } from '../data/mockData';
 
 interface NavbarProps {
   activeSection: string;
@@ -79,7 +80,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </button>
 
-        {/* Center Navigation items matching PNG exactly */}
+        {/* Center Navigation items matching PNG */}
         <nav className="hidden lg:flex items-center gap-1.5 xl:gap-2">
           {navItems.map((item) => {
             const isActive = activeSection === item.id;
@@ -111,15 +112,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             {soundOn ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5 opacity-60" />}
           </button>
 
-          {/* Quick Hotline trigger */}
-          <button
-            onClick={onOpenEmergency}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold bg-[#faebd7] text-[#9c4221] hover:bg-[#f6dfc4] border border-[#e7caa8] transition-all"
-            title="24/7 Dog Rescue Hotline"
+          {/* WhatsApp Direct Link */}
+          <a
+            href={CONTACT_INFO.whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold bg-[#25D366]/15 text-[#128C7E] hover:bg-[#25D366]/25 border border-[#25D366]/30 transition-all"
+            title={`WhatsApp: ${CONTACT_INFO.phone}`}
           >
-            <PhoneCall className="w-3.5 h-3.5" />
-            <span>24/7 Hotline</span>
-          </button>
+            <MessageCircle className="w-3.5 h-3.5 text-[#128C7E]" />
+            <span>WhatsApp</span>
+          </a>
 
           {/* "Get Help" button matching PNG */}
           <button
@@ -173,16 +176,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               <ShieldAlert className="w-4 h-4" />
               <span>Report Abuse</span>
             </button>
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenEmergency();
-              }}
-              className="flex-1 flex items-center justify-center gap-2 bg-[#4a2e1b] text-white py-3 rounded-xl font-fredoka font-semibold shadow"
+            <a
+              href={CONTACT_INFO.whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] text-white py-3 rounded-xl font-fredoka font-semibold shadow"
             >
-              <PhoneCall className="w-4 h-4" />
-              <span>SOS Helpline</span>
-            </button>
+              <MessageCircle className="w-4 h-4" />
+              <span>WhatsApp</span>
+            </a>
           </div>
         </div>
       )}

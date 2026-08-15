@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { QuickFeaturesRow } from './components/QuickFeaturesRow';
@@ -12,16 +12,65 @@ import { SupportSection } from './components/SupportSection';
 import { Footer } from './components/Footer';
 import { AbuseReportModal } from './components/AbuseReportModal';
 import { EmergencyHotlineModal } from './components/EmergencyHotlineModal';
-import { INITIAL_RESCUE_CASES, ADOPTABLE_DOGS, LOST_FOUND_DOGS } from './data/mockData';
-import { RescueCase, LostFoundDog } from './types';
+import { RescueCase, AdoptableDog, LostFoundDog } from './types';
 
 export function App() {
   const [activeSection, setActiveSection] = useState('home');
-  const [cases, setCases] = useState<RescueCase[]>(INITIAL_RESCUE_CASES);
-  const [dogs] = useState(ADOPTABLE_DOGS);
-  const [lostFoundItems, setLostFoundItems] = useState<LostFoundDog[]>(LOST_FOUND_DOGS);
+
+  // Real user state saved in localStorage (starts clean without fake mock data)
+  const [cases, setCases] = useState<RescueCase[]>(() => {
+    try {
+      const saved = localStorage.getItem('pawguard_cases');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [dogs, setDogs] = useState<AdoptableDog[]>(() => {
+    try {
+      const saved = localStorage.getItem('pawguard_dogs');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [lostFoundItems, setLostFoundItems] = useState<LostFoundDog[]>(() => {
+    try {
+      const saved = localStorage.getItem('pawguard_lostfound');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isEmergencyOpen, setIsEmergencyOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pawguard_cases', JSON.stringify(cases));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [cases]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pawguard_dogs', JSON.stringify(dogs));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [dogs]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pawguard_lostfound', JSON.stringify(lostFoundItems));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [lostFoundItems]);
 
   const handleAddCase = (newCase: RescueCase) => {
     setCases([newCase, ...cases]);
@@ -29,6 +78,10 @@ export function App() {
 
   const handleUpdateCase = (updatedCase: RescueCase) => {
     setCases(cases.map(c => c.id === updatedCase.id ? updatedCase : c));
+  };
+
+  const handleAddDog = (newDog: AdoptableDog) => {
+    setDogs([newDog, ...dogs]);
   };
 
   const handleAddLostFound = (newItem: LostFoundDog) => {
@@ -49,7 +102,7 @@ export function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#fbf6f0] text-[#352018]">
-      {/* Navigation matching PNG */}
+      {/* Navigation */}
       <Navbar
         activeSection={activeSection}
         setActiveSection={setActiveSection}
@@ -59,7 +112,7 @@ export function App() {
 
       {/* Main Content Sections */}
       <main className="flex-1">
-        {/* Pixel-Perfect Hero Section matching PNG with moving animated dogs */}
+        {/* Hero Section matching PNG with moving animated dogs */}
         <section id="home">
           <HeroSection
             onOpenReport={() => setIsReportOpen(true)}
@@ -74,7 +127,7 @@ export function App() {
         {/* About & Mission Section */}
         <AboutSection />
 
-        {/* Location-Based Rescue Radar Map & Tracking */}
+        {/* Location-Based Rescue Reports */}
         <RescueMapSection
           cases={cases}
           onOpenReport={() => setIsReportOpen(true)}
@@ -82,7 +135,7 @@ export function App() {
         />
 
         {/* Adoption Listings */}
-        <AdoptionSection dogs={dogs} />
+        <AdoptionSection dogs={dogs} onAddDog={handleAddDog} />
 
         {/* Lost, Abandoned & Injured Dogs Noticeboard */}
         <LostAndFoundSection
@@ -90,13 +143,13 @@ export function App() {
           onAddItem={handleAddLostFound}
         />
 
-        {/* Learn & Educate: Body Language, Cruelty Laws & Quiz */}
+        {/* Learn & Educate: Preventing Cruelty & Humane Care */}
         <LearnSection />
 
-        {/* Community & Volunteer Guild */}
+        {/* Volunteer Guild & Community */}
         <CommunitySection />
 
-        {/* Support Us & Emergency Vet Fund */}
+        {/* Support Us */}
         <SupportSection />
       </main>
 

@@ -1,48 +1,61 @@
 import React, { useState } from 'react';
 import { AdoptableDog } from '../types';
-import { Heart, Home, Check, ShieldCheck, X, Calendar, User, Phone, Mail, Award, Users } from 'lucide-react';
-import { playClickSound, playHeartPop } from '../utils/audio';
+import { Home, Heart, MessageCircle, Mail, PlusCircle, Check, X, ShieldCheck, User, Phone } from 'lucide-react';
+import { playClickSound } from '../utils/audio';
+import { CONTACT_INFO } from '../data/mockData';
 
 interface AdoptionSectionProps {
   dogs: AdoptableDog[];
+  onAddDog?: (dog: AdoptableDog) => void;
 }
 
-export const AdoptionSection: React.FC<AdoptionSectionProps> = ({ dogs }) => {
-  const [selectedDog, setSelectedDog] = useState<AdoptableDog | null>(null);
-  const [filterSize, setFilterSize] = useState<string>('all');
-  const [applicationSuccess, setApplicationSuccess] = useState(false);
-  const [sponsorSuccess, setSponsorSuccess] = useState<string | null>(null);
-
-  // Adoption application form state
+export const AdoptionSection: React.FC<AdoptionSectionProps> = ({ dogs, onAddDog }) => {
+  const [showInquiryModal, setShowInquiryModal] = useState(false);
+  const [showListDogModal, setShowListDogModal] = useState(false);
   const [applicantName, setApplicantName] = useState('');
   const [applicantPhone, setApplicantPhone] = useState('');
-  const [applicantEmail, setApplicantEmail] = useState('');
-  const [housingType, setHousingType] = useState('House with Fenced Yard');
-  const [hasOtherPets, setHasOtherPets] = useState('Yes');
-  const [meetDate, setMeetDate] = useState('');
+  const [inquiryNotes, setInquiryNotes] = useState('');
 
-  const filteredDogs = dogs.filter((d) => {
-    if (filterSize === 'all') return true;
-    return d.size.toLowerCase() === filterSize.toLowerCase();
-  });
+  // List Dog State
+  const [newDogName, setNewDogName] = useState('');
+  const [newDogBreed, setNewDogBreed] = useState('');
+  const [newDogAge, setNewDogAge] = useState('');
+  const [newDogStory, setNewDogStory] = useState('');
 
-  const handleOpenAdoptModal = (dog: AdoptableDog) => {
-    playClickSound();
-    setSelectedDog(dog);
-    setApplicationSuccess(false);
-  };
-
-  const handleSponsor = (dog: AdoptableDog, e: React.MouseEvent) => {
-    e.stopPropagation();
-    playHeartPop();
-    setSponsorSuccess(dog.name);
-    setTimeout(() => setSponsorSuccess(null), 4000);
-  };
-
-  const handleApplicationSubmit = (e: React.FormEvent) => {
+  const handleInquirySubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    playHeartPop();
-    setApplicationSuccess(true);
+    const whatsappUrl = CONTACT_INFO.getWhatsappAdoptionUrl(
+      'Rescue Dog',
+      `${applicantName} (${applicantPhone}) - ${inquiryNotes}`
+    );
+    window.open(whatsappUrl, '_blank');
+    setShowInquiryModal(false);
+  };
+
+  const handleListDogSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onAddDog) {
+      const newDog: AdoptableDog = {
+        id: `ADOPT-${Date.now()}`,
+        name: newDogName || 'Rescued Dog',
+        breed: newDogBreed || 'Mixed Breed',
+        age: newDogAge || 'Unknown',
+        gender: 'Male',
+        size: 'Medium',
+        photoUrl: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&auto=format&fit=crop&q=80',
+        personality: ['Gentle', 'Needs Home'],
+        story: newDogStory || 'Rescued dog looking for a compassionate family.',
+        healthStatus: 'Vetted',
+        isVaccinated: true,
+        isNeutered: false,
+        goodWithKids: true,
+        goodWithDogs: true,
+        goodWithCats: false,
+        rescueDate: 'Recent'
+      };
+      onAddDog(newDog);
+    }
+    setShowListDogModal(false);
   };
 
   return (
@@ -53,331 +66,239 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({ dogs }) => {
         <div className="text-center space-y-3 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-1.5 bg-[#faebd7] text-[#8a5b3a] border border-[#e5cfbd] text-xs font-fredoka font-bold px-3.5 py-1 rounded-full uppercase tracking-wider">
             <Home className="w-3.5 h-3.5" />
-            <span>Loving Forever Homes</span>
+            <span>Adoption & Rescue Network</span>
           </div>
           
           <h2 className="font-fredoka text-3xl sm:text-4xl md:text-5xl font-bold text-[#26160d]">
-            Meet Rescued Dogs Ready for Adoption
+            Adoption & Rescue Listings
           </h2>
 
           <p className="font-sans text-sm sm:text-base text-[#6b4c38]">
-            Every one of these courageous dogs survived abuse, neglect, or abandonment. They are rehabilitated, vetted, and ready for a responsible forever home.
+            Connect rescued, abandoned, and rehabilitated dogs with compassionate individuals and foster families.
           </p>
 
-          {/* Size Filter */}
-          <div className="flex items-center justify-center gap-2 pt-2">
-            {[
-              { id: 'all', label: 'All Pups' },
-              { id: 'small', label: 'Small Size' },
-              { id: 'medium', label: 'Medium Size' },
-              { id: 'large', label: 'Large Size' },
-            ].map((f) => (
-              <button
-                key={f.id}
-                onClick={() => {
-                  playClickSound();
-                  setFilterSize(f.id);
-                }}
-                className={`font-fredoka text-xs sm:text-sm px-4 py-2 rounded-full transition-all ${
-                  filterSize === f.id
-                    ? 'bg-[#4a2e1b] text-white font-bold shadow'
-                    : 'bg-white text-[#6b442b] hover:bg-[#faefe4] border border-[#ebd7c3]'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <button
+              onClick={() => {
+                playClickSound();
+                setShowInquiryModal(true);
+              }}
+              className="bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-xs sm:text-sm px-6 py-2.5 rounded-full shadow"
+            >
+              Inquire to Adopt or Foster
+            </button>
+
+            <button
+              onClick={() => {
+                playClickSound();
+                setShowListDogModal(true);
+              }}
+              className="bg-white hover:bg-[#faefe4] text-[#4a2e1b] border border-[#ebd7c3] font-fredoka font-semibold text-xs sm:text-sm px-5 py-2.5 rounded-full shadow-sm"
+            >
+              List a Rescued Dog
+            </button>
           </div>
         </div>
 
-        {/* Sponsor Toast */}
-        {sponsorSuccess && (
-          <div className="max-w-md mx-auto bg-[#dcfce7] border border-[#86efac] text-[#166534] p-3.5 rounded-2xl text-xs font-fredoka font-semibold text-center flex items-center justify-center gap-2">
-            <Heart className="w-4 h-4 text-[#d94141] fill-[#d94141]" />
-            <span>You virtually sponsored {sponsorSuccess}. Thank you for supporting medical and food care.</span>
+        {/* Listings Display */}
+        {dogs.length === 0 ? (
+          <div className="bg-white rounded-3xl p-10 sm:p-14 border-2 border-[#ebd7c3] text-center max-w-2xl mx-auto space-y-5 shadow-sm">
+            <div className="w-16 h-16 rounded-2xl bg-[#faefe4] text-[#4a2e1b] flex items-center justify-center mx-auto">
+              <Heart className="w-8 h-8 text-[#b87d55]" />
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="font-fredoka text-2xl font-bold text-[#26160d]">
+                No Adoption Listings Currently Active
+              </h3>
+              <p className="font-sans text-xs sm:text-sm text-[#6b4c38] max-w-md mx-auto leading-relaxed">
+                If you have rescued a dog needing a permanent home or foster placement, or if you would like to open your home to an animal in need, please reach out directly.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <a
+                href={CONTACT_INFO.whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto bg-[#25D366] hover:bg-[#1ebd59] text-white font-fredoka font-semibold text-xs sm:text-sm px-6 py-3 rounded-full shadow flex items-center justify-center gap-2"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>Contact on WhatsApp ({CONTACT_INFO.phone})</span>
+              </a>
+
+              <a
+                href={CONTACT_INFO.emailUrl}
+                className="w-full sm:w-auto bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-xs sm:text-sm px-6 py-3 rounded-full shadow flex items-center justify-center gap-2"
+              >
+                <Mail className="w-4 h-4" />
+                <span>Email ({CONTACT_INFO.email})</span>
+              </a>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {dogs.map((dog) => (
+              <div
+                key={dog.id}
+                className="bg-white rounded-3xl overflow-hidden border-2 border-[#ebd7c3] shadow-sm p-6 space-y-4 flex flex-col justify-between"
+              >
+                <div className="space-y-2">
+                  <h3 className="font-fredoka text-2xl font-bold text-[#26160d]">
+                    {dog.name}
+                  </h3>
+                  <p className="text-xs text-[#8a5b3a] font-semibold">{dog.breed} • {dog.age}</p>
+                  <p className="text-xs text-[#5e4537] bg-[#faefe4] p-3 rounded-xl">
+                    {dog.story}
+                  </p>
+                </div>
+
+                <div className="pt-3 border-t border-[#f4ece1] flex gap-2">
+                  <a
+                    href={CONTACT_INFO.getWhatsappAdoptionUrl(dog.name, 'Interested Adopter')}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 bg-[#25D366] text-white text-xs font-fredoka font-semibold py-2.5 rounded-full flex items-center justify-center gap-1.5 shadow"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    <span>Inquire (WhatsApp)</span>
+                  </a>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
-        {/* Dogs Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {filteredDogs.map((dog) => (
-            <div
-              key={dog.id}
-              className="bg-white rounded-3xl overflow-hidden border-2 border-[#ebd7c3] hover:border-[#4a2e1b] shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group"
-            >
-              {/* Photo */}
-              <div className="relative h-64 overflow-hidden bg-[#faefe4]">
-                <img
-                  src={dog.photoUrl}
-                  alt={dog.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                
-                {/* Breed Tag */}
-                <div className="absolute top-3 left-3 bg-[#352018]/85 backdrop-blur-md text-white text-xs font-fredoka px-3 py-1 rounded-full">
-                  {dog.breed}
-                </div>
-
-                {/* Gender & Age */}
-                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md text-[#352018] text-xs font-fredoka font-semibold px-2.5 py-1 rounded-full border border-black/10">
-                  {dog.gender} • {dog.age}
-                </div>
-
-                {/* Rescue Story excerpt */}
-                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 text-white">
-                  <div className="text-xs font-medium line-clamp-1 italic text-[#f8dfc7]">
-                    "{dog.story}"
-                  </div>
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-fredoka text-2xl font-bold text-[#26160d]">
-                      {dog.name}
-                    </h3>
-                    <span className="text-xs font-fredoka font-semibold text-[#8a5b3a] bg-[#faefe4] px-2.5 py-1 rounded-full">
-                      {dog.size} Size
-                    </span>
-                  </div>
-
-                  {/* Personality Badges */}
-                  <div className="flex flex-wrap gap-1.5">
-                    {dog.personality.map((trait, i) => (
-                      <span
-                        key={i}
-                        className="text-[11px] font-fredoka bg-[#fbe9dd] text-[#6b442b] px-2.5 py-0.5 rounded-full"
-                      >
-                        {trait}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Health Checkpoints */}
-                  <div className="grid grid-cols-2 gap-2 text-[11px] text-[#5e4537] pt-2 border-t border-[#f4ece1]">
-                    <div className="flex items-center gap-1.5">
-                      <ShieldCheck className="w-3.5 h-3.5 text-[#3aa866]" />
-                      <span>{dog.isVaccinated ? 'Vaccinated' : 'Pending Shots'}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Check className="w-3.5 h-3.5 text-[#3aa866]" />
-                      <span>{dog.isNeutered ? 'Spayed / Neutered' : 'Intact'}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5 text-[#3d97ca]" />
-                      <span>{dog.goodWithKids ? 'Good with Kids' : 'Adults Preferred'}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Check className="w-3.5 h-3.5 text-[#3aa866]" />
-                      <span>{dog.goodWithDogs ? 'Dog Friendly' : 'Single Dog Home'}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-2.5 pt-3 border-t border-[#f4ece1]">
-                  <button
-                    onClick={() => handleOpenAdoptModal(dog)}
-                    className="flex-1 bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-sm py-2.5 rounded-full shadow hover:shadow-md transition-all flex items-center justify-center gap-1.5"
-                  >
-                    <Home className="w-4 h-4" />
-                    <span>Adopt {dog.name}</span>
-                  </button>
-
-                  <button
-                    onClick={(e) => handleSponsor(dog, e)}
-                    className="p-2.5 rounded-full bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] border border-[#ebd7c3] transition-colors"
-                    title={`Virtually Sponsor ${dog.name}`}
-                  >
-                    <Heart className="w-4 h-4 text-[#d94141]" />
-                  </button>
-                </div>
-
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Adopt Application Modal */}
-        {selectedDog && (
-          <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fadeIn">
-            <div className="bg-[#fbf6f0] border-2 border-[#4a2e1b] rounded-3xl max-w-xl w-full shadow-2xl overflow-hidden relative">
-              
-              {/* Header */}
-              <div className="bg-[#4a2e1b] text-white px-6 py-4 flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <Home className="w-5 h-5 text-[#f5d7b7]" />
-                  <h3 className="font-fredoka text-lg sm:text-xl font-bold">
-                    Adoption Application for {selectedDog.name}
-                  </h3>
-                </div>
-                <button
-                  onClick={() => setSelectedDog(null)}
-                  className="text-white/80 hover:text-white p-1.5 rounded-full hover:bg-white/10"
-                >
-                  <X className="w-5 h-5" />
+        {/* Inquiry Modal */}
+        {showInquiryModal && (
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+            <div className="bg-[#fbf6f0] border-2 border-[#4a2e1b] rounded-3xl max-w-lg w-full shadow-2xl p-6 sm:p-8 space-y-4 relative">
+              <div className="flex items-center justify-between border-b border-[#ebd7c3] pb-3">
+                <h3 className="font-fredoka text-xl font-bold text-[#26160d]">
+                  Adoption & Foster Inquiry
+                </h3>
+                <button onClick={() => setShowInquiryModal(false)}>
+                  <X className="w-6 h-6 text-[#4a2e1b]" />
                 </button>
               </div>
 
-              {/* Form Content */}
-              <div className="p-6 sm:p-8 max-h-[80vh] overflow-y-auto space-y-5">
-                
-                {applicationSuccess ? (
-                  <div className="text-center py-8 space-y-4">
-                    <div className="w-16 h-16 rounded-full bg-[#3aa866]/20 text-[#3aa866] flex items-center justify-center mx-auto">
-                      <Award className="w-10 h-10" />
-                    </div>
-                    <h4 className="font-fredoka text-2xl font-bold text-[#26160d]">
-                      Application Sent for {selectedDog.name}
-                    </h4>
-                    <p className="text-xs sm:text-sm text-[#5e4537] max-w-md mx-auto leading-relaxed">
-                      Our adoption coordinator will review your application and contact you at <strong>{applicantPhone || applicantEmail}</strong> within 24 hours to schedule the meet-and-greet.
-                    </p>
-                    <button
-                      onClick={() => setSelectedDog(null)}
-                      className="bg-[#4a2e1b] text-white font-fredoka text-sm px-6 py-3 rounded-full shadow"
-                    >
-                      Close & Return to Gallery
-                    </button>
-                  </div>
-                ) : (
-                  <form onSubmit={handleApplicationSubmit} className="space-y-4">
-                    
-                    {/* Selected Dog Summary */}
-                    <div className="flex items-center gap-3 bg-[#faefe4] p-3 rounded-2xl border border-[#ebd7c3]">
-                      <img
-                        src={selectedDog.photoUrl}
-                        alt={selectedDog.name}
-                        className="w-14 h-14 rounded-xl object-cover"
-                      />
-                      <div>
-                        <div className="font-fredoka text-sm font-bold text-[#352018]">
-                          {selectedDog.name} ({selectedDog.breed})
-                        </div>
-                        <div className="text-xs text-[#7e5c46]">
-                          {selectedDog.healthStatus}
-                        </div>
-                      </div>
-                    </div>
+              <form onSubmit={handleInquirySubmit} className="space-y-3.5 text-xs">
+                <div>
+                  <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Your Full Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Alex Morgan"
+                    value={applicantName}
+                    onChange={(e) => setApplicantName(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
+                  />
+                </div>
 
-                    <div className="space-y-3">
-                      <label className="block font-fredoka text-xs font-bold text-[#352018]">
-                        Full Name *
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          required
-                          placeholder="e.g. Alex Morgan"
-                          value={applicantName}
-                          onChange={(e) => setApplicantName(e.target.value)}
-                          className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#ebd7c3] text-xs bg-white focus:ring-2 focus:ring-[#4a2e1b] focus:outline-none"
-                        />
-                        <User className="w-4 h-4 text-[#8a5b3a] absolute left-3 top-3" />
-                      </div>
-                    </div>
+                <div>
+                  <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Phone Number *</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+234..."
+                    value={applicantPhone}
+                    onChange={(e) => setApplicantPhone(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
+                  />
+                </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">
-                          Phone Number *
-                        </label>
-                        <div className="relative">
-                          <input
-                            type="tel"
-                            required
-                            placeholder="+1 (555) 000-0000"
-                            value={applicantPhone}
-                            onChange={(e) => setApplicantPhone(e.target.value)}
-                            className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#ebd7c3] text-xs bg-white focus:ring-2 focus:ring-[#4a2e1b] focus:outline-none"
-                          />
-                          <Phone className="w-4 h-4 text-[#8a5b3a] absolute left-3 top-3" />
-                        </div>
-                      </div>
+                <div>
+                  <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Adoption Preferences & Home Environment</label>
+                  <textarea
+                    rows={3}
+                    placeholder="Tell us about your home, previous pet experience, or preferred dog size..."
+                    value={inquiryNotes}
+                    onChange={(e) => setInquiryNotes(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
+                  ></textarea>
+                </div>
 
-                      <div>
-                        <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">
-                          Email Address *
-                        </label>
-                        <div className="relative">
-                          <input
-                            type="email"
-                            required
-                            placeholder="alex@example.com"
-                            value={applicantEmail}
-                            onChange={(e) => setApplicantEmail(e.target.value)}
-                            className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#ebd7c3] text-xs bg-white focus:ring-2 focus:ring-[#4a2e1b] focus:outline-none"
-                          />
-                          <Mail className="w-4 h-4 text-[#8a5b3a] absolute left-3 top-3" />
-                        </div>
-                      </div>
-                    </div>
+                <div className="pt-2 flex gap-2">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-[#25D366] hover:bg-[#1ebd59] text-white font-fredoka font-semibold py-3 rounded-full shadow flex items-center justify-center gap-2"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Send via WhatsApp (+2348105463507)</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">
-                          Housing Arrangement
-                        </label>
-                        <select
-                          value={housingType}
-                          onChange={(e) => setHousingType(e.target.value)}
-                          className="w-full px-3 py-2.5 rounded-xl border border-[#ebd7c3] text-xs bg-white focus:ring-2 focus:ring-[#4a2e1b] focus:outline-none"
-                        >
-                          <option>House with Fenced Yard</option>
-                          <option>Apartment / Condo (Pet Friendly)</option>
-                          <option>Townhouse with Patio</option>
-                          <option>Farm / Acreage</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">
-                          Do you have other pets?
-                        </label>
-                        <select
-                          value={hasOtherPets}
-                          onChange={(e) => setHasOtherPets(e.target.value)}
-                          className="w-full px-3 py-2.5 rounded-xl border border-[#ebd7c3] text-xs bg-white focus:ring-2 focus:ring-[#4a2e1b] focus:outline-none"
-                        >
-                          <option>Yes, dog(s)</option>
-                          <option>Yes, cat(s)</option>
-                          <option>Yes, multiple pets</option>
-                          <option>No, first pet</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1 flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 text-[#b87d55]" />
-                        <span>Preferred Meet-and-Greet Date</span>
-                      </label>
-                      <input
-                        type="date"
-                        value={meetDate}
-                        onChange={(e) => setMeetDate(e.target.value)}
-                        className="w-full px-3 py-2.5 rounded-xl border border-[#ebd7c3] text-xs bg-white focus:ring-2 focus:ring-[#4a2e1b] focus:outline-none"
-                      />
-                    </div>
-
-                    <p className="text-[11px] text-[#7e5c46] italic">
-                      PawGuard Adoption Policy: All adoptions include veterinary health check, microchip registration, and 30-day post-adoption behavioral support.
-                    </p>
-
-                    <button
-                      type="submit"
-                      className="w-full bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-sm py-3.5 rounded-full shadow hover:shadow-lg transition-all"
-                    >
-                      Submit Adoption Application
-                    </button>
-
-                  </form>
-                )}
-
+        {/* List Dog Modal */}
+        {showListDogModal && (
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+            <div className="bg-[#fbf6f0] border-2 border-[#4a2e1b] rounded-3xl max-w-lg w-full shadow-2xl p-6 sm:p-8 space-y-4 relative">
+              <div className="flex items-center justify-between border-b border-[#ebd7c3] pb-3">
+                <h3 className="font-fredoka text-xl font-bold text-[#26160d]">
+                  List Rescued Dog for Adoption
+                </h3>
+                <button onClick={() => setShowListDogModal(false)}>
+                  <X className="w-6 h-6 text-[#4a2e1b]" />
+                </button>
               </div>
 
+              <form onSubmit={handleListDogSubmit} className="space-y-3.5 text-xs">
+                <div>
+                  <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Dog's Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Lucky"
+                    value={newDogName}
+                    onChange={(e) => setNewDogName(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Breed / Mix</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Mixed breed"
+                      value={newDogBreed}
+                      onChange={(e) => setNewDogBreed(e.target.value)}
+                      className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Estimated Age</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 1 year"
+                      value={newDogAge}
+                      onChange={(e) => setNewDogAge(e.target.value)}
+                      className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Rescue Story & Care Notes</label>
+                  <textarea
+                    rows={3}
+                    placeholder="Where was the dog found, current health, behavior..."
+                    value={newDogStory}
+                    onChange={(e) => setNewDogStory(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
+                  ></textarea>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold py-3 rounded-full shadow"
+                >
+                  Publish Adoption Listing
+                </button>
+              </form>
             </div>
           </div>
         )}

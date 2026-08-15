@@ -1,51 +1,9 @@
 import React, { useState } from 'react';
-import { VOLUNTEERS } from '../data/mockData';
-import { Users, UserPlus, Heart, MessageSquare, Send, Award, CheckCircle, Shield } from 'lucide-react';
+import { Users, UserPlus, Shield, MessageCircle, Mail, CheckCircle, ExternalLink } from 'lucide-react';
 import { playClickSound, playHeartPop } from '../utils/audio';
-
-interface CommunityPost {
-  id: string;
-  author: string;
-  avatar: string;
-  time: string;
-  content: string;
-  likes: number;
-  badge?: string;
-  hasLiked?: boolean;
-}
+import { CONTACT_INFO } from '../data/mockData';
 
 export const CommunitySection: React.FC = () => {
-  const [posts, setPosts] = useState<CommunityPost[]>([
-    {
-      id: 'p1',
-      author: 'Marcus Vance',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80',
-      time: '25m ago',
-      content: 'Just arrived at District 4 to check on the chained puppy. Humane officer accompanied us. The dog has been unchained, wrapped in a fleece blanket and given veterinary food.',
-      likes: 42,
-      badge: 'Rescue Responder'
-    },
-    {
-      id: 'p2',
-      author: 'Elena Rostova',
-      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80',
-      time: '2h ago',
-      content: 'Mama hound and all 5 puppies are stable at St. Francis Clinic. Blood tests look positive. Thank you to everyone who reported the coordinates.',
-      likes: 68,
-      badge: 'Shelter Lead'
-    },
-    {
-      id: 'p3',
-      author: 'David Chen',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
-      time: '5h ago',
-      content: 'Reminder for the North Valley area: temperatures are dropping below freezing tonight. If you witness any animal left outdoors without adequate shelter, please submit a report immediately.',
-      likes: 89,
-      badge: 'Community Scout'
-    }
-  ]);
-
-  const [newPostText, setNewPostText] = useState('');
   const [showGuildModal, setShowGuildModal] = useState(false);
   const [guildJoined, setGuildJoined] = useState(false);
 
@@ -54,43 +12,17 @@ export const CommunitySection: React.FC = () => {
   const [vRole, setVRole] = useState('Rescue Driver & Transport');
   const [vLocation, setVLocation] = useState('');
   const [vPhone, setVPhone] = useState('');
-
-  const handleLike = (postId: string) => {
-    playHeartPop();
-    setPosts(prev => prev.map(p => {
-      if (p.id === postId) {
-        return {
-          ...p,
-          likes: p.hasLiked ? p.likes - 1 : p.likes + 1,
-          hasLiked: !p.hasLiked
-        };
-      }
-      return p;
-    }));
-  };
-
-  const handlePostSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newPostText.trim()) return;
-    playClickSound();
-
-    const newPost: CommunityPost = {
-      id: `p-${Date.now()}`,
-      author: 'You (Community Advocate)',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80',
-      time: 'Just now',
-      content: newPostText,
-      likes: 1,
-      badge: 'Advocate'
-    };
-
-    setPosts([newPost, ...posts]);
-    setNewPostText('');
-  };
+  const [vNotes, setVNotes] = useState('');
 
   const handleGuildSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     playHeartPop();
+    const whatsappUrl = CONTACT_INFO.getWhatsappVolunteerUrl(
+      vName,
+      vRole,
+      `${vLocation} (Phone: ${vPhone}) - Notes: ${vNotes || 'Ready to assist'}`
+    );
+    window.open(whatsappUrl, '_blank');
     setGuildJoined(true);
   };
 
@@ -103,191 +35,104 @@ export const CommunitySection: React.FC = () => {
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-fredoka font-bold text-[#b87d55] uppercase tracking-wider">
               <Users className="w-4 h-4 text-[#4a2e1b]" />
-              <span>PawGuard Volunteer Guild & Network</span>
+              <span>PawGuard Volunteer Guild & Community</span>
             </div>
             <h2 className="font-fredoka text-3xl sm:text-4xl font-bold text-[#26160d]">
-              Join a Compassionate Community
+              Volunteer to Protect & Rescue Dogs
             </h2>
             <p className="font-sans text-sm sm:text-base text-[#6b4c38] max-w-2xl">
-              Connect with animal defenders, emergency transport drivers, volunteer fosters, and veterinary responders united to end dog cruelty.
+              Join a dedicated network of volunteers helping to respond to abuse reports, transport injured animals to clinics, and provide emergency foster care.
             </p>
           </div>
 
-          <button
-            onClick={() => {
-              playClickSound();
-              setShowGuildModal(true);
-              setGuildJoined(false);
-            }}
-            className="flex items-center gap-2 bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-sm px-6 py-3 rounded-full shadow hover:shadow-md transition-all self-start md:self-auto"
-          >
-            <UserPlus className="w-4 h-4" />
-            <span>Join as Volunteer</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                playClickSound();
+                setShowGuildModal(true);
+                setGuildJoined(false);
+              }}
+              className="flex items-center gap-2 bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-sm px-6 py-3 rounded-full shadow hover:shadow-md transition-all"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Join as Volunteer</span>
+            </button>
+          </div>
         </div>
 
-        {/* Community Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Volunteer Options Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
-          {/* Feed (7 cols) */}
-          <div className="lg:col-span-7 space-y-6">
-            
-            {/* Create Post Card */}
-            <form onSubmit={handlePostSubmit} className="bg-white rounded-3xl p-5 border border-[#ebd7c3] shadow-sm space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#faefe4] text-[#4a2e1b] font-bold font-fredoka flex items-center justify-center border border-[#ebd7c3]">
-                  <Users className="w-5 h-5 text-[#4a2e1b]" />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Share a rescue update, welfare notice, or community tip..."
-                  value={newPostText}
-                  onChange={(e) => setNewPostText(e.target.value)}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-[#ebd7c3] bg-[#faf4ed] text-xs sm:text-sm text-[#352018] focus:ring-2 focus:ring-[#4a2e1b] focus:outline-none"
-                />
+          <div className="bg-white rounded-3xl p-6 border-2 border-[#ebd7c3] space-y-4 shadow-sm flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#faefe4] text-[#4a2e1b] flex items-center justify-center font-bold">
+                <Shield className="w-6 h-6" />
               </div>
-
-              <div className="flex justify-end pt-1">
-                <button
-                  type="submit"
-                  disabled={!newPostText.trim()}
-                  className="bg-[#4a2e1b] hover:bg-[#352018] disabled:opacity-50 text-white font-fredoka text-xs px-5 py-2 rounded-full shadow flex items-center gap-1.5 transition-all"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Post Update</span>
-                </button>
-              </div>
-            </form>
-
-            {/* Posts Stream */}
-            <div className="space-y-4">
-              {posts.map((post) => (
-                <div
-                  key={post.id}
-                  className="bg-white rounded-3xl p-6 border border-[#ebd7c3] shadow-sm space-y-3.5"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={post.avatar}
-                        alt={post.author}
-                        className="w-10 h-10 rounded-full object-cover border border-[#4a2e1b]/20"
-                      />
-                      <div>
-                        <div className="font-fredoka text-sm font-bold text-[#26160d] flex items-center gap-2">
-                          <span>{post.author}</span>
-                          {post.badge && (
-                            <span className="text-[10px] font-fredoka bg-[#faefe4] text-[#8a5b3a] px-2 py-0.5 rounded-full">
-                              {post.badge}
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[11px] text-[#8a6853]">{post.time}</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-[#4a2e1b] leading-relaxed">
-                    {post.content}
-                  </p>
-
-                  <div className="pt-2 border-t border-[#f4ece1] flex items-center justify-between">
-                    <button
-                      onClick={() => handleLike(post.id)}
-                      className={`flex items-center gap-1.5 text-xs font-fredoka px-3 py-1.5 rounded-full transition-all ${
-                        post.hasLiked
-                          ? 'bg-[#fee2e2] text-[#991b1b]'
-                          : 'bg-[#faefe4] text-[#6b442b] hover:bg-[#ebd7c3]'
-                      }`}
-                    >
-                      <Heart className={`w-3.5 h-3.5 ${post.hasLiked ? 'fill-[#991b1b]' : ''}`} />
-                      <span>{post.likes} Endorsements</span>
-                    </button>
-
-                    <button
-                      onClick={() => alert('Reply feature connected to volunteer dispatch.')}
-                      className="flex items-center gap-1 text-xs text-[#8a6853] hover:text-[#352018]"
-                    >
-                      <MessageSquare className="w-3.5 h-3.5" />
-                      <span>Reply</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
+              <h3 className="font-fredoka text-xl font-bold text-[#26160d]">
+                Rescue & Transport Drivers
+              </h3>
+              <p className="text-xs sm:text-sm text-[#6e513e] leading-relaxed">
+                Provide urgent transportation for reported dogs in distress, moving them safely from danger sites to veterinary hospitals or safe shelters.
+              </p>
             </div>
 
+            <button
+              onClick={() => {
+                setVRole('Rescue Driver & Transport');
+                setShowGuildModal(true);
+              }}
+              className="w-full bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka text-xs font-semibold py-2.5 rounded-full transition-colors"
+            >
+              Enroll as Driver
+            </button>
           </div>
 
-          {/* Volunteer Leaderboard (5 cols) */}
-          <div className="lg:col-span-5 space-y-6">
-            
-            {/* Top Volunteers */}
-            <div className="bg-white rounded-3xl p-6 border-2 border-[#ebd7c3] shadow-md space-y-4">
-              <div className="flex items-center justify-between border-b border-[#f4ece1] pb-3">
-                <div className="flex items-center gap-2">
-                  <Award className="w-5 h-5 text-[#f59e0b]" />
-                  <h3 className="font-fredoka text-lg font-bold text-[#26160d]">
-                    Top Rescue Responders
-                  </h3>
-                </div>
-                <span className="text-xs text-[#8a5b3a] font-semibold">This Month</span>
+          <div className="bg-white rounded-3xl p-6 border-2 border-[#ebd7c3] space-y-4 shadow-sm flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#faefe4] text-[#4a2e1b] flex items-center justify-center font-bold">
+                <Users className="w-6 h-6" />
               </div>
-
-              <div className="space-y-3">
-                {VOLUNTEERS.map((v, idx) => (
-                  <div
-                    key={v.id}
-                    className="flex items-center justify-between p-3 rounded-2xl bg-[#fbf6f0] border border-[#ebd7c3]"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="font-fredoka text-xs font-bold text-[#8a5b3a] w-4">
-                        #{idx + 1}
-                      </span>
-                      <img
-                        src={v.avatarUrl}
-                        alt={v.name}
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
-                      <div>
-                        <div className="font-fredoka text-xs sm:text-sm font-bold text-[#352018]">
-                          {v.name}
-                        </div>
-                        <div className="text-[11px] text-[#7e5c46]">{v.role}</div>
-                      </div>
-                    </div>
-
-                    <div className="text-right">
-                      <span className="font-fredoka text-xs font-bold text-[#4a2e1b] bg-[#faefe4] px-2 py-0.5 rounded-full border border-[#ebd7c3]">
-                        {v.rescuesAssisted} Rescues
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <h3 className="font-fredoka text-xl font-bold text-[#26160d]">
+                Emergency Foster Homes
+              </h3>
+              <p className="text-xs sm:text-sm text-[#6e513e] leading-relaxed">
+                Open your home temporarily for traumatized or recovering dogs while permanent adoption arrangements are prepared.
+              </p>
             </div>
 
-            {/* Volunteer Roles Card */}
-            <div className="bg-[#faefe4] rounded-3xl p-6 border border-[#ebd7c3] space-y-3">
-              <h4 className="font-fredoka text-base font-bold text-[#352018] flex items-center gap-2">
-                <Shield className="w-4 h-4 text-[#4a2e1b]" />
-                <span>Ways You Can Help</span>
-              </h4>
-              <ul className="text-xs text-[#5e4537] space-y-2">
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#4a2e1b]"></span>
-                  <span><strong>Emergency Transport:</strong> Drive rescued animals from incident sites to clinics.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#4a2e1b]"></span>
-                  <span><strong>Foster Sanctuary:</strong> Provide temporary shelter during medical recovery.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#4a2e1b]"></span>
-                  <span><strong>Field Spotter:</strong> Verify reported abuse locations and document conditions safely.</span>
-                </li>
-              </ul>
+            <button
+              onClick={() => {
+                setVRole('Emergency Foster Home');
+                setShowGuildModal(true);
+              }}
+              className="w-full bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka text-xs font-semibold py-2.5 rounded-full transition-colors"
+            >
+              Enroll as Foster
+            </button>
+          </div>
+
+          <div className="bg-white rounded-3xl p-6 border-2 border-[#ebd7c3] space-y-4 shadow-sm flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#faefe4] text-[#4a2e1b] flex items-center justify-center font-bold">
+                <MessageCircle className="w-6 h-6 text-[#128C7E]" />
+              </div>
+              <h3 className="font-fredoka text-xl font-bold text-[#26160d]">
+                Direct Community Desk
+              </h3>
+              <p className="text-xs sm:text-sm text-[#6e513e] leading-relaxed">
+                Connect directly with our operations team via WhatsApp or Email to coordinate local welfare initiatives, check-ins, and education.
+              </p>
             </div>
 
+            <a
+              href={CONTACT_INFO.whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-[#25D366] hover:bg-[#1ebd59] text-white font-fredoka text-xs font-semibold py-2.5 rounded-full flex items-center justify-center gap-1.5 shadow"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span>Chat on WhatsApp</span>
+            </a>
           </div>
 
         </div>
@@ -303,16 +148,16 @@ export const CommunitySection: React.FC = () => {
                     <CheckCircle className="w-10 h-10" />
                   </div>
                   <h3 className="font-fredoka text-2xl font-bold text-[#26160d]">
-                    Welcome to the PawGuard Guild
+                    Volunteer Application Sent
                   </h3>
                   <p className="text-xs text-[#5e4537] max-w-sm mx-auto">
-                    You have been enrolled as a volunteer responder for <strong>{vLocation || 'your district'}</strong>. Dispatch alerts will be sent to your phone.
+                    Your details have been transmitted. You can follow up anytime via WhatsApp at <strong>{CONTACT_INFO.phone}</strong> or email <strong>{CONTACT_INFO.email}</strong>.
                   </p>
                   <button
                     onClick={() => setShowGuildModal(false)}
                     className="bg-[#4a2e1b] text-white font-fredoka text-xs px-6 py-3 rounded-full"
                   >
-                    Done & Return
+                    Done
                   </button>
                 </div>
               ) : (
@@ -321,11 +166,11 @@ export const CommunitySection: React.FC = () => {
                     <h3 className="font-fredoka text-xl font-bold text-[#26160d]">
                       Volunteer Sign-Up Form
                     </h3>
-                    <p className="text-[#8a6853]">Support animals in need across your neighborhood.</p>
+                    <p className="text-[#8a5b3a]">Connect directly with our team to help animals in your area.</p>
                   </div>
 
                   <div>
-                    <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Your Full Name</label>
+                    <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Full Name *</label>
                     <input
                       type="text"
                       required
@@ -338,7 +183,7 @@ export const CommunitySection: React.FC = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Preferred Role</label>
+                      <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Preferred Volunteer Role</label>
                       <select
                         value={vRole}
                         onChange={(e) => setVRole(e.target.value)}
@@ -347,17 +192,16 @@ export const CommunitySection: React.FC = () => {
                         <option>Rescue Driver & Transport</option>
                         <option>Emergency Foster Home</option>
                         <option>Field Spotter & Evidence</option>
-                        <option>Vet Tech / Medical Care</option>
-                        <option>Social Media Dispatcher</option>
+                        <option>General Support Volunteer</option>
                       </select>
                     </div>
 
                     <div>
-                      <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">City / District</label>
+                      <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">City / District *</label>
                       <input
                         type="text"
                         required
-                        placeholder="e.g. Metro Core & East End"
+                        placeholder="e.g. Lagos, Abuja, etc."
                         value={vLocation}
                         onChange={(e) => setVLocation(e.target.value)}
                         className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
@@ -366,15 +210,26 @@ export const CommunitySection: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Mobile Phone for Alerts</label>
+                    <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">WhatsApp Phone Number *</label>
                     <input
                       type="tel"
                       required
-                      placeholder="+1 (555) 000-0000"
+                      placeholder="+234..."
                       value={vPhone}
                       onChange={(e) => setVPhone(e.target.value)}
                       className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block font-fredoka text-xs font-bold text-[#352018] mb-1">Availability & Experience</label>
+                    <textarea
+                      rows={2}
+                      placeholder="Tell us about your schedule or vehicle availability..."
+                      value={vNotes}
+                      onChange={(e) => setVNotes(e.target.value)}
+                      className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-white"
+                    ></textarea>
                   </div>
 
                   <div className="flex gap-3 pt-2">
@@ -387,9 +242,10 @@ export const CommunitySection: React.FC = () => {
                     </button>
                     <button
                       type="submit"
-                      className="w-2/3 bg-[#4a2e1b] text-white font-fredoka font-semibold py-3 rounded-full shadow hover:bg-[#352018]"
+                      className="w-2/3 bg-[#25D366] hover:bg-[#1ebd59] text-white font-fredoka font-semibold py-3 rounded-full shadow flex items-center justify-center gap-2"
                     >
-                      Enroll as Rescue Volunteer
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Submit via WhatsApp</span>
                     </button>
                   </div>
                 </form>

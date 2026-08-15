@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, ShieldAlert, MapPin, Camera, AlertTriangle, CheckCircle, Navigation, Lock, Send, Info, Link as ChainIcon, AlertCircle, Package, HeartPulse, Flame } from 'lucide-react';
+import { X, ShieldAlert, MapPin, Camera, AlertTriangle, CheckCircle, Navigation, Lock, Send, Info, Link as ChainIcon, AlertCircle, Package, HeartPulse, Flame, MessageCircle, Mail, ExternalLink } from 'lucide-react';
 import { playAlertSound, playClickSound } from '../utils/audio';
 import { RescueCase } from '../types';
+import { CONTACT_INFO } from '../data/mockData';
 
 interface AbuseReportModalProps {
   isOpen: boolean;
@@ -26,18 +27,18 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
   const [reporterPhone, setReporterPhone] = useState('');
   const [evidencePreview, setEvidencePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submittedCaseId, setSubmittedCaseId] = useState<string | null>(null);
+  const [submittedCase, setSubmittedCase] = useState<RescueCase | null>(null);
   const [gpsLoading, setGpsLoading] = useState(false);
 
   if (!isOpen) return null;
 
   const abuseTypes: Array<{ type: RescueCase['type']; label: string; desc: string; icon: React.ComponentType<{ className?: string }> }> = [
-    { type: 'Abuse/Violence', label: 'Physical Abuse / Violence', desc: 'Direct beating, kicking, torture, or intentional physical violence', icon: ShieldAlert },
-    { type: 'Severe Chaining', label: 'Continuous Chaining / Tethering', desc: 'Chained 24/7 on short tether without room to move or shelter', icon: ChainIcon },
+    { type: 'Abuse/Violence', label: 'Physical Abuse / Violence', desc: 'Direct beating, kicking, torture, or intentional physical harm', icon: ShieldAlert },
+    { type: 'Severe Chaining', label: 'Continuous Chaining / Tethering', desc: 'Chained 24/7 on short tether without shelter or room to move', icon: ChainIcon },
     { type: 'Neglect/Starvation', label: 'Starvation & Severe Neglect', desc: 'Visible emaciation, denial of clean water, untreated wounds or sickness', icon: AlertCircle },
-    { type: 'Abandoned', label: 'Abandonment / Desertion', desc: 'Left in empty house, dumped in box, or abandoned in woods/alleyway', icon: Package },
-    { type: 'Injured/Road Trauma', label: 'Injured / Hit & Run Stray', desc: 'Dog struck by vehicle, fractures, severe lacerations needing emergency vet care', icon: HeartPulse },
-    { type: 'Dog Fighting', label: 'Dog Fighting / Baiting / Culling', desc: 'Suspected dog fighting ring, illegal cullers, or abusive baiting operations', icon: Flame },
+    { type: 'Abandoned', label: 'Abandonment / Desertion', desc: 'Left in empty house, dumped in box, or abandoned in woods or roadside', icon: Package },
+    { type: 'Injured/Road Trauma', label: 'Injured / Hit & Run Stray', desc: 'Dog struck by vehicle, fractures, lacerations needing emergency care', icon: HeartPulse },
+    { type: 'Dog Fighting', label: 'Dog Fighting / Bullying / Culling', desc: 'Suspected fighting ring, cruel harassment, or unlawful killing', icon: Flame },
   ];
 
   const handleUseGPS = () => {
@@ -51,14 +52,14 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
         },
         () => {
           setGpsLoading(false);
-          setLocation('Near Central Ave & 5th St, Metro District');
+          setLocation('Location specified by reporter');
         }
       );
     } else {
       setTimeout(() => {
         setGpsLoading(false);
-        setLocation('742 Evergreen Terrace, North District');
-      }, 600);
+        setLocation('Location specified by reporter');
+      }, 500);
     }
   };
 
@@ -80,32 +81,31 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
 
     setTimeout(() => {
       const generatedId = `PG-RESCUE-${Math.floor(1000 + Math.random() * 9000)}`;
-      setSubmittedCaseId(generatedId);
-      setIsSubmitting(false);
-      setStep(3);
-
       const newCase: RescueCase = {
         id: generatedId,
-        title: `${abuseType}: ${dogBreed || 'Reported Dog'} in urgent danger`,
+        title: `${abuseType}: ${dogBreed || 'Reported Dog'}`,
         type: abuseType,
         urgency: urgency,
         status: 'reported',
-        location: location || 'Location Reported via Emergency SOS',
+        location: location || 'Location details provided in report',
         coordinates: [40.7128 + (Math.random() - 0.5) * 0.05, -74.0060 + (Math.random() - 0.5) * 0.05],
-        distance: '0.8 km away',
+        distance: 'Local Area',
         reportedAt: 'Just now',
-        description: `${dogCondition} | Landmark: ${landmark || 'Not specified'}`,
-        dogName: 'Reported Pup',
-        dogBreed: dogBreed || 'Canine',
+        description: `${dogCondition}${landmark ? ` | Landmark: ${landmark}` : ''}`,
+        dogName: 'Reported Dog',
+        dogBreed: dogBreed || 'Dog in Need',
         photoUrl: evidencePreview || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop&q=80',
-        reporter: isAnonymous ? 'Anonymous Good Samaritan' : (reporterName || 'Concerned Citizen'),
+        reporter: isAnonymous ? 'Anonymous Reporter' : (reporterName || 'Community Member'),
         updates: [
-          { time: 'Just now', text: 'Report submitted with evidence. Automated emergency dispatch broadcasted to nearby volunteer units.', author: 'Dispatch System' }
+          { time: 'Just now', text: 'Report submitted. Ready for dispatch and verification.', author: 'Dispatch System' }
         ]
       };
 
+      setSubmittedCase(newCase);
+      setIsSubmitting(false);
+      setStep(3);
       onAddCase(newCase);
-    }, 1200);
+    }, 1000);
   };
 
   const handleReset = () => {
@@ -115,7 +115,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
     setDogBreed('');
     setDogCondition('');
     setEvidencePreview(null);
-    setSubmittedCaseId(null);
+    setSubmittedCase(null);
     onClose();
   };
 
@@ -157,12 +157,12 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
             <div className="w-8 h-[2px] bg-[#ebd7c3]"></div>
             <div className={`flex items-center gap-1.5 ${step >= 2 ? 'text-[#4a2e1b] font-bold' : 'opacity-50'}`}>
               <span className="w-5 h-5 rounded-full bg-[#4a2e1b] text-white flex items-center justify-center text-[10px]">2</span>
-              <span>Evidence & Witness</span>
+              <span>Evidence & Details</span>
             </div>
             <div className="w-8 h-[2px] bg-[#ebd7c3]"></div>
             <div className="opacity-50 flex items-center gap-1.5">
               <span className="w-5 h-5 rounded-full bg-[#8a5b3a] text-white flex items-center justify-center text-[10px]">3</span>
-              <span>Dispatch Confirmation</span>
+              <span>Dispatch & Direct Transmission</span>
             </div>
           </div>
         )}
@@ -181,9 +181,9 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                 </label>
                 <div className="grid grid-cols-3 gap-2.5">
                   {[
-                    { id: 'critical', label: 'Critical Danger', desc: 'Active violence / Life threat', color: 'border-[#d94141] bg-[#fee2e2] text-[#991b1b]' },
-                    { id: 'high', label: 'High Urgency', desc: 'Severe injury / Starvation', color: 'border-[#ea8e24] bg-[#ffedd5] text-[#9a3412]' },
-                    { id: 'moderate', label: 'Needs Rescue', desc: 'Welfare check / Abandoned', color: 'border-[#3aa866] bg-[#dcfce7] text-[#166534]' },
+                    { id: 'critical', label: 'Critical Danger', desc: 'Active violence or life threat', color: 'border-[#d94141] bg-[#fee2e2] text-[#991b1b]' },
+                    { id: 'high', label: 'High Urgency', desc: 'Severe injury or starvation', color: 'border-[#ea8e24] bg-[#ffedd5] text-[#9a3412]' },
+                    { id: 'moderate', label: 'Needs Rescue', desc: 'Welfare check or abandoned', color: 'border-[#3aa866] bg-[#dcfce7] text-[#166534]' },
                   ].map((lvl) => (
                     <button
                       key={lvl.id}
@@ -243,7 +243,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                 <div className="flex items-center justify-between">
                   <label className="font-fredoka text-sm font-bold text-[#352018] flex items-center gap-1.5">
                     <MapPin className="w-4 h-4 text-[#b87d55]" />
-                    <span>Exact Location / Street Address *</span>
+                    <span>Exact Location or Street Address *</span>
                   </label>
                   <button
                     type="button"
@@ -259,7 +259,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                 <input
                   type="text"
                   required
-                  placeholder="e.g. 742 Evergreen Terrace, near construction gate"
+                  placeholder="e.g. Street name, city, district, or building number"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-[#ebd7c3] bg-white text-[#352018] text-sm focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
@@ -267,7 +267,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
 
                 <input
                   type="text"
-                  placeholder="Landmarks / Access instructions (e.g. chained behind red shed in backyard)"
+                  placeholder="Landmarks or access instructions (e.g. behind shop, near gate)"
                   value={landmark}
                   onChange={(e) => setLandmark(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-[#ebd7c3] bg-white text-[#352018] text-xs focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
@@ -280,7 +280,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                   type="button"
                   onClick={() => {
                     if (!location.trim()) {
-                      alert('Please provide a location so rescuers can find the dog.');
+                      alert('Please provide a location so responders can find the dog.');
                       return;
                     }
                     playClickSound();
@@ -288,7 +288,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                   }}
                   className="w-full bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-base py-3.5 rounded-2xl shadow hover:shadow-lg transition-all flex items-center justify-center gap-2"
                 >
-                  <span>Continue to Evidence & Witness Details →</span>
+                  <span>Continue to Evidence & Details</span>
                 </button>
               </div>
 
@@ -305,7 +305,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                 </label>
                 <input
                   type="text"
-                  placeholder="Estimated breed / size / color (e.g. Small white poodle puppy or Medium brown hound)"
+                  placeholder="Estimated breed, color, or size"
                   value={dogBreed}
                   onChange={(e) => setDogBreed(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-[#ebd7c3] bg-white text-[#352018] text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
@@ -313,7 +313,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                 <textarea
                   required
                   rows={3}
-                  placeholder="Describe what you witnessed (e.g. Dog has been crying for hours, no water, perpetrator struck the dog with a stick, open wound on left leg...)"
+                  placeholder="Describe the situation (e.g. Dog tied without water, visible injury, perpetrator actions...)"
                   value={dogCondition}
                   onChange={(e) => setDogCondition(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-[#ebd7c3] bg-white text-[#352018] text-sm focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
@@ -347,10 +347,10 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                     <label className="cursor-pointer block py-4">
                       <Camera className="w-8 h-8 text-[#8a5b3a] mx-auto mb-1.5" />
                       <span className="font-fredoka text-sm text-[#4a2e1b] font-semibold block">
-                        Click to upload photo or evidence file
+                        Click to attach photo or evidence
                       </span>
                       <span className="text-xs text-[#7e5c46]">
-                        Supports JPG, PNG, MP4 up to 50MB (Timestamp recorded)
+                        Supports JPG, PNG, MP4
                       </span>
                       <input
                         type="file"
@@ -387,14 +387,14 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                     <input
                       type="text"
-                      placeholder="Your Name"
+                      placeholder="Your Name (Optional)"
                       value={reporterName}
                       onChange={(e) => setReporterName(e.target.value)}
                       className="px-3 py-2 rounded-xl border border-[#ebd7c3] text-xs focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
                     />
                     <input
                       type="tel"
-                      placeholder="Your Phone (for rescue verification)"
+                      placeholder="Your Phone Number (Optional)"
                       value={reporterPhone}
                       onChange={(e) => setReporterPhone(e.target.value)}
                       className="px-3 py-2 rounded-xl border border-[#ebd7c3] text-xs focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
@@ -403,7 +403,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                 ) : (
                   <p className="text-xs text-[#7e5c46] italic flex items-center gap-1">
                     <Info className="w-3.5 h-3.5 text-[#b87d55]" />
-                    Your contact info is hidden. The report will be dispatched with anonymous protection.
+                    Your contact information will be hidden on the public platform.
                   </p>
                 )}
               </div>
@@ -415,7 +415,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                   onClick={() => setStep(1)}
                   className="w-1/3 bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka font-semibold text-sm py-3.5 rounded-2xl transition-all"
                 >
-                  ← Back
+                  Back
                 </button>
 
                 <button
@@ -426,12 +426,12 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
                   {isSubmitting ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Dispatching Emergency Alert...</span>
+                      <span>Submitting Report...</span>
                     </>
                   ) : (
                     <>
                       <Send className="w-4 h-4" />
-                      <span>Transmit Emergency Report Now</span>
+                      <span>Submit Emergency Report</span>
                     </>
                   )}
                 </button>
@@ -440,7 +440,7 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
             </form>
           )}
 
-          {step === 3 && (
+          {step === 3 && submittedCase && (
             <div className="text-center py-6 space-y-6">
               
               <div className="w-20 h-20 rounded-full bg-[#3aa866]/20 text-[#3aa866] flex items-center justify-center mx-auto">
@@ -449,33 +449,52 @@ export const AbuseReportModal: React.FC<AbuseReportModalProps> = ({
 
               <div className="space-y-2">
                 <span className="text-xs font-fredoka font-semibold uppercase tracking-wider text-[#3aa866] bg-[#dcfce7] px-3 py-1 rounded-full border border-[#bbf7d0]">
-                  Emergency Alert Broadcasted
+                  Report Logged Successfully
                 </span>
                 <h3 className="font-fredoka text-2xl sm:text-3xl font-bold text-[#26160d]">
-                  Rescue Ticket Generated
+                  Case #{submittedCase.id}
                 </h3>
-                <p className="text-sm font-semibold text-[#8a5b3a]">
-                  Case ID: <span className="text-[#4a2e1b] font-mono text-base font-bold bg-white px-2 py-0.5 rounded border border-[#ebd7c3]">{submittedCaseId}</span>
+                <p className="text-sm text-[#7e5c46]">
+                  Your report has been recorded in the platform system.
                 </p>
               </div>
 
-              <div className="bg-white p-5 rounded-2xl border border-[#ebd7c3] text-left text-xs text-[#5e4537] space-y-2.5 max-w-lg mx-auto shadow-inner">
-                <div className="flex items-center gap-2 text-[#3aa866] font-bold text-sm">
-                  <div className="w-2 h-2 rounded-full bg-[#3aa866]"></div>
-                  <span>14 Registered Volunteers & Shelters Alerted</span>
+              {/* Direct WhatsApp and Email Actions */}
+              <div className="bg-white p-5 rounded-2xl border border-[#ebd7c3] text-left text-xs text-[#5e4537] space-y-4 shadow-sm">
+                <p className="font-fredoka font-bold text-sm text-[#352018]">
+                  Transmitting to Rescue Dispatch:
+                </p>
+                <p><strong>Location:</strong> {submittedCase.location}</p>
+                <p><strong>Incident Type:</strong> {submittedCase.type} ({submittedCase.urgency.toUpperCase()})</p>
+                
+                <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <a
+                    href={CONTACT_INFO.getWhatsappReportUrl(submittedCase.id, submittedCase.type, submittedCase.location, submittedCase.description)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-[#25D366] hover:bg-[#1ebd59] text-white p-3 rounded-xl font-fredoka font-semibold flex items-center justify-center gap-2 shadow"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Send to WhatsApp ({CONTACT_INFO.phone})</span>
+                  </a>
+
+                  <a
+                    href={CONTACT_INFO.getEmailReportUrl(submittedCase.id, submittedCase.type, submittedCase.location, submittedCase.description)}
+                    className="bg-[#4a2e1b] hover:bg-[#352018] text-white p-3 rounded-xl font-fredoka font-semibold flex items-center justify-center gap-2 shadow"
+                  >
+                    <Mail className="w-4 h-4" />
+                    <span>Send via Email ({CONTACT_INFO.email})</span>
+                  </a>
                 </div>
-                <p><strong>Target Location:</strong> {location}</p>
-                <p><strong>Severity:</strong> {urgency.toUpperCase()} - {abuseType}</p>
-                <p><strong>Status:</strong> Immediate volunteer assignment in progress. Field rescue units have been notified.</p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-sm px-6 py-3.5 rounded-full shadow transition-all flex-1"
+                  className="bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka font-semibold text-sm px-6 py-3.5 rounded-full border border-[#ebd7c3] transition-all flex-1"
                 >
-                  Done & View Rescue Radar
+                  Close & View Board
                 </button>
               </div>
 

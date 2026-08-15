@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { RescueCase } from '../types';
-import { ShieldAlert, MapPin, Clock, CheckCircle, Navigation, Radio, Share2, HeartHandshake, AlertCircle } from 'lucide-react';
-import { playClickSound, playAlertSound } from '../utils/audio';
+import { ShieldAlert, MapPin, Clock, Navigation, Radio, Share2, AlertCircle, MessageCircle, Mail } from 'lucide-react';
+import { playClickSound } from '../utils/audio';
+import { CONTACT_INFO } from '../data/mockData';
 
 interface RescueMapSectionProps {
   cases: RescueCase[];
@@ -12,12 +13,10 @@ interface RescueMapSectionProps {
 export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
   cases,
   onOpenReport,
-  onUpdateCase,
 }) => {
-  const [selectedCase, setSelectedCase] = useState<RescueCase>(cases[0] || null);
+  const [selectedCase, setSelectedCase] = useState<RescueCase | null>(cases[0] || null);
   const [filterUrgency, setFilterUrgency] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [volunteerAccepted, setVolunteerAccepted] = useState<string | null>(null);
 
   const filteredCases = cases.filter((c) => {
     const matchUrgency = filterUrgency === 'all' || c.urgency === filterUrgency;
@@ -27,24 +26,6 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
       c.type.toLowerCase().includes(searchQuery.toLowerCase());
     return matchUrgency && matchSearch;
   });
-
-  const handleVolunteer = (caseItem: RescueCase) => {
-    playAlertSound();
-    const updated: RescueCase = {
-      ...caseItem,
-      status: 'volunteer_en_route',
-      assignedVolunteer: 'You (Volunteer Responder)',
-      updates: [
-        { time: 'Just now', text: 'You signed up to assist with this rescue mission. Dispatch instructions sent to your phone.', author: 'PawGuard HQ' },
-        ...caseItem.updates,
-      ],
-    };
-    onUpdateCase(updated);
-    setSelectedCase(updated);
-    setVolunteerAccepted(caseItem.id);
-
-    setTimeout(() => setVolunteerAccepted(null), 4500);
-  };
 
   const getUrgencyBadge = (urgency: RescueCase['urgency']) => {
     switch (urgency) {
@@ -60,11 +41,11 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
   const getStatusBadge = (status: RescueCase['status']) => {
     switch (status) {
       case 'reported':
-        return <span className="bg-[#f3f4f6] text-[#374151] text-[11px] font-fredoka font-medium px-2.5 py-1 rounded-full">Searching Volunteers</span>;
+        return <span className="bg-[#f3f4f6] text-[#374151] text-[11px] font-fredoka font-medium px-2.5 py-1 rounded-full">Reported</span>;
       case 'volunteer_en_route':
-        return <span className="bg-[#dbeafe] text-[#1e40af] text-[11px] font-fredoka font-medium px-2.5 py-1 rounded-full">Responder En Route</span>;
+        return <span className="bg-[#dbeafe] text-[#1e40af] text-[11px] font-fredoka font-medium px-2.5 py-1 rounded-full">Responder Assigned</span>;
       case 'at_vet':
-        return <span className="bg-[#fef3c7] text-[#92400e] text-[11px] font-fredoka font-medium px-2.5 py-1 rounded-full">Under Vet Care</span>;
+        return <span className="bg-[#fef3c7] text-[#92400e] text-[11px] font-fredoka font-medium px-2.5 py-1 rounded-full">Under Medical Care</span>;
       case 'rescued_safe':
         return <span className="bg-[#dcfce7] text-[#166534] text-[11px] font-fredoka font-medium px-2.5 py-1 rounded-full">Safe & Sheltered</span>;
       default:
@@ -81,13 +62,13 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs font-fredoka font-bold text-[#b87d55] uppercase tracking-wider">
               <Radio className="w-4 h-4 text-[#d94141]" />
-              <span>Real-Time GPS Rescue Radar</span>
+              <span>Location-Based Rescue Reports</span>
             </div>
             <h2 className="font-fredoka text-3xl sm:text-4xl font-bold text-[#26160d]">
               Find & Rescue Dogs in Danger
             </h2>
             <p className="font-sans text-sm sm:text-base text-[#6b4c38] max-w-2xl">
-              Track reported dog abuse incidents, locate injured strays needing transport, and dispatch help to emergency cases near you.
+              Track reported dog abuse cases, review locations where animals require rescue, and communicate directly with our dispatch desk on WhatsApp or Email.
             </p>
           </div>
 
@@ -110,7 +91,7 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
           <div className="relative w-full sm:w-80">
             <input
               type="text"
-              placeholder="Search by neighborhood, breed or type..."
+              placeholder="Search reports by location, type..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2 rounded-xl text-xs sm:text-sm bg-[#faf4ed] border border-[#ebd7c3] text-[#352018] focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
@@ -121,10 +102,10 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
           {/* Filter Pills */}
           <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
             {[
-              { id: 'all', label: 'All Cases' },
+              { id: 'all', label: 'All Reports' },
               { id: 'critical', label: 'Critical' },
               { id: 'high', label: 'High Urgency' },
-              { id: 'moderate', label: 'Active' },
+              { id: 'moderate', label: 'In Progress' },
             ].map((f) => (
               <button
                 key={f.id}
@@ -144,19 +125,47 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
           </div>
         </div>
 
-        {/* Main Grid: Cases List + Interactive Live Radar Inspector */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
-          {/* Left Cases Column (5 cols) */}
-          <div className="lg:col-span-5 space-y-4 max-h-[700px] overflow-y-auto pr-1">
-            {filteredCases.length === 0 ? (
-              <div className="bg-white p-8 rounded-3xl border border-[#ebd7c3] text-center space-y-3">
-                <AlertCircle className="w-10 h-10 text-[#b87d55] mx-auto opacity-70" />
-                <p className="font-fredoka text-base font-bold text-[#352018]">No cases match this filter</p>
-                <p className="text-xs text-[#7e5c46]">Try changing the urgency filter or clear your search term.</p>
-              </div>
-            ) : (
-              filteredCases.map((c) => {
+        {/* Main Section */}
+        {filteredCases.length === 0 ? (
+          <div className="bg-white rounded-3xl p-10 sm:p-16 border-2 border-[#ebd7c3] text-center max-w-2xl mx-auto space-y-5 shadow-sm">
+            <div className="w-16 h-16 rounded-2xl bg-[#faefe4] text-[#4a2e1b] flex items-center justify-center mx-auto">
+              <ShieldAlert className="w-8 h-8 text-[#b87d55]" />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="font-fredoka text-2xl font-bold text-[#26160d]">
+                No Rescue Cases Logged Yet
+              </h3>
+              <p className="font-sans text-xs sm:text-sm text-[#6b4c38] max-w-md mx-auto leading-relaxed">
+                If you know of any dog being abused, harassed, starved, abandoned, or in life-threatening danger, submit a report or contact us directly.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <button
+                onClick={onOpenReport}
+                className="w-full sm:w-auto bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-xs sm:text-sm px-6 py-3 rounded-full shadow"
+              >
+                Submit a Report
+              </button>
+
+              <a
+                href={CONTACT_INFO.whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto bg-[#25D366] hover:bg-[#1ebd59] text-white font-fredoka font-semibold text-xs sm:text-sm px-6 py-3 rounded-full shadow flex items-center justify-center gap-1.5"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>Message WhatsApp ({CONTACT_INFO.phone})</span>
+              </a>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* Left Cases Column (5 cols) */}
+            <div className="lg:col-span-5 space-y-4 max-h-[600px] overflow-y-auto pr-1">
+              {filteredCases.map((c) => {
                 const isSelected = selectedCase?.id === c.id;
                 return (
                   <div
@@ -173,11 +182,11 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
                   >
                     <div className="flex gap-4">
                       {/* Thumbnail */}
-                      <div className="relative w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-[#faefe4] border border-[#ebd7c3]">
+                      <div className="relative w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 bg-[#faefe4] border border-[#ebd7c3]">
                         <img
                           src={c.photoUrl}
                           alt={c.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          className="w-full h-full object-cover"
                         />
                       </div>
 
@@ -202,150 +211,88 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
                             <Clock className="w-3 h-3" />
                             {c.reportedAt}
                           </span>
-                          <span className="font-semibold text-[#4a2e1b] bg-[#faefe4] px-2 py-0.5 rounded-md">
-                            {c.distance}
-                          </span>
+                          {getStatusBadge(c.status)}
                         </div>
                       </div>
                     </div>
                   </div>
                 );
-              })
-            )}
-          </div>
+              })}
+            </div>
 
-          {/* Right Live Rescue Inspector & Radar View (7 cols) */}
-          <div className="lg:col-span-7">
-            {selectedCase ? (
-              <div className="bg-white rounded-3xl border-2 border-[#4a2e1b] shadow-xl p-6 sm:p-8 space-y-6">
-                
-                {/* Radar Top Bar */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#ebd7c3] pb-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-[#8a5b3a] bg-[#faefe4] px-2 py-0.5 rounded border border-[#ebd7c3]">
-                        {selectedCase.id}
-                      </span>
-                      {getUrgencyBadge(selectedCase.urgency)}
-                      {getStatusBadge(selectedCase.status)}
-                    </div>
-                    <h3 className="font-fredoka text-xl sm:text-2xl font-bold text-[#26160d]">
-                      {selectedCase.title}
-                    </h3>
-                  </div>
-
-                  {/* Share button */}
-                  <button
-                    onClick={() => {
-                      playClickSound();
-                      navigator.clipboard?.writeText(window.location.href);
-                      alert('Rescue alert link copied to clipboard.');
-                    }}
-                    className="flex items-center gap-1.5 text-xs font-fredoka font-semibold text-[#4a2e1b] bg-[#faefe4] hover:bg-[#ebd7c3] px-3.5 py-2 rounded-full border border-[#ebd7c3] transition-colors self-start sm:self-auto"
-                  >
-                    <Share2 className="w-3.5 h-3.5" />
-                    <span>Share Case</span>
-                  </button>
-                </div>
-
-                {/* Radar Map Pin Display */}
-                <div className="relative h-48 sm:h-56 rounded-2xl overflow-hidden terracotta-tile-grid border border-[#4a2e1b] shadow-inner flex items-center justify-center text-center p-4">
-                  <div className="absolute inset-0 bg-black/20"></div>
-
-                  <div className="relative z-10 space-y-2">
-                    <div className="w-14 h-14 rounded-full bg-[#352018] border-2 border-white shadow-xl flex items-center justify-center text-white mx-auto">
-                      <MapPin className="w-7 h-7 text-[#f5d7b7]" />
-                    </div>
-                    <div className="bg-[#352018]/90 text-white px-4 py-1.5 rounded-full text-xs font-fredoka shadow inline-block border border-white/20">
-                      {selectedCase.location} ({selectedCase.distance})
-                    </div>
-                  </div>
-
-                  <div className="absolute bottom-2 right-2 bg-black/70 text-white/80 text-[10px] font-mono px-2 py-0.5 rounded">
-                    GPS: {selectedCase.coordinates[0].toFixed(4)}, {selectedCase.coordinates[1].toFixed(4)}
-                  </div>
-                </div>
-
-                {/* Case Description & Details */}
-                <div className="space-y-2">
-                  <h4 className="font-fredoka text-sm font-bold text-[#352018]">
-                    Incident Report & Animal Condition:
-                  </h4>
-                  <p className="text-xs sm:text-sm text-[#5e4537] leading-relaxed bg-[#fbf6f0] p-4 rounded-2xl border border-[#ebd7c3]">
-                    {selectedCase.description}
-                  </p>
-                </div>
-
-                {/* Reporter & Assigned Volunteer Box */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-[#faefe4] p-4 rounded-2xl border border-[#ebd7c3]">
-                  <div>
-                    <span className="text-[#8a5b3a] block font-semibold">Reported By:</span>
-                    <span className="font-bold text-[#352018]">{selectedCase.reporter}</span>
-                  </div>
-                  <div>
-                    <span className="text-[#8a5b3a] block font-semibold">Assigned Responder:</span>
-                    <span className="font-bold text-[#352018]">
-                      {selectedCase.assignedVolunteer || 'No volunteer assigned yet'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Timeline updates */}
-                <div className="space-y-2">
-                  <h4 className="font-fredoka text-xs font-bold uppercase tracking-wider text-[#8a5b3a]">
-                    Mission Log:
-                  </h4>
-                  <div className="space-y-1.5">
-                    {selectedCase.updates.map((u, i) => (
-                      <div key={i} className="flex items-start gap-2.5 text-xs text-[#5e4537] bg-white p-2.5 rounded-xl border border-[#ebd7c3]">
-                        <span className="font-mono text-[10px] text-[#b87d55] font-bold mt-0.5 whitespace-nowrap">{u.time}</span>
-                        <div className="flex-1">
-                          <span className="font-semibold text-[#352018] mr-1.5">{u.author}:</span>
-                          <span>{u.text}</span>
-                        </div>
+            {/* Right Case Inspector (7 cols) */}
+            <div className="lg:col-span-7">
+              {selectedCase ? (
+                <div className="bg-white rounded-3xl border-2 border-[#4a2e1b] shadow-xl p-6 sm:p-8 space-y-6">
+                  
+                  {/* Case Top Bar */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#ebd7c3] pb-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs font-bold text-[#8a5b3a] bg-[#faefe4] px-2 py-0.5 rounded border border-[#ebd7c3]">
+                          {selectedCase.id}
+                        </span>
+                        {getUrgencyBadge(selectedCase.urgency)}
+                        {getStatusBadge(selectedCase.status)}
                       </div>
-                    ))}
+                      <h3 className="font-fredoka text-xl sm:text-2xl font-bold text-[#26160d]">
+                        {selectedCase.title}
+                      </h3>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        playClickSound();
+                        navigator.clipboard?.writeText(window.location.href);
+                        alert('Report link copied.');
+                      }}
+                      className="flex items-center gap-1.5 text-xs font-fredoka font-semibold text-[#4a2e1b] bg-[#faefe4] hover:bg-[#ebd7c3] px-3.5 py-2 rounded-full border border-[#ebd7c3] transition-colors self-start sm:self-auto"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                      <span>Share</span>
+                    </button>
                   </div>
-                </div>
 
-                {/* Success message after volunteering */}
-                {volunteerAccepted === selectedCase.id && (
-                  <div className="bg-[#dcfce7] border border-[#86efac] text-[#166534] p-3.5 rounded-2xl text-xs font-fredoka font-semibold flex items-center gap-2 animate-fadeIn">
-                    <CheckCircle className="w-5 h-5 text-[#3aa866]" />
-                    <span>You are assigned to this rescue mission. Dispatch coordinates have been transmitted.</span>
+                  {/* Details */}
+                  <div className="space-y-2">
+                    <h4 className="font-fredoka text-sm font-bold text-[#352018]">
+                      Report Details & Location:
+                    </h4>
+                    <p className="text-xs sm:text-sm text-[#5e4537] leading-relaxed bg-[#fbf6f0] p-4 rounded-2xl border border-[#ebd7c3]">
+                      {selectedCase.description}
+                    </p>
+                    <p className="text-xs text-[#6b4c38] font-medium">
+                      <strong>Address:</strong> {selectedCase.location}
+                    </p>
                   </div>
-                )}
 
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                  <button
-                    onClick={() => handleVolunteer(selectedCase)}
-                    className="flex-1 flex items-center justify-center gap-2 bg-[#3aa866] hover:bg-[#2e8a52] text-white font-fredoka font-semibold text-sm sm:text-base py-3.5 rounded-full shadow hover:shadow-lg transition-all"
-                  >
-                    <HeartHandshake className="w-5 h-5" />
-                    <span>Volunteer for This Rescue</span>
-                  </button>
+                  {/* Actions */}
+                  <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <a
+                      href={CONTACT_INFO.getWhatsappReportUrl(selectedCase.id, selectedCase.type, selectedCase.location, selectedCase.description)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-[#25D366] hover:bg-[#1ebd59] text-white font-fredoka font-semibold text-xs sm:text-sm p-3.5 rounded-full shadow flex items-center justify-center gap-2"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Message WhatsApp Dispatch</span>
+                    </a>
 
-                  <a
-                    href={`https://maps.google.com/?q=${selectedCase.coordinates[0]},${selectedCase.coordinates[1]}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center justify-center gap-2 bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-sm px-6 py-3.5 rounded-full shadow transition-all"
-                  >
-                    <Navigation className="w-4 h-4" />
-                    <span>Get Directions</span>
-                  </a>
+                    <a
+                      href={CONTACT_INFO.getEmailReportUrl(selectedCase.id, selectedCase.type, selectedCase.location, selectedCase.description)}
+                      className="bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-xs sm:text-sm p-3.5 rounded-full shadow flex items-center justify-center gap-2"
+                    >
+                      <Mail className="w-4 h-4" />
+                      <span>Email Report Details</span>
+                    </a>
+                  </div>
+
                 </div>
+              ) : null}
+            </div>
 
-              </div>
-            ) : (
-              <div className="bg-white rounded-3xl p-12 border border-[#ebd7c3] text-center text-[#7e5c46]">
-                Select a rescue case from the left to inspect real-time radar data.
-              </div>
-            )}
           </div>
-
-        </div>
+        )}
 
       </div>
     </section>
