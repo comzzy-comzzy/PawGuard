@@ -1,0 +1,238 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-tile: #b87d55;
+    --color-cream: #fbf6f0;
+    --color-dark: #352018;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  body {
+    background-color: #fbf6f0;
+    color: #352018;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom Terracotta Tile Pattern matching PNG */
+.terracotta-tile-grid {
+  background-color: #b87d55;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.28) 2px, transparent 2px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.28) 2px, transparent 2px);
+  background-size: 76px 76px;
+  background-position: center center;
+}
+
+/* Soft hero container card border and shadow matching PNG */
+.hero-card-container {
+  background: #ffffff;
+  border-radius: 36px;
+  border: 4px solid #352018;
+  box-shadow: 0 20px 45px rgba(53, 32, 24, 0.22), 0 4px 10px rgba(53, 32, 24, 0.08);
+}
+
+/* Animations for Dog Elements */
+@keyframes subtle-breathe {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.015);
+  }
+}
+
+@keyframes subtle-sway {
+  0%, 100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  33% {
+    transform: rotate(-1.5deg) translateY(-2px);
+  }
+  66% {
+    transform: rotate(1.5deg) translateY(-3px);
+  }
+}
+
+@keyframes head-breathe {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.012) translateY(-1px);
+  }
+}
+
+@keyframes ear-wiggle {
+  0%, 85%, 100% {
+    transform: rotate(0deg);
+  }
+  88% {
+    transform: rotate(-5deg);
+  }
+  92% {
+    transform: rotate(4deg);
+  }
+  96% {
+    transform: rotate(-2deg);
+  }
+}
+
+@keyframes ear-wiggle-delayed {
+  0%, 82%, 100% {
+    transform: rotate(0deg);
+  }
+  85% {
+    transform: rotate(5deg);
+  }
+  89% {
+    transform: rotate(-4deg);
+  }
+  93% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes tail-wag {
+  0%, 100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(14deg);
+  }
+}
+
+@keyframes paw-tap {
+  0%, 70%, 100% {
+    transform: translateY(0);
+  }
+  80% {
+    transform: translateY(-3px);
+  }
+  90% {
+    transform: translateY(1px);
+  }
+}
+
+@keyframes paw-tap-delayed {
+  0%, 75%, 100% {
+    transform: translateY(0);
+  }
+  85% {
+    transform: translateY(-3px);
+  }
+  95% {
+    transform: translateY(1px);
+  }
+}
+
+@keyframes bowtie-sway {
+  0%, 100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes float-heart {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-60px) scale(1.4);
+  }
+}
+
+@keyframes pulse-gentle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.05);
+  }
+}
+
+.animate-subtle-breathe {
+  animation: subtle-breathe 4s ease-in-out infinite;
+}
+
+.animate-subtle-sway {
+  animation: subtle-sway 5s ease-in-out infinite;
+}
+
+.animate-head-breathe {
+  animation: head-breathe 3.5s ease-in-out infinite;
+}
+
+.animate-ear-wiggle {
+  transform-origin: top center;
+  animation: ear-wiggle 6s ease-in-out infinite;
+}
+
+.animate-ear-wiggle-delayed {
+  transform-origin: top center;
+  animation: ear-wiggle-delayed 6.5s ease-in-out infinite;
+}
+
+.animate-tail-wag {
+  animation: tail-wag 1.2s ease-in-out infinite;
+}
+
+.animate-paw-tap {
+  animation: paw-tap 5s ease-in-out infinite;
+}
+
+.animate-paw-tap-delayed {
+  animation: paw-tap-delayed 5.5s ease-in-out infinite;
+}
+
+.animate-bowtie-sway {
+  transform-origin: center center;
+  animation: bowtie-sway 3s ease-in-out infinite;
+}
+
+.animate-float-heart {
+  animation: float-heart 1.5s ease-out forwards;
+}
+
+.animate-pulse-gentle {
+  animation: pulse-gentle 2.5s infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fbf6f0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b87d55;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4a2e1b;
+}
+
+/* Leaflet Map Custom Container */
+.leaflet-container {
+  font-family: inherit;
+  border-radius: 1.25rem;
+  z-index: 10;
+}
