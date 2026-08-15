@@ -12,6 +12,7 @@ import { CommunitySection } from './components/CommunitySection';
 import { SupportSection } from './components/SupportSection';
 import { Footer } from './components/Footer';
 import { EmergencyHotlineModal } from './components/EmergencyHotlineModal';
+import { PickyChatBox } from './components/PickyChatBox';
 import { RescueCase, AdoptableDog, LostFoundDog } from './types';
 
 export function App() {
@@ -209,6 +210,12 @@ export function App() {
           setIsEmergencyOpen(false);
           handleNavigate('report');
         }}
+      />
+
+      {/* Picky - AI Puppy Chat Box Assistant */}
+      <PickyChatBox
+        onNavigateSection={handleNavigate}
+        onAddCase={handleAddCase}
       />
     </div>
   );
