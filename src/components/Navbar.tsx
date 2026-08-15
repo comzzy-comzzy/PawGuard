@@ -121,7 +121,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>24/7 Hotline</span>
           </button>
 
-          {/* "Get Help 🤍" button matching PNG exactly */}
+          {/* "Get Help" button matching PNG */}
           <button
             onClick={() => {
               playClickSound();

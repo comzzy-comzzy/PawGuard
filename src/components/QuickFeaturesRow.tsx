@@ -30,7 +30,7 @@ export const QuickFeaturesRow: React.FC<QuickFeaturesRowProps> = ({ onSelectFeat
       title: 'Adoption',
       description: 'Find loving dogs waiting for a forever home.',
       highlightColor: '#3aa866',
-      badge: '6 Available'
+      badge: 'Available'
     },
     {
       id: 'learn',
@@ -46,7 +46,7 @@ export const QuickFeaturesRow: React.FC<QuickFeaturesRowProps> = ({ onSelectFeat
       title: 'Community',
       description: 'Join a community of dog lovers and volunteers.',
       highlightColor: '#8a4ea8',
-      badge: 'Join Guild'
+      badge: 'Network'
     },
     {
       id: 'support',
@@ -131,7 +131,7 @@ export const QuickFeaturesRow: React.FC<QuickFeaturesRowProps> = ({ onSelectFeat
             </p>
             <p className="font-fredoka text-base sm:text-lg md:text-xl font-bold text-[#2b1b13] flex items-center justify-center gap-1.5">
               <span>Be their voice. Be their hope.</span>
-              <span className="text-lg inline-block hover:scale-125 transition-transform cursor-pointer">🤎</span>
+              <Heart className="w-5 h-5 fill-[#8a5b3a] text-[#8a5b3a] inline-block" />
             </p>
           </div>
 

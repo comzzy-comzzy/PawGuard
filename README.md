@@ -1,110 +1,111 @@
-# 🐾 PawGuard — Protect Dogs, They Have Feelings Too
+# PawGuard — Protect Dogs, They Have Feelings Too
 
-<div align="center">
-  <img src="./pawguard.png" alt="PawGuard Banner" width="700" style="border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);" />
-  
-  <p align="center">
-    <strong>A compassionate platform to report dog abuse, rescue dogs in danger, find loving adoptions, reunite lost pets, and build a kinder world for every canine.</strong>
-  </p>
-</div>
+PawGuard is a community platform dedicated to preventing dog abuse, abandonment, neglect, and unnecessary harm. It provides a real-time reporting system for dogs in danger, tracks rescue operations, lists verified adoptions, reunites lost pets with their owners, and educates the public on humane animal care.
 
 ---
 
-## 🌟 Key Features
+## Overview of Platform Capabilities
 
-### 🐶 1. Animated Interactive Hero & Companions
-- Recreated directly from the original design with responsive terracotta tile layout.
-- **Teddy** (Left Peeking Puppy) and **Oliver** (Right Bowtie Puppy) feature lifelike SVG animations:
-  - Natural breathing and head-tilting movements
-  - Dynamic blinking and winking
-  - Interactive petting, biscuit treats (`🦴`), tennis ball play (`🎾`), and heart reactions (`💖`)
-  - Synthesized audio puppy barks and effects using the Web Audio API (zero external sound dependencies)
+### 1. Hero Interface & Interactive Illustrations
+- Clean responsive layout matching the design specifications.
+- Animated character illustrations (Teddy and Oliver) with smooth continuous breathing, blinking, ear movement, and tail animations.
+- Quick action routing to emergency reporting and support desks.
 
-### 🚨 2. Dog Abuse & Danger Reporting System
-- **Incident Categorization**: Physical Abuse, Severe Chaining, Starvation/Neglect, Abandonment, Dog Fighting, and Hit-and-Run.
-- **Urgency Levels**: Critical (🔴), High Urgency (🟠), and In Progress (🟡).
-- **Location Finder**: Instant GPS geolocation detection and street landmark notes.
-- **Evidence Uploader**: Live photo/video preview with timestamp verification.
-- **Anonymous Reporting Toggle**: Protects whistleblower and eyewitness identity.
-- **Automated Dispatch Simulator**: Generates unique tracking Case IDs (e.g. `PG-RESCUE-8942`) and alerts nearby volunteer units.
+### 2. Cruelty & Danger Reporting System
+- Incident classification: Physical Abuse, Continuous Chaining, Starvation/Neglect, Abandonment, Dog Fighting, and Road Trauma.
+- Urgency level triage: Critical Danger, High Urgency, and In Progress.
+- Automatic GPS coordinate resolution and street address capture.
+- Secure photo and video evidence upload with timestamp tracking.
+- Anonymous reporting toggle to protect witness identity.
+- Automated dispatch simulation generating official Case IDs and notifying regional volunteers.
 
-### 🗺️ 3. "Find & Rescue" Live Radar & Tracking Map
-- Interactive case list and live mission radar.
-- Real-time status tracker: *Reported → Responder En Route → Under Vet Care → Safely Rescued*.
-- One-click **"Volunteer for This Rescue"** button allowing community members to accept missions.
-- Direct GPS route directions and incident sharing.
+### 3. Real-Time Rescue Radar & Mission Tracking
+- Interactive incident board with status pipeline: Reported, Responder En Route, Under Vet Care, and Safe & Sheltered.
+- One-click volunteer assignment allowing community responders to accept active rescue dispatches.
+- Integrated GPS routing and case sharing.
 
-### 🏡 4. Adoption & Foster Gallery
-- Comprehensive profiles with personality badges, rescue histories, and medical statuses.
-- Filter by size (Small, Medium, Large) and temperament (Kid-friendly, Cat-friendly).
-- Interactive **"Adopt Me"** application form with meet-and-greet scheduler.
-- **"Virtual Sponsor"** option to fund veterinary care and food.
+### 4. Adoption & Foster Management
+- Profiles for rescued dogs featuring health certifications, vaccination status, and temperament details.
+- Size and compatibility filters (good with children, dogs, or single-pet homes).
+- Multi-step adoption application form with meet-and-greet scheduling.
+- Virtual sponsorship program for ongoing medical and nutrition support.
 
-### 🔍 5. Lost, Abandoned & Injured Dogs Noticeboard
-- Real-time community alert board for missing pets, found strays, and injured animals.
-- **Printable Missing Dog Poster Generator**: Instant formatted PDF/flyer with reward tags and tear-off contact information.
+### 5. Lost, Found & Injured Animals Noticeboard
+- Public noticeboard for missing pets, found dogs, and injured strays.
+- Automated flyer generator producing printable missing pet posters with contact information.
 
-### 📚 6. Humane Education & Canine Welfare Hub
-- **Canine Body Language Decoder**: Identifying subtle stress, whale eyes, and silent pain signals.
-- **Legal Guide**: Animal cruelty laws, tethering violations, and lawful evidence collection.
-- **Emergency First-Aid Protocols**: Heatstroke, toxin ingestion, fractures, and CPR.
-- **"Dog-Smart Hero" Interactive Quiz**: Real-time knowledge scoring and certification.
+### 6. Humane Education & Legal Guide
+- Canine body language decoder highlighting subtle distress and pain signals.
+- Legal overview of animal cruelty laws, tethering regulations, and evidence documentation standards.
+- Emergency first-aid guidance for heatstroke, toxin exposure, and trauma care.
+- Knowledge evaluation assessment with scoring and explanations.
 
-### 👥 7. Community & Volunteer Guild
-- Volunteer roles: Rescue Drivers, Foster Sanctuaries, Field Spotters, and Vet Techs.
-- Live **Volunteer Leaderboard** and verified rescue updates stream.
-- Volunteer sign-up form with automated regional enrollment.
+### 7. Volunteer Network & Community Coordination
+- Dedicated volunteer roles: Rescue Transport Drivers, Foster Sanctuaries, Field Spotters, and Veterinary Assistants.
+- Community update feed for verified rescue stories and alerts.
+- Regional volunteer enrollment system.
 
-### 💖 8. Lifesaving Medical Fund & Donations
-- Live progress tracker for emergency veterinary surgical funds.
-- Transparent impact tiers ($15 food kits, $35 vaccines, $75 triage, $150 surgeries).
+### 8. Emergency Medical Fund
+- Transparent progress tracker for veterinary surgical interventions and medical equipment.
+- Direct funding tiers for emergency food kits, vaccination protocols, and trauma surgeries.
 
-### 📞 9. 24/7 Emergency SOS Hotline
-- Instant access to toll-free animal cruelty hotlines, poison control, and 1-click emergency SOS broadcast.
+### 9. 24/7 Emergency Dispatch Hotline
+- Direct access to round-the-clock emergency numbers, poison control centers, and rapid SOS broadcasts.
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
-- **Framework**: React 18 with TypeScript
-- **Bundler**: Vite 6
-- **Styling**: Tailwind CSS & Vanilla CSS Design System with custom keyframe animations
-- **Icons**: Lucide React
-- **Audio Engine**: Web Audio API (Synthesized oscillators)
-- **Effects**: Canvas Confetti
+- Frontend Framework: React 18 with TypeScript
+- Build Tool: Vite 6
+- Styling: Tailwind CSS and custom CSS keyframe animations
+- Icons: Lucide React
+- Audio Synthesis: Web Audio API (native browser oscillators)
 
 ---
 
-## 🚀 Local Development
+## Local Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/comzzy-comzzy/PawGuard.git
+   cd PawGuard
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open `http://localhost:3000` in your browser.
+
+---
+
+## Production Build & Deployment
+
+To generate an optimized production bundle:
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/comzzy-comzzy/PawGuard.git
-
-# 2. Navigate to project directory
-cd PawGuard
-
-# 3. Install dependencies
-npm install
-
-# 4. Start local development server
-npm run dev
+npm run build
 ```
 
-The app will be available at `http://localhost:3000`.
+The output files will be created in the `dist` directory.
 
----
+### Deploying on Vercel
 
-## 🌐 Deploying to Vercel
-
-1. Import the repository `comzzy-comzzy/PawGuard` on [Vercel](https://vercel.com).
+1. Import the repository on [Vercel](https://vercel.com).
 2. Framework Preset: **Vite**
 3. Build Command: `npm run build`
 4. Output Directory: `dist`
-5. Click **Deploy**!
+5. Click **Deploy**.
 
 ---
 
-<div align="center">
-  <p><strong>Every dog deserves love, care and protection. Be their voice. Be their hope. 🤎</strong></p>
-</div>
+## License
+
+This project is open-source and intended for animal welfare advocacy.

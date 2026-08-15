@@ -55,7 +55,7 @@ export const AboutSection: React.FC = () => {
             </p>
 
             <div className="p-4 rounded-2xl bg-[#faefe4] border border-[#ebd7c3] text-xs font-medium text-[#4a2e1b] flex items-start gap-3">
-              <span className="text-xl text-[#8a5b3a]">🤎</span>
+              <Heart className="w-5 h-5 fill-[#8a5b3a] text-[#8a5b3a] flex-shrink-0 mt-0.5" />
               <div>
                 <strong>The PawGuard Promise:</strong> No report is ignored. Every dog in peril deserves swift rescue, medical triage, and a caring forever family.
               </div>

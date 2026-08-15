@@ -1,6 +1,7 @@
 import React from 'react';
 import { LeftPeekingDog } from './LeftPeekingDog';
 import { RightBowtieDog } from './RightBowtieDog';
+import { Heart } from 'lucide-react';
 import { playClickSound } from '../utils/audio';
 
 interface HeroSectionProps {
@@ -36,10 +37,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             Stop abuse, bullying, harassment and killing.
           </p>
 
-          {/* Subheading line 2 matching PNG with single clean heart */}
+          {/* Subheading line 2 matching PNG with vector heart */}
           <p className="font-sans text-base sm:text-lg md:text-xl font-bold text-[#402416] mb-5 sm:mb-7 flex items-center justify-center gap-2">
             <span>Dogs have feelings too.</span>
-            <span className="text-xl sm:text-2xl inline-block text-[#8a5b3a]">🤎</span>
+            <Heart className="w-5 h-5 fill-[#8a5b3a] text-[#8a5b3a] inline-block" />
           </p>
 
           {/* Descriptive body paragraph matching PNG */}
