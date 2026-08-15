@@ -6,23 +6,12 @@ export const CONTACT_INFO = {
   phone: '+2348105463507',
   whatsappNumber: '2348105463507',
   whatsappUrl: 'https://wa.me/2348105463507',
-  getWhatsappReportUrl: (caseId: string, type: string, location: string, details: string) => {
-    const text = `*PawGuard Emergency Report*\n\nCase ID: ${caseId}\nIncident Type: ${type}\nLocation: ${location}\nDetails: ${details}\n\nPlease dispatch assistance as soon as possible.`;
-    return `https://wa.me/2348105463507?text=${encodeURIComponent(text)}`;
-  },
-  getEmailReportUrl: (caseId: string, type: string, location: string, details: string) => {
-    const subject = `[PawGuard Report] ${type} - Case #${caseId}`;
-    const body = `PawGuard Emergency Dog Report\n\nCase ID: ${caseId}\nIncident Type: ${type}\nLocation: ${location}\nDetails: ${details}\n\nSubmitted via PawGuard Platform`;
-    return `mailto:kane69251@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  },
-  getWhatsappVolunteerUrl: (name: string, role: string, location: string) => {
-    const text = `*PawGuard Volunteer Registration*\n\nName: ${name}\nRole: ${role}\nLocation: ${location}\n\nI want to volunteer to help protect dogs with PawGuard.`;
-    return `https://wa.me/2348105463507?text=${encodeURIComponent(text)}`;
-  },
-  getWhatsappAdoptionUrl: (dogName: string, applicantName: string) => {
-    const text = `*PawGuard Adoption Inquiry*\n\nApplicant: ${applicantName}\nDog Name: ${dogName}\n\nI am interested in providing a loving home for this dog.`;
-    return `https://wa.me/2348105463507?text=${encodeURIComponent(text)}`;
-  }
+};
+
+export const DONATION_WALLETS = {
+  btc: '1HHarwxVUXW3A5Yn8q7eqkbMxLFiCukLmb',
+  eth: '0x0D57D06bD867cB052eCC1dA67561a5b199578360',
+  bnb: '0x0D57D06bD867cB052eCC1dA67561a5b199578360',
 };
 
 export const EDUCATIONAL_ARTICLES: EducationalArticle[] = [
