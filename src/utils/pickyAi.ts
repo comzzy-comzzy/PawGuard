@@ -1,4 +1,4 @@
-import { RescueCase, AdoptableDog, LostFoundDog } from '../types';
+import { RescueCase } from '../types';
 
 export interface PickyResponse {
   reply: string;
@@ -47,7 +47,7 @@ export const saveToAdminInbox = (record: {
 };
 
 /**
- * Built-in Picky conversational reasoning and form intake processor
+ * Picky's friendly, natural puppy conversational processor
  */
 export const processPickyMessage = (
   userText: string,
@@ -58,16 +58,16 @@ export const processPickyMessage = (
   let activeFlow = context.activeFlow || null;
   let step = context.step || 0;
 
-  // 1. Check if we are currently in an active step-by-step form intake flow
+  // --- 1. Natural Step-by-Step Form Intakes ---
 
-  // --- FLOW: REPORT ABUSE INTAKE ---
+  // Flow: Reporting Abuse
   if (activeFlow === 'report') {
     if (step === 1) {
       draft.abuseType = userText;
       return {
         response: {
-          reply: `🐾 I've noted that this involves "${userText}".\n\n📍 Step 2: What is the exact location or street address (and any landmarks, like near a store or gate)?`,
-          suggestedPrompts: ['Use my current location', '123 Main Street', 'Near the Central Market'],
+          reply: `Thank you for sharing that. Where is the dog located right now? (Street name, city, or any landmarks like nearby shops or gates)`,
+          suggestedPrompts: ['Downtown Main Street near the market', 'Corner of 5th and Oak Ave', 'At an abandoned building'],
         },
         newContext: { activeFlow: 'report', step: 2, draftData: draft }
       };
@@ -75,8 +75,8 @@ export const processPickyMessage = (
       draft.location = userText;
       return {
         response: {
-          reply: `📍 Location saved as "${userText}".\n\n🐶 Step 3: Can you describe the dog (breed, color, size) and their current physical condition?`,
-          suggestedPrompts: ['Brown mixed breed, medium size, injured leg', 'Small puppy, white and black, very thin', 'Chained dog without water'],
+          reply: `Got the location! What does the dog look like (breed, color, size) and how are they doing?`,
+          suggestedPrompts: ['Brown mixed breed, medium size, limping', 'Small black puppy, looks very thin', 'Chained outside with no shelter'],
         },
         newContext: { activeFlow: 'report', step: 3, draftData: draft }
       };
@@ -84,35 +84,34 @@ export const processPickyMessage = (
       draft.description = userText;
       return {
         response: {
-          reply: `📝 Details recorded!\n\n🔒 Step 4: Would you like to submit this anonymously, or provide your contact info for rescue dispatchers?`,
-          suggestedPrompts: ['Submit Anonymously', 'My name is Alex (phone: 555-0192)'],
+          reply: `Thank you. Would you like to keep your name private, or would you like to leave your name and phone number so rescuers can reach you?`,
+          suggestedPrompts: ['Keep me anonymous', 'My name is Alex, phone is 555-0192'],
         },
         newContext: { activeFlow: 'report', step: 4, draftData: draft }
       };
     } else if (step === 4) {
       draft.reporter = userText;
       
-      // Save record to Admin Inbox
       saveToAdminInbox({
-        type: 'Abuse Incident Intake (Via Picky)',
+        type: 'Abuse Incident Report',
         userMessage: userText,
         details: {
-          incidentType: draft.abuseType,
+          incident: draft.abuseType,
           location: draft.location,
-          dogDescription: draft.description,
+          dogInfo: draft.description,
           reporter: draft.reporter,
-          loggedVia: 'Picky AI Assistant'
+          source: 'Picky Assistant'
         }
       });
 
       return {
         response: {
-          reply: `🎉 *Woof!* Your report has been logged and sent to the rescue dispatch admins!\n\n📋 **Report Summary:**\n• **Incident:** ${draft.abuseType}\n• **Location:** ${draft.location}\n• **Dog Details:** ${draft.description}\n• **Reporter Info:** ${draft.reporter}\n\nOur responders have been alerted! You can also view the live reports board or fill more details on the Report page. 🐾`,
+          reply: `I've sent your report straight to our rescue dispatchers! 🐾 Thank you so much for looking out for this dog.\n\n• Incident: ${draft.abuseType}\n• Location: ${draft.location}\n• Details: ${draft.description}\n\nOur team has been alerted!`,
           actionLink: {
-            label: 'Open Find & Rescue Board',
+            label: 'View Rescue Dispatch Board',
             sectionId: 'rescue'
           },
-          suggestedPrompts: ['Report another incident', 'How else can I help?', 'Adopt a dog'],
+          suggestedPrompts: ['How do I adopt a dog?', 'What are signs of dog distress?', 'Return to home'],
           collectedData: {
             type: 'report',
             data: draft,
@@ -124,23 +123,23 @@ export const processPickyMessage = (
     }
   }
 
-  // --- FLOW: ADOPTION INQUIRY INTAKE ---
+  // Flow: Adoption Inquiry
   if (activeFlow === 'adopt') {
     if (step === 1) {
       draft.preferredDog = userText;
       return {
         response: {
-          reply: `🐾 Wonderful! You're inquiring about: "${userText}".\n\n🏡 Step 2: What is your home environment like (e.g. fenced yard, apartment, other pets or kids)?`,
-          suggestedPrompts: ['Apartment with park nearby', 'Fenced house with kids', 'Have 1 other friendly dog'],
+          reply: `That's great! 🐶 Tell me a little about your home — do you have a yard, other pets, or kids?`,
+          suggestedPrompts: ['Apartment with lots of daily walks', 'Fenced yard with another friendly dog', 'Family home with kids'],
         },
         newContext: { activeFlow: 'adopt', step: 2, draftData: draft }
       };
     } else if (step === 2) {
-      draft.homeEnvironment = userText;
+      draft.home = userText;
       return {
         response: {
-          reply: `Got it! Sounds like a lovely place for a puppy! 🐶\n\n📞 Step 3: What is your name and contact info (phone number or email) so the adoption desk can reach you?`,
-          suggestedPrompts: ['Jordan Taylor (jordan@example.com)', 'My phone is +123456789'],
+          reply: `Sounds like a cozy home! What's your name and email or phone number so our adoption team can reach out?`,
+          suggestedPrompts: ['Sarah Connor (sarah@example.com)', 'Call me at 555-0123'],
         },
         newContext: { activeFlow: 'adopt', step: 3, draftData: draft }
       };
@@ -148,37 +147,37 @@ export const processPickyMessage = (
       draft.contact = userText;
 
       saveToAdminInbox({
-        type: 'Adoption Inquiry (Via Picky)',
+        type: 'Adoption Inquiry',
         details: {
-          targetDog: draft.preferredDog,
-          homeEnvironment: draft.homeEnvironment,
-          applicantContact: draft.contact,
-          loggedVia: 'Picky AI Assistant'
+          dog: draft.preferredDog,
+          home: draft.home,
+          contact: draft.contact,
+          source: 'Picky Assistant'
         }
       });
 
       return {
         response: {
-          reply: `🐾 *Tail wag!* Your adoption inquiry has been recorded and submitted to our adoption team!\n\n📋 **Inquiry Details:**\n• **Dog:** ${draft.preferredDog}\n• **Home:** ${draft.homeEnvironment}\n• **Contact:** ${draft.contact}\n\nOur team will review your details and reach out to you shortly!`,
+          reply: `All set! 🐾 I've forwarded your inquiry to our adoption coordinators. They will get back to you soon!\n\n• Dog of interest: ${draft.preferredDog}\n• Contact: ${draft.contact}`,
           actionLink: {
-            label: 'View Adoption Directory',
+            label: 'Browse Adoptable Dogs',
             sectionId: 'adopt'
           },
-          suggestedPrompts: ['Check lost & found dogs', 'Volunteer to foster', 'Learn dog care tips']
+          suggestedPrompts: ['Learn about dog care', 'Volunteer to foster', 'How to support rescues']
         },
         newContext: { activeFlow: null, step: 0, draftData: {} }
       };
     }
   }
 
-  // --- FLOW: LOST / FOUND DOG INTAKE ---
+  // Flow: Lost & Found
   if (activeFlow === 'lost') {
     if (step === 1) {
-      draft.dogNameAndBreed = userText;
+      draft.petInfo = userText;
       return {
         response: {
-          reply: `🐾 Noted: "${userText}".\n\n📍 Step 2: Where was the dog last seen (street, city, or area)?`,
-          suggestedPrompts: ['Downtown Maple Street', 'Oak Park near the playground', 'Sunset Boulevard'],
+          reply: `Got it. Where was the dog last seen? (Street, neighborhood, or city)`,
+          suggestedPrompts: ['Near Maple Street park', 'Downtown area by the market', 'Suburban greenway'],
         },
         newContext: { activeFlow: 'lost', step: 2, draftData: draft }
       };
@@ -186,8 +185,8 @@ export const processPickyMessage = (
       draft.lastSeen = userText;
       return {
         response: {
-          reply: `Location saved as "${userText}".\n\n📞 Step 3: What contact number or email should someone reach if the dog is spotted?`,
-          suggestedPrompts: ['Call me at 555-0143', 'Email me at rescue@example.com'],
+          reply: `What phone number or email should people contact if they spot the dog?`,
+          suggestedPrompts: ['Call 555-0199', 'Email rescue@example.com'],
         },
         newContext: { activeFlow: 'lost', step: 3, draftData: draft }
       };
@@ -195,37 +194,37 @@ export const processPickyMessage = (
       draft.contact = userText;
 
       saveToAdminInbox({
-        type: 'Lost / Found Dog Notice (Via Picky)',
+        type: 'Lost / Found Pet Notice',
         details: {
-          dogInfo: draft.dogNameAndBreed,
-          lastSeenLocation: draft.lastSeen,
-          contactInfo: draft.contact,
-          loggedVia: 'Picky AI Assistant'
+          pet: draft.petInfo,
+          location: draft.lastSeen,
+          contact: draft.contact,
+          source: 'Picky Assistant'
         }
       });
 
       return {
         response: {
-          reply: `🐾 *Woof!* Your notice details have been recorded!\n\n📋 **Notice Summary:**\n• **Pet Details:** ${draft.dogNameAndBreed}\n• **Last Seen:** ${draft.lastSeen}\n• **Contact:** ${draft.contact}\n\nYou can also generate a printable missing pet poster right on the Lost & Found page!`,
+          reply: `I've recorded this notice! 🐾 You can also view all notices and make a printable flyer on the Lost & Found page.`,
           actionLink: {
             label: 'Open Lost & Found Noticeboard',
             sectionId: 'lost-found'
           },
-          suggestedPrompts: ['Generate missing pet poster', 'Report dog in danger', 'Return to home']
+          suggestedPrompts: ['Create a missing pet flyer', 'Report a dog in danger', 'Return to home']
         },
         newContext: { activeFlow: null, step: 0, draftData: {} }
       };
     }
   }
 
-  // --- FLOW: VOLUNTEER SIGN-UP INTAKE ---
+  // Flow: Volunteer Guild
   if (activeFlow === 'volunteer') {
     if (step === 1) {
       draft.role = userText;
       return {
         response: {
-          reply: `🐾 Awesome choice! Role: "${userText}".\n\n📍 Step 2: What city or district are you located in?`,
-          suggestedPrompts: ['New York City', 'Austin, TX', 'London, UK', 'Lagos, Nigeria'],
+          reply: `We would love to have your help! 🐾 What city or area are you based in?`,
+          suggestedPrompts: ['New York', 'Austin, TX', 'London', 'Lagos'],
         },
         newContext: { activeFlow: 'volunteer', step: 2, draftData: draft }
       };
@@ -233,8 +232,8 @@ export const processPickyMessage = (
       draft.location = userText;
       return {
         response: {
-          reply: `Location: "${userText}".\n\n📞 Step 3: What is your full name and phone number/email?`,
-          suggestedPrompts: ['Taylor Swift (taylor@example.com)'],
+          reply: `What's your name and contact phone or email?`,
+          suggestedPrompts: ['Jordan (jordan@example.com)'],
         },
         newContext: { activeFlow: 'volunteer', step: 3, draftData: draft }
       };
@@ -242,152 +241,137 @@ export const processPickyMessage = (
       draft.contact = userText;
 
       saveToAdminInbox({
-        type: 'Volunteer Application (Via Picky)',
+        type: 'Volunteer Registration',
         details: {
           role: draft.role,
           location: draft.location,
           contact: draft.contact,
-          loggedVia: 'Picky AI Assistant'
+          source: 'Picky Assistant'
         }
       });
 
       return {
         response: {
-          reply: `🎉 *Tail wags!* Thank you for volunteering to protect dogs!\n\n📋 **Registration Details:**\n• **Role:** ${draft.role}\n• **Location:** ${draft.location}\n• **Contact:** ${draft.contact}\n\nOur coordinator will connect with you soon! 🐾`,
+          reply: `Thank you for volunteering! 🐾 Our team will reach out to welcome you to the rescue guild.`,
           actionLink: {
-            label: 'Explore Volunteer Guild',
+            label: 'View Volunteer Guild',
             sectionId: 'community'
           },
-          suggestedPrompts: ['Adopt a dog', 'Report abuse', 'Support medical fund']
+          suggestedPrompts: ['Adopt a dog', 'Report an incident', 'Support medical funds']
         },
         newContext: { activeFlow: null, step: 0, draftData: {} }
       };
     }
   }
 
-  // 2. Intent Trigger Detection (Starting new intake flows or navigating)
+  // --- 2. Natural Intent Triggers ---
 
-  // Report Abuse Trigger
-  if (text.includes('report') || text.includes('abuse') || text.includes('cruelty') || text.includes('beat') || text.includes('chain') || text.includes('starv') || text.includes('danger')) {
+  // Report Abuse
+  if (text.includes('report') || text.includes('abuse') || text.includes('cruel') || text.includes('beat') || text.includes('chain') || text.includes('starv') || text.includes('hurt') || text.includes('danger') || text.includes('hit')) {
     return {
       response: {
-        reply: `🚨 *I'm ready to help you report this emergency right now!* 🐾\n\nLet's gather the details so our rescue team can respond.\n\n👉 **Step 1:** What kind of incident is happening? (e.g. Physical violence, continuous chaining, starvation/neglect, abandonment, hit-and-run, or dog fighting?)`,
+        reply: `I'm here to help you report this dog right away. 🐾 What kind of situation is it? (For example: physical abuse, 24/7 chaining, abandonment, or an injured stray)`,
         actionLink: {
-          label: 'Or Open Incident Report Page',
+          label: 'Or Go to Report Abuse Page',
           sectionId: 'report'
         },
-        suggestedPrompts: ['Physical abuse / violence', 'Continuous chaining 24/7', 'Severe starvation / neglect', 'Injured hit-and-run dog']
+        suggestedPrompts: ['Physical abuse or beating', 'Dog chained with no shelter', 'Injured hit-and-run dog', 'Abandoned stray dog']
       },
       newContext: { activeFlow: 'report', step: 1, draftData: {} }
     };
   }
 
-  // Adoption Trigger
-  if (text.includes('adopt') || text.includes('foster') || text.includes('puppy') || text.includes('dog for adoption') || text.includes('want a dog')) {
+  // Adoption / Foster
+  if (text.includes('adopt') || text.includes('foster') || text.includes('puppy') || text.includes('get a dog') || text.includes('want a dog')) {
     return {
       response: {
-        reply: `🏡 *Aww, that makes my tail wag so much!* 🐶💕\n\nWe have wonderful rescued dogs looking for loving homes!\n\n👉 **Step 1:** Are you looking to adopt or foster, or do you have a specific dog name/size in mind?`,
+        reply: `That makes me so happy! 🐶 Are you looking to adopt or foster a dog? Tell me what kind of dog you have in mind!`,
         actionLink: {
-          label: 'Browse All Adoptable Dogs',
+          label: 'View Adoptable Dogs',
           sectionId: 'adopt'
         },
-        suggestedPrompts: ['Looking to adopt a friendly dog', 'Want to become an emergency foster home', 'Small or medium sized puppy']
+        suggestedPrompts: ['Looking to adopt a friendly dog', 'Want to foster temporarily', 'Looking for a small puppy']
       },
       newContext: { activeFlow: 'adopt', step: 1, draftData: {} }
     };
   }
 
-  // Lost & Found Trigger
-  if (text.includes('lost') || text.includes('found') || text.includes('missing') || text.includes('stray') || text.includes('flyer') || text.includes('poster')) {
+  // Lost / Found Pet
+  if (text.includes('lost') || text.includes('found') || text.includes('missing') || text.includes('flyer') || text.includes('stray')) {
     return {
       response: {
-        reply: `🔍 *I'll help you reunite or alert the community about this dog!* 🐾\n\n👉 **Step 1:** Is this a **Missing Pet** that you lost, a **Found Dog**, or an **Injured Stray**? Please also tell me the dog's name or breed.`,
+        reply: `Let's help bring them home! 🐾 Did you lose your dog, or find a dog that needs help? Tell me their breed and name.`,
         actionLink: {
-          label: 'Open Lost & Found Noticeboard',
+          label: 'Go to Lost & Found Page',
           sectionId: 'lost-found'
         },
-        suggestedPrompts: ['Lost my Golden Retriever', 'Found a friendly brown stray dog', 'Injured stray needing medical attention']
+        suggestedPrompts: ['Lost my Golden Retriever', 'Found a friendly brown stray', 'Injured stray dog']
       },
       newContext: { activeFlow: 'lost', step: 1, draftData: {} }
     };
   }
 
-  // Volunteer Trigger
-  if (text.includes('volunteer') || text.includes('guild') || text.includes('help out') || text.includes('driver') || text.includes('spotter') || text.includes('join')) {
+  // Volunteer
+  if (text.includes('volunteer') || text.includes('driver') || text.includes('foster home') || text.includes('join') || text.includes('guild')) {
     return {
       response: {
-        reply: `🙋‍♀️ *We'd love to have you on our team!* 🐾 Every volunteer saves lives!\n\n👉 **Step 1:** Which volunteer role interests you most?\n• **Rescue Driver & Transport**\n• **Emergency Foster Home**\n• **Field Spotter & Evidence**\n• **General Community Helper**`,
+        reply: `We always need kind people! 🐾 What role would suit you best?\n• Rescue Driver (Transporting rescued dogs)\n• Emergency Foster Home\n• Field Spotter (Checking on reported areas)\n• Community Helper`,
         actionLink: {
-          label: 'View Volunteer Guild Page',
+          label: 'Explore Volunteer Guild',
           sectionId: 'community'
         },
-        suggestedPrompts: ['Rescue Driver & Transport', 'Emergency Foster Home', 'Field Spotter & Evidence', 'General Community Helper']
+        suggestedPrompts: ['Rescue Driver', 'Emergency Foster Home', 'Field Spotter', 'Community Helper']
       },
       newContext: { activeFlow: 'volunteer', step: 1, draftData: {} }
     };
   }
 
-  // Support / Donation / Crypto Trigger
-  if (text.includes('donate') || text.includes('support') || text.includes('crypto') || text.includes('btc') || text.includes('eth') || text.includes('fund') || text.includes('medical')) {
+  // Donations / Medical Crypto Support
+  if (text.includes('donate') || text.includes('crypto') || text.includes('fund') || text.includes('support') || text.includes('money') || text.includes('btc') || text.includes('eth')) {
     return {
       response: {
-        reply: `🪙 *Every single penny counts for our rescued dogs!* 🩺❤️\n\n100% of donations directly fund:\n• **Emergency Surgeries** (orthopedic fracture pinning & trauma surgery)\n• **ICU & Clinical Care** (IV fluids, parvovirus antivirals)\n• **Clinical Nutrition Kits** (specialized starvation refeeding)\n• **Foster & Shelter Supplies** (crates, thermal blankets)\n\nYou can donate directly via Bitcoin (BTC), Ethereum (ETH), or BNB Chain on the Support Us page!`,
+        reply: `Every contribution helps save lives! 🩺 You can support emergency surgeries, infection treatments, starvation recovery kits, and shelter blankets directly with crypto (BTC, ETH, BNB) on our Support Us page.`,
         actionLink: {
-          label: 'Go to Medical Support & Crypto Wallets',
+          label: 'Open Support & Crypto Wallets',
           sectionId: 'support'
         },
-        suggestedPrompts: ['How do I report abuse?', 'How do I adopt a dog?', 'Volunteer as a driver']
+        suggestedPrompts: ['How do I report abuse?', 'How do I adopt a dog?', 'Volunteer with us']
       },
       newContext: { activeFlow: null, step: 0, draftData: {} }
     };
   }
 
-  // Educational / Dog Care / Knowledge Trigger
-  if (text.includes('learn') || text.includes('care') || text.includes('whale eye') || text.includes('heatstroke') || text.includes('food') || text.includes('symptom') || text.includes('quiz') || text.includes('educat')) {
+  // Dog Care / Health Questions
+  if (text.includes('care') || text.includes('heat') || text.includes('food') || text.includes('sick') || text.includes('eye') || text.includes('stress') || text.includes('learn') || text.includes('quiz')) {
     return {
       response: {
-        reply: `📚 *Education is the key to preventing cruelty!* 🐾\n\nHere are quick vital tips:\n• **Whale Eye:** When a dog shows the white of their eyes, it's a major sign of high fear and stress!\n• **Heatstroke First-Aid:** Never submerge in ice water! Move to shade and apply cool (not freezing) water to paw pads and neck.\n• **Continuous Chaining:** Restricting dogs on 24/7 chains causes extreme psychological trauma and is legally actionable neglect.\n\nYou can read all comprehensive guides and take our Welfare Assessment Quiz on the Learn page!`,
+        reply: `Here are quick health & safety tips: 🐾\n• "Whale Eye": When a dog shows the whites of their eyes, they are feeling anxious or threatened.\n• Heatstroke: Never put a dog in freezing ice water — move to shade and cool their paw pads with room-temperature water.\n• Chaining: Dogs tied up 24/7 suffer physical and emotional harm.\n\nYou can read all our guides and try the quiz on the Learn page!`,
         actionLink: {
-          label: 'Explore Humane Education Guides',
+          label: 'Read Humane Care Guides',
           sectionId: 'learn'
         },
-        suggestedPrompts: ['Report dog abuse', 'I want to adopt', 'Donate to medical fund']
-      },
-      newContext: { activeFlow: null, step: 0, draftData: {} }
-    };
-  }
-
-  // General Emergency Help Trigger
-  if (text.includes('help') || text.includes('emergency') || text.includes('hotline') || text.includes('desk')) {
-    return {
-      response: {
-        reply: `🚨 *If a dog is in severe danger or immediate life threat:* \n\n1. You can click the **Get Help** button in the top navbar to open our emergency desk.\n2. Or use our **Report Abuse** portal to submit an incident with GPS location and photo evidence directly!`,
-        actionLink: {
-          label: 'Go to Report Abuse Portal',
-          sectionId: 'report'
-        },
-        suggestedPrompts: ['Help me fill abuse report', 'Adopt a dog', 'Post a lost pet']
+        suggestedPrompts: ['Report abuse', 'I want to adopt', 'Support medical funds']
       },
       newContext: { activeFlow: null, step: 0, draftData: {} }
     };
   }
 
   // Greetings
-  if (text.includes('hi') || text.includes('hello') || text.includes('hey') || text.includes('picky') || text.includes('who are you')) {
+  if (text.includes('hi') || text.includes('hello') || text.includes('hey') || text.includes('picky')) {
     return {
       response: {
-        reply: `*Woof woof!* 🐶 Hi there! I'm **Picky**, your tiny girl puppy assistant! 🎀🐾\n\nHow may I help you today? I can help you report animal abuse, guide you through adoption, create lost dog flyers, answer dog care questions, or record messages for the admins!`,
-        suggestedPrompts: ['🚨 Report dog abuse', '🏡 Adopt a rescued dog', '🔍 Post missing/found dog', '🪙 Support medical fund']
+        reply: `Hi friend! I'm Picky! 🐾 What can I help you with today? I can help you report an incident, find a dog to adopt, post a lost pet, or answer questions!`,
+        suggestedPrompts: ['Report dog abuse', 'Adopt a dog', 'Post a lost pet', 'Support medical fund']
       },
       newContext: { activeFlow: null, step: 0, draftData: {} }
     };
   }
 
-  // Default fallback response
+  // Friendly Fallback
   return {
     response: {
-      reply: `*Woof!* 🐾 I'm here with you! I can help guide you through anything on PawGuard:\n\n• **Report Abuse:** Ask me to help you fill an incident report.\n• **Adoption:** Inquire about dogs looking for homes.\n• **Lost & Found:** Create a notice or missing dog poster.\n• **Volunteer Guild:** Register to become a rescue driver or foster home.\n• **Medical Donations:** Learn how crypto donations fund emergency surgeries.\n\nWhat would you like to do?`,
-      suggestedPrompts: ['Help me report dog abuse', 'I want to adopt a dog', 'I lost my dog', 'Join as volunteer', 'Support medical fund']
+      reply: `I'm right here with you! 🐾 Tell me what you'd like to do:\n• Report a dog in trouble\n• Adopt or foster a dog\n• Post a lost or found dog\n• Join our volunteer guild\n• Support medical funds`,
+      suggestedPrompts: ['Report dog abuse', 'I want to adopt a dog', 'I lost my dog', 'Join as a volunteer', 'Donate to medical care']
     },
     newContext: { activeFlow: null, step: 0, draftData: {} }
   };

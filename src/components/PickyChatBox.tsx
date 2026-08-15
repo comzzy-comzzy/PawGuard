@@ -39,14 +39,14 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
       {
         id: 'picky-welcome',
         sender: 'picky',
-        text: "Woof! 🐾 Hi there! I'm **Picky**, your tiny girl puppy assistant! 🎀🐶\n\nHow may I help you today? Whether you'd like to report dog abuse, find a dog to adopt, post a lost pet, or ask about dog care, I'm right here to guide you every step of the way!",
+        text: "Hi friend! I'm Picky! 🎀🐶\n\nHow can I help you today? Whether you'd like to report a dog in trouble, find a pet to adopt, post a lost dog, or ask about dog care, I'm right here with you!",
         timestamp: 'Just now',
         suggestedPrompts: [
-          '🚨 Report dog abuse',
-          '🏡 Adopt / Foster a dog',
-          '🔍 Post lost / found pet',
-          '🪙 Support medical fund',
-          '🙋‍♀️ Join volunteer guild'
+          'Report a dog in trouble',
+          'Adopt or foster a dog',
+          'Post a lost or found dog',
+          'Volunteer with us',
+          'Support medical care'
         ]
       }
     ];
@@ -97,23 +97,23 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
     // If report intake was completed and gave data, add case to live rescue case list if handler available
     if (response.collectedData && response.collectedData.readyToSubmit && onAddCase) {
       const d = response.collectedData.data;
-      if (d.location && d.description) {
+      if (d.location && d.dogInfo) {
         onAddCase({
           id: `PG-RESCUE-${Math.floor(1000 + Math.random() * 9000)}`,
-          title: `Reported via Picky: ${d.abuseType || 'Incident'}`,
-          type: d.abuseType || 'Abuse/Violence',
+          title: `Reported via Picky: ${d.incident || 'Incident'}`,
+          type: d.incident || 'Abuse/Violence',
           urgency: 'critical',
           status: 'reported',
           location: d.location,
           coordinates: [40.7128 + (Math.random() - 0.5) * 0.05, -74.0060 + (Math.random() - 0.5) * 0.05],
           distance: 'Local Area',
           reportedAt: 'Just now',
-          description: `${d.description} (Logged with Picky AI Assistant)`,
+          description: `${d.dogInfo} (Logged with Picky)`,
           dogName: 'Reported Dog',
           dogBreed: 'Reported Dog in Need',
           photoUrl: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop&q=80',
-          reporter: d.reporter || 'Reported with Picky',
-          updates: [{ time: 'Just now', text: 'Logged via Picky AI intake. Ready for dispatcher review.', author: 'Picky AI Bot' }]
+          reporter: d.reporter || 'Reported via Picky',
+          updates: [{ time: 'Just now', text: 'Report details received from Picky. Responders alerted.', author: 'Picky' }]
         });
       }
     }
@@ -132,7 +132,7 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
       };
 
       setMessages((prev) => [...prev, pickyMsg]);
-    }, 500);
+    }, 450);
   };
 
   const handleResetChat = () => {
@@ -142,13 +142,13 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
       {
         id: `picky-reset-${Date.now()}`,
         sender: 'picky',
-        text: "🐾 *Fresh start!* Woof! What would you like help with right now?",
+        text: "Hi again! What can I help you with right now? 🐾",
         timestamp: 'Just now',
         suggestedPrompts: [
-          '🚨 Report dog abuse',
-          '🏡 Adopt / Foster a dog',
-          '🔍 Post lost / found pet',
-          '🪙 Support medical fund'
+          'Report a dog in trouble',
+          'Adopt or foster a dog',
+          'Post a lost or found dog',
+          'Support medical care'
         ]
       }
     ]);
@@ -156,29 +156,28 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
 
   return (
     <>
-      {/* Floating Puppy Launcher Badge */}
+      {/* Floating Puppy Launcher Button */}
       <div className="fixed bottom-5 right-5 z-50">
         {!isOpen && (
           <button
             onClick={handleOpen}
             className="group relative flex items-center gap-2.5 bg-[#4a2e1b] hover:bg-[#352018] text-white p-3.5 sm:px-5 sm:py-3.5 rounded-full shadow-2xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-[#f5d7b7] focus:outline-none"
-            aria-label="Open Picky AI Chat"
+            aria-label="Open Picky Chat"
           >
             {/* Animated Puppy Face Avatar */}
             <div className="relative w-10 h-10 rounded-full bg-[#fbf6f0] text-[#4a2e1b] flex items-center justify-center font-bold text-xl shadow-inner group-hover:rotate-6 transition-transform">
               🐶
-              {/* Pink Bowtie 🎀 */}
               <span className="absolute -top-1.5 -right-1 text-xs">🎀</span>
             </div>
 
             {/* Label */}
             <div className="hidden sm:block text-left">
               <div className="font-fredoka text-sm font-bold text-[#fbf6f0] flex items-center gap-1">
-                <span>Ask Picky</span>
-                <span className="text-[10px] bg-[#d94141] text-white font-fredoka px-1.5 py-0.2 rounded-full">AI</span>
+                <span>Picky</span>
+                <span className="text-[10px] bg-[#d94141] text-white font-fredoka px-1.5 py-0.2 rounded-full">Assistant</span>
               </div>
               <div className="text-[10px] text-[#f5d7b7] font-medium leading-none">
-                Tiny Puppy Assistant 🐾
+                Friendly Puppy Helper 🐾
               </div>
             </div>
 
@@ -194,7 +193,7 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
 
       {/* Floating Chat Modal Box */}
       {isOpen && (
-        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[410px] h-[580px] max-h-[85vh] bg-[#fbf6f0] border-3 border-[#4a2e1b] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[400px] h-[560px] max-h-[85vh] bg-[#fbf6f0] border-3 border-[#4a2e1b] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
           
           {/* Header */}
           <div className="bg-[#4a2e1b] text-white px-5 py-4 flex items-center justify-between shadow-sm relative flex-shrink-0">
@@ -209,12 +208,12 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
                 <div className="font-fredoka text-base font-bold text-white flex items-center gap-1.5">
                   <span>Picky</span>
                   <span className="text-[10px] font-fredoka bg-[#d94141] text-white px-1.5 py-0.5 rounded-full">
-                    Puppy AI
+                    Helper
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[11px] text-[#f5d7b7]">
                   <span className="w-2 h-2 rounded-full bg-[#86efac] animate-pulse"></span>
-                  <span>Online & Ready to Help</span>
+                  <span>Online & Ready</span>
                 </div>
               </div>
             </div>
@@ -225,7 +224,7 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
               <button
                 onClick={() => setSoundEnabled(!soundEnabled)}
                 className="p-1.5 rounded-full hover:bg-white/10 hover:text-white transition-colors"
-                title={soundEnabled ? 'Mute Picky Sounds' : 'Unmute Picky Sounds'}
+                title={soundEnabled ? 'Mute Sounds' : 'Unmute Sounds'}
               >
                 {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 opacity-60" />}
               </button>
@@ -275,7 +274,7 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
                   </div>
                 </div>
 
-                {/* Direct Action Link button if present */}
+                {/* Direct Action Link button */}
                 {msg.actionLink && (
                   <div className="mt-2 ml-9">
                     <button
@@ -332,28 +331,28 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
           {/* Quick Shortcuts Bar */}
           <div className="px-3 py-2 bg-[#faefe4] border-t border-[#ebd7c3] flex items-center gap-1.5 overflow-x-auto text-[11px]">
             <button
-              onClick={() => handleSendMessage('Help me report dog abuse')}
+              onClick={() => handleSendMessage('Report a dog in trouble')}
               className="bg-white hover:bg-[#fbf6f0] text-[#991b1b] border border-[#fca5a5] font-fredoka px-2.5 py-1 rounded-full whitespace-nowrap shadow-2xs"
             >
-              🚨 Report Abuse
+              Report Incident
             </button>
             <button
               onClick={() => handleSendMessage('I want to adopt a dog')}
               className="bg-white hover:bg-[#fbf6f0] text-[#166534] border border-[#86efac] font-fredoka px-2.5 py-1 rounded-full whitespace-nowrap shadow-2xs"
             >
-              🏡 Adopt Dog
+              Adopt / Foster
             </button>
             <button
               onClick={() => handleSendMessage('I lost or found a dog')}
               className="bg-white hover:bg-[#fbf6f0] text-[#9a3412] border border-[#fdba74] font-fredoka px-2.5 py-1 rounded-full whitespace-nowrap shadow-2xs"
             >
-              🔍 Lost Pet
+              Lost & Found
             </button>
             <button
               onClick={() => handleSendMessage('Volunteer for rescue')}
               className="bg-white hover:bg-[#fbf6f0] text-[#8a4ea8] border border-[#e9d5ff] font-fredoka px-2.5 py-1 rounded-full whitespace-nowrap shadow-2xs"
             >
-              🙋‍♀️ Volunteer
+              Volunteer
             </button>
           </div>
 
@@ -368,7 +367,7 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
             <input
               ref={inputRef}
               type="text"
-              placeholder="Ask Picky anything or answer questions..."
+              placeholder="Ask Picky or type a message..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               className="flex-1 bg-[#fbf6f0] border border-[#ebd7c3] rounded-2xl px-3.5 py-2.5 text-xs text-[#352018] focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"

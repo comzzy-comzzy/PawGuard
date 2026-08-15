@@ -1,5 +1,4 @@
 import React from 'react';
-import { ShieldCheck, PhoneCall } from 'lucide-react';
 import { playClickSound } from '../utils/audio';
 
 interface FooterProps {
@@ -9,8 +8,6 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({
-  onOpenReport,
-  onOpenEmergency,
   onNavigateSection,
 }) => {
   const handleNav = (id: string) => {
@@ -23,7 +20,7 @@ export const Footer: React.FC<FooterProps> = ({
       <div className="max-w-7xl mx-auto space-y-12">
         
         {/* Main Footer Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           
           {/* Brand Info (2 cols) */}
           <div className="lg:col-span-2 space-y-4">
@@ -42,96 +39,72 @@ export const Footer: React.FC<FooterProps> = ({
               </span>
             </div>
 
-            <p className="text-sm text-[#e5cfbd] leading-relaxed max-w-sm">
-              PawGuard — Protect Dogs, They Have Feelings Too. A community platform dedicated to preventing dog abuse, bullying, harassment, abandonment, and unnecessary killing.
+            <p className="text-sm text-[#e5cfbd] leading-relaxed max-w-md">
+              PawGuard — Protect Dogs, They Have Feelings Too. A community platform dedicated to preventing dog abuse, bullying, abandonment, and cruelty through fast reporting, rapid rescue dispatch, and loving adoptions.
             </p>
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Platform Navigation */}
           <div className="space-y-3">
             <h4 className="font-fredoka text-base font-bold text-white uppercase tracking-wider text-[#f5d7b7]">
-              Platform
+              Navigation
             </h4>
             <ul className="space-y-2 text-sm text-[#e5cfbd]">
               <li>
                 <button onClick={() => handleNav('home')} className="hover:text-white transition-colors">
-                  Home
+                  Home Overview
                 </button>
               </li>
               <li>
                 <button onClick={() => handleNav('about')} className="hover:text-white transition-colors">
-                  About Mission
+                  About Our Mission
+                </button>
+              </li>
+              <li>
+                <button onClick={() => handleNav('report')} className="hover:text-white transition-colors">
+                  Report Dog Abuse
                 </button>
               </li>
               <li>
                 <button onClick={() => handleNav('rescue')} className="hover:text-white transition-colors">
-                  Rescue Reports
+                  Find & Rescue Board
                 </button>
               </li>
               <li>
                 <button onClick={() => handleNav('adopt')} className="hover:text-white transition-colors">
-                  Adoption Listings
-                </button>
-              </li>
-              <li>
-                <button onClick={() => handleNav('lost-found')} className="hover:text-white transition-colors">
-                  Lost & Injured Dogs
+                  Adoption Directory
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Resources */}
+          {/* Resources & Community */}
           <div className="space-y-3">
             <h4 className="font-fredoka text-base font-bold text-white uppercase tracking-wider text-[#f5d7b7]">
-              Resources
+              Community & Care
             </h4>
             <ul className="space-y-2 text-sm text-[#e5cfbd]">
               <li>
-                <button onClick={() => handleNav('learn')} className="hover:text-white transition-colors">
-                  Humane Education
+                <button onClick={() => handleNav('lost-found')} className="hover:text-white transition-colors">
+                  Lost & Found Pet Notices
                 </button>
               </li>
               <li>
                 <button onClick={() => handleNav('learn')} className="hover:text-white transition-colors">
-                  Knowledge Assessment
+                  Humane Education Guides
                 </button>
               </li>
               <li>
                 <button onClick={() => handleNav('community')} className="hover:text-white transition-colors">
-                  Volunteer Guild
+                  Volunteer Rescue Guild
                 </button>
               </li>
               <li>
                 <button onClick={() => handleNav('support')} className="hover:text-white transition-colors">
-                  Support Initiatives
+                  Medical Support Wallets
                 </button>
               </li>
             </ul>
-          </div>
-
-          {/* Emergency Contact */}
-          <div className="space-y-3">
-            <h4 className="font-fredoka text-base font-bold text-white uppercase tracking-wider text-[#f5d7b7]">
-              Emergency Help
-            </h4>
-            <div className="space-y-2.5 text-xs text-[#e5cfbd]">
-              <button
-                onClick={onOpenEmergency}
-                className="w-full bg-[#d94141] hover:bg-[#b82e2e] text-white font-fredoka font-semibold py-2.5 px-4 rounded-xl shadow text-center flex items-center justify-center gap-1.5 transition-colors"
-              >
-                <PhoneCall className="w-4 h-4" />
-                <span>Get Help Desk</span>
-              </button>
-
-              <button
-                onClick={onOpenReport}
-                className="w-full bg-[#b87d55] hover:bg-[#a36c45] text-white font-fredoka font-semibold py-2.5 px-4 rounded-xl shadow text-center flex items-center justify-center gap-1.5 transition-colors"
-              >
-                <ShieldCheck className="w-4 h-4" />
-                <span>Report Abuse Online</span>
-              </button>
-            </div>
           </div>
 
         </div>
