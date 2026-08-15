@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Volume2, VolumeX, Menu, X, Heart, ShieldAlert, PhoneCall, Music } from 'lucide-react';
+import { Volume2, VolumeX, Menu, X, Heart, ShieldAlert, PhoneCall } from 'lucide-react';
 import { toggleCalmPuppyMusic, isPuppyMusicPlaying, playClickSound } from '../utils/audio';
 
 interface NavbarProps {
@@ -54,7 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="sticky top-0 z-40 bg-[#fbf6f0]/95 backdrop-blur-md border-b border-[#ebdcca]/80 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-2 sm:gap-4">
         
-        {/* Logo matching PNG with flex-shrink-0 to prevent any overlap */}
+        {/* Logo matching PNG with flex-shrink-0 */}
         <button 
           onClick={() => handleNavClick('home')}
           className="flex items-center gap-2.5 group text-left focus:outline-none flex-shrink-0 mr-2 sm:mr-4 z-10"
@@ -74,7 +74,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </span>
         </button>
 
-        {/* Center Navigation items with responsive padding so it never crowds or overlaps */}
+        {/* Center Navigation items */}
         <nav className="hidden lg:flex items-center gap-1 xl:gap-2 flex-shrink-0">
           {navItems.map((item) => {
             const isActive = activeSection === item.id;
@@ -97,25 +97,14 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Right Actions matching PNG */}
         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
           
-          {/* Calm Puppy Music Button */}
+          {/* Audio toggle: Volume2 when playing / VolumeX when muted */}
           <button
             onClick={handleMusicToggle}
-            className={`p-2.5 rounded-full border transition-all flex items-center gap-1.5 ${
-              musicOn
-                ? 'bg-[#4a2e1b] text-white border-[#4a2e1b] shadow-md ring-2 ring-[#4a2e1b]/20 animate-pulse'
-                : 'text-[#4a2e1b] bg-[#faefe4] hover:bg-[#f2e2d2] border-[#e5cfbd]'
-            }`}
-            title={musicOn ? 'Pause Calm Puppy Music' : 'Play Calm Puppy Music'}
-            aria-label="Toggle Calm Puppy Music"
+            className="p-2.5 rounded-full text-[#4a2e1b] bg-[#faefe4] hover:bg-[#f2e2d2] border border-[#e5cfbd] transition-colors focus:outline-none"
+            title={musicOn ? 'Mute Music' : 'Unmute & Play Music'}
+            aria-label="Toggle Sound & Music"
           >
-            {musicOn ? (
-              <>
-                <Music className="w-4 h-4" />
-                <span className="text-[11px] font-fredoka font-semibold hidden md:inline">Puppy Music</span>
-              </>
-            ) : (
-              <VolumeX className="w-5 h-5 opacity-60" />
-            )}
+            {musicOn ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5 opacity-60" />}
           </button>
 
           {/* "Get Help" button matching PNG */}
