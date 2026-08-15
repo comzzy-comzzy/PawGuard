@@ -90,7 +90,7 @@ export const LeftPeekingDog: React.FC<LeftDogProps> = ({ onPet }) => {
       }`}>
         <svg 
           viewBox="0 0 280 320" 
-          className="w-full h-auto drop-shadow-md overflow-visible animate-subtle-sway"
+          className="w-full h-auto drop-shadow-md overflow-visible animate-dog-left"
           fill="none" 
           xmlns="http://www.w3.org/2000/svg"
         >

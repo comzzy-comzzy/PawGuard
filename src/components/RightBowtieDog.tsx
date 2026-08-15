@@ -90,7 +90,7 @@ export const RightBowtieDog: React.FC<RightDogProps> = ({ onPet }) => {
       }`}>
         <svg 
           viewBox="0 0 300 320" 
-          className="w-full h-auto drop-shadow-md overflow-visible animate-subtle-breathe"
+          className="w-full h-auto drop-shadow-md overflow-visible animate-dog-right"
           fill="none" 
           xmlns="http://www.w3.org/2000/svg"
         >
