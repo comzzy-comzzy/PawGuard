@@ -12,7 +12,6 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   activeSection,
   setActiveSection,
-  onOpenReport,
   onOpenEmergency,
 }) => {
   const [musicOn, setMusicOn] = useState(isPuppyMusicPlaying());
@@ -21,11 +20,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   const navItems = [
     { id: 'home', label: 'Home' },
     { id: 'about', label: 'About' },
-    { id: 'report', label: 'Report' },
-    { id: 'rescue', label: 'Rescue' },
-    { id: 'adopt', label: 'Adopt' },
+    { id: 'report', label: 'Report Abuse' },
+    { id: 'rescue', label: 'Find & Rescue' },
+    { id: 'adopt', label: 'Adoption' },
     { id: 'lost-found', label: 'Lost & Found' },
-    { id: 'learn', label: 'Learn' },
+    { id: 'learn', label: 'Learn & Care' },
     { id: 'community', label: 'Community' },
     { id: 'support', label: 'Support Us' },
   ];
@@ -34,15 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     playClickSound();
     setActiveSection(id);
     setMobileMenuOpen(false);
-
-    if (id === 'report') {
-      onOpenReport();
-    } else {
-      const element = document.getElementById(id);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleMusicToggle = () => {
@@ -150,11 +141,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           
           <div className="pt-3 border-t border-[#ebdcca] flex gap-2">
             <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenReport();
-              }}
-              className="flex-1 flex items-center justify-center gap-2 bg-[#b87d55] text-white py-3 rounded-xl font-fredoka font-semibold shadow"
+              onClick={() => handleNavClick('report')}
+              className="flex-1 flex items-center justify-center gap-2 bg-[#d94141] text-white py-3 rounded-xl font-fredoka font-semibold shadow"
             >
               <ShieldAlert className="w-4 h-4" />
               <span>Report Abuse</span>

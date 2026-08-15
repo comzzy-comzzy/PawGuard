@@ -3,6 +3,7 @@ import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { QuickFeaturesRow } from './components/QuickFeaturesRow';
 import { AboutSection } from './components/AboutSection';
+import { ReportAbuseSection } from './components/ReportAbuseSection';
 import { RescueMapSection } from './components/RescueMapSection';
 import { AdoptionSection } from './components/AdoptionSection';
 import { LostAndFoundSection } from './components/LostAndFoundSection';
@@ -10,14 +11,13 @@ import { LearnSection } from './components/LearnSection';
 import { CommunitySection } from './components/CommunitySection';
 import { SupportSection } from './components/SupportSection';
 import { Footer } from './components/Footer';
-import { AbuseReportModal } from './components/AbuseReportModal';
 import { EmergencyHotlineModal } from './components/EmergencyHotlineModal';
 import { RescueCase, AdoptableDog, LostFoundDog } from './types';
 
 export function App() {
   const [activeSection, setActiveSection] = useState('home');
 
-  // Real user state saved in localStorage (starts clean without fake mock data)
+  // Real user state saved in localStorage
   const [cases, setCases] = useState<RescueCase[]>(() => {
     try {
       const saved = localStorage.getItem('pawguard_cases');
@@ -45,7 +45,6 @@ export function App() {
     }
   });
 
-  const [isReportOpen, setIsReportOpen] = useState(false);
   const [isEmergencyOpen, setIsEmergencyOpen] = useState(false);
 
   useEffect(() => {
@@ -88,91 +87,127 @@ export function App() {
     setLostFoundItems([newItem, ...lostFoundItems]);
   };
 
-  const handleSelectFeature = (featureId: string) => {
-    setActiveSection(featureId);
-    if (featureId === 'report') {
-      setIsReportOpen(true);
-    } else {
-      const element = document.getElementById(featureId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
+  const handleNavigate = (sectionId: string) => {
+    setActiveSection(sectionId);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#fbf6f0] text-[#352018]">
-      {/* Navigation */}
+      {/* Top Sticky Navigation */}
       <Navbar
         activeSection={activeSection}
-        setActiveSection={setActiveSection}
-        onOpenReport={() => setIsReportOpen(true)}
+        setActiveSection={handleNavigate}
+        onOpenReport={() => handleNavigate('report')}
         onOpenEmergency={() => setIsEmergencyOpen(true)}
       />
 
-      {/* Main Content Sections */}
+      {/* Main Page Views (Embedded by Section to Avoid Clutter/Flooding) */}
       <main className="flex-1">
-        {/* Hero Section matching PNG with moving animated dogs */}
-        <section id="home">
-          <HeroSection
-            onOpenReport={() => setIsReportOpen(true)}
-            onOpenEmergency={() => setIsEmergencyOpen(true)}
-            onNavigateSection={handleSelectFeature}
-          />
-        </section>
+        {activeSection === 'home' && (
+          <div className="animate-fadeIn">
+            {/* Hero Section matching PNG with moving animated dogs */}
+            <HeroSection
+              onOpenReport={() => handleNavigate('report')}
+              onOpenEmergency={() => setIsEmergencyOpen(true)}
+              onNavigateSection={handleNavigate}
+            />
 
-        {/* 6 Feature Cards Row matching PNG */}
-        <QuickFeaturesRow onSelectFeature={handleSelectFeature} />
+            {/* 6 Feature Cards Row matching PNG */}
+            <QuickFeaturesRow onSelectFeature={handleNavigate} />
 
-        {/* About & Mission Section */}
-        <AboutSection />
+            {/* About & Mission Highlight */}
+            <AboutSection onNavigateSection={handleNavigate} />
+          </div>
+        )}
 
-        {/* Location-Based Rescue Reports */}
-        <RescueMapSection
-          cases={cases}
-          onOpenReport={() => setIsReportOpen(true)}
-          onUpdateCase={handleUpdateCase}
-        />
+        {/* Dedicated Embedded Report Abuse Page */}
+        {activeSection === 'report' && (
+          <div className="animate-fadeIn">
+            <ReportAbuseSection
+              onAddCase={handleAddCase}
+              onNavigateSection={handleNavigate}
+            />
+          </div>
+        )}
 
-        {/* Adoption Listings */}
-        <AdoptionSection dogs={dogs} onAddDog={handleAddDog} />
+        {/* Dedicated Embedded Find & Rescue Page */}
+        {activeSection === 'rescue' && (
+          <div className="animate-fadeIn">
+            <RescueMapSection
+              cases={cases}
+              onOpenReport={() => handleNavigate('report')}
+              onUpdateCase={handleUpdateCase}
+              onNavigateSection={handleNavigate}
+            />
+          </div>
+        )}
 
-        {/* Lost, Abandoned & Injured Dogs Noticeboard */}
-        <LostAndFoundSection
-          items={lostFoundItems}
-          onAddItem={handleAddLostFound}
-        />
+        {/* Dedicated Embedded Adoption Page */}
+        {activeSection === 'adopt' && (
+          <div className="animate-fadeIn">
+            <AdoptionSection
+              dogs={dogs}
+              onAddDog={handleAddDog}
+              onNavigateSection={handleNavigate}
+            />
+          </div>
+        )}
 
-        {/* Learn & Educate: Preventing Cruelty & Humane Care */}
-        <LearnSection />
+        {/* Dedicated Embedded Lost & Found Page */}
+        {activeSection === 'lost-found' && (
+          <div className="animate-fadeIn">
+            <LostAndFoundSection
+              items={lostFoundItems}
+              onAddItem={handleAddLostFound}
+              onNavigateSection={handleNavigate}
+            />
+          </div>
+        )}
 
-        {/* Volunteer Guild & Community */}
-        <CommunitySection />
+        {/* Dedicated Embedded Learn & Educate Page */}
+        {activeSection === 'learn' && (
+          <div className="animate-fadeIn">
+            <LearnSection onNavigateSection={handleNavigate} />
+          </div>
+        )}
 
-        {/* Support Us */}
-        <SupportSection />
+        {/* Dedicated Embedded Volunteer Guild & Community Page */}
+        {activeSection === 'community' && (
+          <div className="animate-fadeIn">
+            <CommunitySection onNavigateSection={handleNavigate} />
+          </div>
+        )}
+
+        {/* Dedicated Embedded Support Us Page */}
+        {activeSection === 'support' && (
+          <div className="animate-fadeIn">
+            <SupportSection onNavigateSection={handleNavigate} />
+          </div>
+        )}
+
+        {/* Dedicated Embedded About Page */}
+        {activeSection === 'about' && (
+          <div className="animate-fadeIn">
+            <AboutSection onNavigateSection={handleNavigate} />
+          </div>
+        )}
       </main>
 
-      {/* Footer */}
+      {/* Global Footer */}
       <Footer
-        onOpenReport={() => setIsReportOpen(true)}
+        onOpenReport={() => handleNavigate('report')}
         onOpenEmergency={() => setIsEmergencyOpen(true)}
-        onNavigateSection={handleSelectFeature}
+        onNavigateSection={handleNavigate}
       />
 
-      {/* Modals */}
-      <AbuseReportModal
-        isOpen={isReportOpen}
-        onClose={() => setIsReportOpen(false)}
-        onAddCase={handleAddCase}
-      />
-
+      {/* Emergency Hotline Modal (Get Help button quick overlay) */}
       <EmergencyHotlineModal
         isOpen={isEmergencyOpen}
         onClose={() => setIsEmergencyOpen(false)}
         onOpenReport={() => {
           setIsEmergencyOpen(false);
-          setIsReportOpen(true);
+          handleNavigate('report');
         }}
       />
     </div>

@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { Heart, ShieldCheck, Stethoscope, Utensils, Home, Copy, Check, X, Coins, Gift } from 'lucide-react';
+import { Heart, ShieldCheck, Stethoscope, Utensils, Home, Copy, Check, Coins, Gift, ArrowLeft } from 'lucide-react';
 import { playHeartPop, playClickSound } from '../utils/audio';
 import { DONATION_WALLETS } from '../data/mockData';
 
-export const SupportSection: React.FC = () => {
-  const [showDonationModal, setShowDonationModal] = useState(false);
+interface SupportSectionProps {
+  onNavigateSection?: (sectionId: string) => void;
+}
+
+export const SupportSection: React.FC<SupportSectionProps> = ({ onNavigateSection }) => {
+  const [activeTab, setActiveTab] = useState<'causes' | 'wallets'>('causes');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
@@ -15,10 +19,10 @@ export const SupportSection: React.FC = () => {
     { label: 'Shelter & Foster Supplies', desc: 'Provide transport crates, warm blankets, and safe shelter accommodations', icon: Home },
   ];
 
-  const handleOpenDonation = (category?: string) => {
+  const handleOpenWalletsForCause = (category: string) => {
     playHeartPop();
-    if (category) setSelectedCategory(category);
-    setShowDonationModal(true);
+    setSelectedCategory(category);
+    setActiveTab('wallets');
   };
 
   const handleCopy = (key: string, text: string) => {
@@ -56,175 +60,198 @@ export const SupportSection: React.FC = () => {
   ];
 
   return (
-    <section id="support" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[#faefe4] border-b border-[#eedccb]">
-      <div className="max-w-7xl mx-auto space-y-12">
+    <section id="support" className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#faefe4]">
+      <div className="max-w-7xl mx-auto space-y-10">
         
+        {/* Top Breadcrumb */}
+        {onNavigateSection && (
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => onNavigateSection('home')}
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-fredoka font-bold text-[#8a5b3a] hover:text-[#4a2e1b] bg-white hover:bg-[#fbf6f0] px-4 py-2 rounded-full border border-[#ebd7c3] transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Home Overview</span>
+            </button>
+
+            <span className="text-xs font-fredoka font-semibold uppercase tracking-wider text-[#b87d55] bg-white px-3.5 py-1 rounded-full border border-[#e5cfbd]">
+              Medical & Rescue Fund
+            </span>
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-1.5 bg-[#fbe9dd] text-[#8a5b3a] border border-[#e5cfbd] text-xs font-fredoka font-bold px-3.5 py-1 rounded-full uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1.5 bg-white text-[#8a5b3a] border border-[#e5cfbd] text-xs font-fredoka font-bold px-3.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
             <Heart className="w-3.5 h-3.5 text-[#d94141]" />
             <span>Support & Medical Initiatives</span>
           </div>
 
-          <h2 className="font-fredoka text-3xl sm:text-4xl md:text-5xl font-bold text-[#26160d]">
+          <h1 className="font-fredoka text-3xl sm:text-4xl md:text-5xl font-bold text-[#26160d]">
             Support Dog Rescues & Emergency Care
-          </h2>
+          </h1>
 
           <p className="font-sans text-sm sm:text-base text-[#6b4c38]">
-            Every penny counts. Your contributions directly fund veterinary medical surgeries, rescue transport, food, and shelter for dogs in danger.
+            Every penny counts. Your contributions directly fund emergency veterinary medical surgeries, rescue transport, food, and shelter for dogs in danger.
           </p>
 
-          <div className="pt-2">
+          <div className="flex items-center justify-center gap-3 pt-3">
             <button
-              onClick={() => handleOpenDonation()}
-              className="bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold text-sm px-8 py-3.5 rounded-full shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 mx-auto"
+              onClick={() => {
+                playClickSound();
+                setActiveTab('causes');
+              }}
+              className={`font-fredoka text-xs sm:text-sm px-6 py-2.5 rounded-full transition-all ${
+                activeTab === 'causes'
+                  ? 'bg-[#4a2e1b] text-white shadow font-semibold'
+                  : 'bg-white text-[#4a2e1b] border border-[#ebd7c3]'
+              }`}
+            >
+              Rescue Causes
+            </button>
+
+            <button
+              onClick={() => {
+                playClickSound();
+                setActiveTab('wallets');
+              }}
+              className={`flex items-center gap-1.5 font-fredoka text-xs sm:text-sm px-6 py-2.5 rounded-full transition-all ${
+                activeTab === 'wallets'
+                  ? 'bg-[#4a2e1b] text-white shadow font-semibold'
+                  : 'bg-white text-[#4a2e1b] border border-[#ebd7c3]'
+              }`}
             >
               <Coins className="w-4 h-4 text-[#f5d7b7]" />
-              <span>Donate (Crypto Address)</span>
+              <span>Donate Crypto</span>
             </button>
           </div>
         </div>
 
-        {/* Support Categories Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {supportCategories.map((cat, idx) => {
-            const IconComponent = cat.icon;
-            return (
-              <div
-                key={idx}
-                className="bg-white rounded-3xl p-6 border-2 border-[#ebd7c3] hover:border-[#4a2e1b] shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 text-center group"
-              >
-                <div className="space-y-3">
-                  <div className="w-14 h-14 rounded-2xl bg-[#faefe4] group-hover:bg-[#f8dfc7] text-[#4a2e1b] flex items-center justify-center mx-auto transition-colors">
-                    <IconComponent className="w-7 h-7" />
-                  </div>
-
-                  <h3 className="font-fredoka text-base font-bold text-[#352018]">
-                    {cat.label}
-                  </h3>
-
-                  <p className="text-xs text-[#6e513e] leading-relaxed">
-                    {cat.desc}
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => handleOpenDonation(cat.label)}
-                  className="w-full bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka font-semibold text-xs py-2.5 rounded-full transition-colors flex items-center justify-center gap-1.5"
+        {/* Tab 1: Causes Grid */}
+        {activeTab === 'causes' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-fadeIn">
+            {supportCategories.map((cat, idx) => {
+              const IconComponent = cat.icon;
+              return (
+                <div
+                  key={idx}
+                  className="bg-white rounded-3xl p-6 border-2 border-[#ebd7c3] hover:border-[#4a2e1b] shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 text-center group"
                 >
-                  <Gift className="w-3.5 h-3.5 text-[#b87d55]" />
-                  <span>Donate to this Cause</span>
-                </button>
-              </div>
-            );
-          })}
-        </div>
+                  <div className="space-y-3">
+                    <div className="w-14 h-14 rounded-2xl bg-[#faefe4] group-hover:bg-[#f8dfc7] text-[#4a2e1b] flex items-center justify-center mx-auto transition-colors">
+                      <IconComponent className="w-7 h-7" />
+                    </div>
 
-        {/* Donation Modal */}
-        {showDonationModal && (
-          <div className="fixed inset-0 z-50 overflow-y-auto bg-black/65 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fadeIn">
-            <div className="bg-[#fbf6f0] border-2 border-[#4a2e1b] rounded-3xl max-w-xl w-full shadow-2xl overflow-hidden relative">
-              
-              {/* Modal Header */}
-              <div className="bg-[#4a2e1b] text-white px-6 py-5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#fbe9dd] text-[#4a2e1b] flex items-center justify-center font-bold shadow">
-                    <Coins className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-fredoka text-xl font-bold tracking-tight">
-                      Support PawGuard Rescues
+                    <h3 className="font-fredoka text-base font-bold text-[#352018]">
+                      {cat.label}
                     </h3>
-                    <p className="text-xs text-[#f5d7b7]">
-                      {selectedCategory ? `Designated for: ${selectedCategory}` : 'Direct Crypto Support'}
+
+                    <p className="text-xs text-[#6e513e] leading-relaxed">
+                      {cat.desc}
                     </p>
                   </div>
-                </div>
 
-                <button
-                  onClick={() => {
-                    setShowDonationModal(false);
-                    setSelectedCategory(null);
-                  }}
-                  className="text-white/80 hover:text-white p-1.5 rounded-full hover:bg-white/10"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              {/* Modal Content */}
-              <div className="p-6 sm:p-8 space-y-6 max-h-[78vh] overflow-y-auto">
-                
-                {/* Heartwarming Banner */}
-                <div className="bg-[#faefe4] border border-[#ebd7c3] p-4 rounded-2xl text-center space-y-1">
-                  <div className="font-fredoka text-base font-bold text-[#26160d]">
-                    Every Penny Counts
-                  </div>
-                  <p className="text-xs text-[#6b4c38] leading-relaxed">
-                    100% of donations go towards immediate emergency veterinary medical care, food supplies, and safe rescue transport for dogs suffering from abuse and abandonment.
-                  </p>
-                </div>
-
-                {/* Wallets List */}
-                <div className="space-y-3.5">
-                  {cryptoList.map((c) => (
-                    <div
-                      key={c.key}
-                      className="bg-white p-4 rounded-2xl border-2 border-[#ebd7c3] space-y-2 shadow-sm"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] ${c.iconColor}`}>
-                            {c.symbol.slice(0, 1)}
-                          </span>
-                          <span className="font-fredoka text-sm font-bold text-[#26160d]">
-                            {c.name} ({c.symbol})
-                          </span>
-                        </div>
-                        <span className="text-[11px] font-medium text-[#8a5b3a] bg-[#faefe4] px-2.5 py-0.5 rounded-full">
-                          {c.network}
-                        </span>
-                      </div>
-
-                      {/* Address Bar */}
-                      <div className="flex items-center gap-2 bg-[#fbf6f0] p-2.5 rounded-xl border border-[#ebd7c3]">
-                        <span className="font-mono text-xs text-[#352018] break-all flex-1 select-all font-semibold">
-                          {c.address}
-                        </span>
-                        <button
-                          onClick={() => handleCopy(c.key, c.address)}
-                          className="p-2 rounded-lg bg-[#4a2e1b] hover:bg-[#352018] text-white flex-shrink-0 transition-colors"
-                          title="Copy Address"
-                        >
-                          {copiedKey === c.key ? (
-                            <Check className="w-4 h-4 text-[#86efac]" />
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
-
-                      {copiedKey === c.key && (
-                        <p className="text-[11px] font-fredoka font-semibold text-[#166534] animate-fadeIn">
-                          {c.name} address copied to clipboard.
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                <div className="pt-2">
                   <button
-                    onClick={() => setShowDonationModal(false)}
-                    className="w-full bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka font-semibold text-xs sm:text-sm py-3 rounded-full border border-[#ebd7c3] transition-colors"
+                    onClick={() => handleOpenWalletsForCause(cat.label)}
+                    className="w-full bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka font-semibold text-xs py-3 rounded-full transition-colors flex items-center justify-center gap-1.5"
                   >
-                    Close
+                    <Gift className="w-3.5 h-3.5 text-[#b87d55]" />
+                    <span>Donate to this Cause →</span>
                   </button>
                 </div>
+              );
+            })}
+          </div>
+        )}
 
+        {/* Tab 2: Embedded Crypto Donation Wallets */}
+        {activeTab === 'wallets' && (
+          <div className="max-w-2xl mx-auto bg-white rounded-3xl border-2 border-[#4a2e1b] shadow-xl p-6 sm:p-10 space-y-6 animate-fadeIn">
+            <div className="border-b border-[#ebd7c3] pb-4 space-y-1">
+              <div className="flex items-center justify-between">
+                <h3 className="font-fredoka text-2xl font-bold text-[#26160d] flex items-center gap-2">
+                  <Coins className="w-6 h-6 text-[#b87d55]" />
+                  <span>PawGuard Medical Support Wallets</span>
+                </h3>
+                <button
+                  onClick={() => setActiveTab('causes')}
+                  className="text-xs font-fredoka font-bold text-[#8a5b3a] hover:underline"
+                >
+                  ← Back to Causes
+                </button>
               </div>
-
+              <p className="text-xs text-[#6b4c38]">
+                {selectedCategory ? `Designated Cause: ${selectedCategory}` : '100% of contributions fund immediate rescue operations and medical care.'}
+              </p>
             </div>
+
+            {/* Heartwarming Banner */}
+            <div className="bg-[#faefe4] border border-[#ebd7c3] p-4 rounded-2xl text-center space-y-1">
+              <div className="font-fredoka text-base font-bold text-[#26160d]">
+                Every Penny Counts
+              </div>
+              <p className="text-xs text-[#6b4c38] leading-relaxed">
+                100% of donations go towards immediate emergency veterinary medical care, food supplies, and safe rescue transport for dogs suffering from abuse and abandonment.
+              </p>
+            </div>
+
+            {/* Wallets List */}
+            <div className="space-y-4">
+              {cryptoList.map((c) => (
+                <div
+                  key={c.key}
+                  className="bg-[#fbf6f0] p-4 sm:p-5 rounded-2xl border-2 border-[#ebd7c3] space-y-2.5 shadow-sm"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${c.iconColor}`}>
+                        {c.symbol.slice(0, 1)}
+                      </span>
+                      <span className="font-fredoka text-sm font-bold text-[#26160d]">
+                        {c.name} ({c.symbol})
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-medium text-[#8a5b3a] bg-white px-3 py-0.5 rounded-full border border-[#ebd7c3]">
+                      {c.network}
+                    </span>
+                  </div>
+
+                  {/* Address Bar */}
+                  <div className="flex items-center gap-2 bg-white p-3 rounded-xl border border-[#ebd7c3]">
+                    <span className="font-mono text-xs text-[#352018] break-all flex-1 select-all font-semibold">
+                      {c.address}
+                    </span>
+                    <button
+                      onClick={() => handleCopy(c.key, c.address)}
+                      className="p-2.5 rounded-xl bg-[#4a2e1b] hover:bg-[#352018] text-white flex-shrink-0 transition-colors"
+                      title="Copy Address"
+                    >
+                      {copiedKey === c.key ? (
+                        <Check className="w-4 h-4 text-[#86efac]" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+
+                  {copiedKey === c.key && (
+                    <p className="text-[11px] font-fredoka font-semibold text-[#166534] animate-fadeIn">
+                      {c.name} address copied to clipboard.
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-2">
+              <button
+                onClick={() => setActiveTab('causes')}
+                className="w-full bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka font-semibold text-xs sm:text-sm py-3.5 rounded-full border border-[#ebd7c3] transition-colors"
+              >
+                Return to Rescue Causes
+              </button>
+            </div>
+
           </div>
         )}
 

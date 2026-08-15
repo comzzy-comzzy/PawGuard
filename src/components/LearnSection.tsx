@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { EDUCATIONAL_ARTICLES } from '../data/mockData';
-import { BookOpen, HelpCircle, CheckCircle2, XCircle, Award } from 'lucide-react';
+import { BookOpen, HelpCircle, CheckCircle2, XCircle, Award, ArrowLeft } from 'lucide-react';
 import { playClickSound, playHeartPop } from '../utils/audio';
 
-export const LearnSection: React.FC = () => {
+interface LearnSectionProps {
+  onNavigateSection?: (sectionId: string) => void;
+}
+
+export const LearnSection: React.FC<LearnSectionProps> = ({ onNavigateSection }) => {
   const [selectedArticleId, setSelectedArticleId] = useState(EDUCATIONAL_ARTICLES[0].id);
   const [quizScore, setQuizScore] = useState<number | null>(null);
   const [quizAnswers, setQuizAnswers] = useState<{ [key: number]: number }>({});
@@ -65,19 +69,36 @@ export const LearnSection: React.FC = () => {
   };
 
   return (
-    <section id="learn" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[#faefe4] border-b border-[#eedccb]">
-      <div className="max-w-7xl mx-auto space-y-12">
+    <section id="learn" className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#faefe4]">
+      <div className="max-w-7xl mx-auto space-y-10">
         
+        {/* Top Breadcrumb */}
+        {onNavigateSection && (
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => onNavigateSection('home')}
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-fredoka font-bold text-[#8a5b3a] hover:text-[#4a2e1b] bg-white hover:bg-[#fbf6f0] px-4 py-2 rounded-full border border-[#ebd7c3] transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Home Overview</span>
+            </button>
+
+            <span className="text-xs font-fredoka font-semibold uppercase tracking-wider text-[#3d97ca] bg-[#e0f2fe] px-3.5 py-1 rounded-full border border-[#bae6fd]">
+              Humane Education
+            </span>
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-1.5 bg-[#fbe9dd] text-[#8a5b3a] border border-[#e5cfbd] text-xs font-fredoka font-bold px-3.5 py-1 rounded-full uppercase tracking-wider">
-            <BookOpen className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-1.5 bg-white text-[#8a5b3a] border border-[#e5cfbd] text-xs font-fredoka font-bold px-3.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
+            <BookOpen className="w-3.5 h-3.5 text-[#3d97ca]" />
             <span>Humane Education & Advocacy</span>
           </div>
 
-          <h2 className="font-fredoka text-3xl sm:text-4xl md:text-5xl font-bold text-[#26160d]">
+          <h1 className="font-fredoka text-3xl sm:text-4xl md:text-5xl font-bold text-[#26160d]">
             Learn How to Protect & Advocate for Dogs
-          </h2>
+          </h1>
 
           <p className="font-sans text-sm sm:text-base text-[#6b4c38]">
             Understand canine body language, spot silent symptoms of neglect, legally document cruelty, and administer emergency first-aid.

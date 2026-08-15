@@ -5,14 +5,14 @@ import { Heart } from 'lucide-react';
 import { playClickSound } from '../utils/audio';
 
 interface HeroSectionProps {
-  onOpenReport: () => void;
+  onOpenReport?: () => void;
   onOpenEmergency: () => void;
   onNavigateSection: (sectionId: string) => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
-  onOpenReport,
   onOpenEmergency,
+  onNavigateSection,
 }) => {
   return (
     <section className="relative terracotta-tile-grid py-14 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden transition-all">
@@ -55,7 +55,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             <button
               onClick={() => {
                 playClickSound();
-                onOpenReport();
+                onNavigateSection('report');
               }}
               className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-[#4a2e1b] hover:bg-[#321c0e] text-white font-fredoka font-semibold text-base sm:text-lg px-8 py-3.5 rounded-full shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all group"
             >

@@ -1,7 +1,11 @@
 import React from 'react';
-import { ShieldCheck, Heart, Eye, Users, Sparkles } from 'lucide-react';
+import { ShieldCheck, Heart, Eye, Users, Sparkles, ArrowLeft } from 'lucide-react';
 
-export const AboutSection: React.FC = () => {
+interface AboutSectionProps {
+  onNavigateSection?: (sectionId: string) => void;
+}
+
+export const AboutSection: React.FC<AboutSectionProps> = ({ onNavigateSection }) => {
   const pillars = [
     {
       icon: ShieldCheck,
@@ -30,9 +34,26 @@ export const AboutSection: React.FC = () => {
   ];
 
   return (
-    <section id="about" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[#fbf6f0] border-b border-[#eedccb]">
-      <div className="max-w-7xl mx-auto space-y-16">
+    <section id="about" className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#fbf6f0]">
+      <div className="max-w-7xl mx-auto space-y-12">
         
+        {/* Top Breadcrumb */}
+        {onNavigateSection && (
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => onNavigateSection('home')}
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-fredoka font-bold text-[#8a5b3a] hover:text-[#4a2e1b] bg-[#faefe4] hover:bg-[#f2e2d2] px-4 py-2 rounded-full border border-[#ebd7c3] transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Home Overview</span>
+            </button>
+
+            <span className="text-xs font-fredoka font-semibold uppercase tracking-wider text-[#8a5b3a] bg-[#faefe4] px-3.5 py-1 rounded-full border border-[#ebd7c3]">
+              About Mission
+            </span>
+          </div>
+        )}
+
         {/* Top Story */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           
@@ -42,9 +63,9 @@ export const AboutSection: React.FC = () => {
               <span>Our Mission</span>
             </div>
 
-            <h2 className="font-fredoka text-3xl sm:text-4xl md:text-5xl font-bold text-[#26160d] leading-tight">
+            <h1 className="font-fredoka text-3xl sm:text-4xl md:text-5xl font-bold text-[#26160d] leading-tight">
               PawGuard — Protect Dogs, They Have Feelings Too.
-            </h2>
+            </h1>
 
             <p className="font-sans text-sm sm:text-base text-[#5e4537] leading-relaxed">
               Every day, dogs suffer in silence — tied on heavy chains without shelter, starved in back alleys, abandoned in extreme weather, or subjected to cruelty and unnecessary killing.

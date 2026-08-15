@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { RescueCase } from '../types';
-import { ShieldAlert, MapPin, Clock, Radio, Share2 } from 'lucide-react';
+import { ShieldAlert, MapPin, Clock, Radio, Share2, ArrowLeft } from 'lucide-react';
 import { playClickSound } from '../utils/audio';
 
 interface RescueMapSectionProps {
   cases: RescueCase[];
   onOpenReport: () => void;
   onUpdateCase: (updatedCase: RescueCase) => void;
+  onNavigateSection?: (sectionId: string) => void;
 }
 
 export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
   cases,
   onOpenReport,
+  onNavigateSection,
 }) => {
   const [selectedCase, setSelectedCase] = useState<RescueCase | null>(cases[0] || null);
   const [filterUrgency, setFilterUrgency] = useState<string>('all');
@@ -53,9 +55,26 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
   };
 
   return (
-    <section id="rescue" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[#fbf6f0] border-b border-[#eedccb]">
+    <section id="rescue" className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#fbf6f0]">
       <div className="max-w-7xl mx-auto space-y-10">
         
+        {/* Top Breadcrumb */}
+        {onNavigateSection && (
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => onNavigateSection('home')}
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-fredoka font-bold text-[#8a5b3a] hover:text-[#4a2e1b] bg-[#faefe4] hover:bg-[#f2e2d2] px-4 py-2 rounded-full border border-[#ebd7c3] transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Home Overview</span>
+            </button>
+
+            <span className="text-xs font-fredoka font-semibold uppercase tracking-wider text-[#ea8e24] bg-[#ffedd5] px-3.5 py-1 rounded-full border border-[#fdba74]">
+              Rescue Radar Desk
+            </span>
+          </div>
+        )}
+
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-[#e8d5c4] pb-6">
           <div className="space-y-2">
@@ -63,9 +82,9 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
               <Radio className="w-4 h-4 text-[#d94141]" />
               <span>Location-Based Rescue Reports</span>
             </div>
-            <h2 className="font-fredoka text-3xl sm:text-4xl font-bold text-[#26160d]">
+            <h1 className="font-fredoka text-3xl sm:text-4xl font-bold text-[#26160d]">
               Find & Rescue Dogs in Danger
-            </h2>
+            </h1>
             <p className="font-sans text-sm sm:text-base text-[#6b4c38] max-w-2xl">
               Track reported dog abuse cases, review locations where animals require rescue, and coordinate rescue interventions.
             </p>
