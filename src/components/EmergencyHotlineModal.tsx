@@ -40,7 +40,7 @@ export const EmergencyHotlineModal: React.FC<EmergencyHotlineModalProps> = ({
       urgency,
       emergencyType,
       notes: notes || 'Immediate response requested.',
-      submittedAt: 'Just now',
+      submittedAt: new Date().toISOString(),
       status: 'active',
     };
 

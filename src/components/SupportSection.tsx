@@ -125,7 +125,7 @@ export const SupportSection: React.FC<SupportSectionProps> = ({ onAddDonation, o
       paymentMethod,
       txHashOrReceipt: txHashOrReceipt || 'Direct Pledge / Transfer',
       donorNote: donorNote || 'Supporting dog rescue and care.',
-      submittedAt: 'Just now',
+      submittedAt: new Date().toISOString(),
       status: 'pending_verification',
     };
 

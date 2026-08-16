@@ -231,7 +231,7 @@ export function App() {
       id: `LOG-${Date.now()}`,
       action,
       targetId,
-      timestamp: 'Just now',
+      timestamp: new Date().toISOString(),
       type,
       details,
     };

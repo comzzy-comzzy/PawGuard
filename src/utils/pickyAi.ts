@@ -55,10 +55,14 @@ export const saveToAdminInbox = (record: {
  */
 export const processPickyMessage = (
   userText: string,
-  context: PickyConversationContext
+  context: PickyConversationContext,
+  attachedPhoto?: string | null
 ): { response: PickyResponse; newContext: PickyConversationContext } => {
-  const text = userText.trim().toLowerCase();
+  const text = (userText || '').trim().toLowerCase();
   let draft = { ...(context.draftData || {}) };
+  if (attachedPhoto) {
+    draft.photoUrl = attachedPhoto;
+  }
   let activeFlow = context.activeFlow || null;
   let step = context.step || 0;
   let currentCaseId = context.currentCaseId || `PG-RESCUE-${Math.floor(1000 + Math.random() * 9000)}`;

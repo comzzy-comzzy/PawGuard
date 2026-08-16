@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Send, ArrowRight, RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import { X, Send, ArrowRight, RotateCcw, Volume2, VolumeX, Camera, Image as ImageIcon, Trash2 } from 'lucide-react';
 import { playClickSound, playPuppyBark } from '../utils/audio';
 import { processPickyMessage, PickyConversationContext } from '../utils/pickyAi';
 import { RescueCase, AdoptionInquiry, LostFoundDog, VolunteerApplication } from '../types';
+import { getRelativeTime } from '../utils/time';
 
 interface PickyChatBoxProps {
   onNavigateSection: (sectionId: string) => void;
@@ -18,6 +19,7 @@ interface Message {
   sender: 'picky' | 'user';
   text: string;
   timestamp: string;
+  photoUrl?: string;
   actionLink?: {
     label: string;
     sectionId: string;
@@ -35,15 +37,23 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputText, setInputText] = useState('');
+  const [attachedPhoto, setAttachedPhoto] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [unreadCount, setUnreadCount] = useState(1);
+  const [, setTick] = useState(0);
+
+  // Auto-tick every 30s to update relative times
+  useEffect(() => {
+    const timer = setInterval(() => setTick((t) => t + 1), 30000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Picky conversation context
   const [context, setContext] = useState<PickyConversationContext>({
     activeFlow: null,
     step: 0,
-    draftData: {}
+    draftData: {},
   });
 
   const [activeCasesTracked, setActiveCasesTracked] = useState<Record<string, RescueCase>>({});
@@ -53,21 +63,22 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
       {
         id: 'picky-welcome',
         sender: 'picky',
-        text: "Hi friend! I'm Picky! 🎀🐶\n\nHow can I help you today? Whether you'd like to report a dog in trouble, find a pet to adopt, post a lost dog, or ask about dog care, I'm right here with you!",
-        timestamp: 'Just now',
+        text: "Hi friend! I'm Picky! 🎀🐶\n\nHow can I help you today? Whether you'd like to report a dog in trouble, attach evidence photos, find a pet to adopt, or ask about dog care, I'm right here with you!",
+        timestamp: new Date().toISOString(),
         suggestedPrompts: [
           'Report a dog in trouble',
           'Adopt or foster a dog',
           'Post a lost or found dog',
           'Volunteer with us',
-          'Support medical care'
-        ]
-      }
+          'Support medical care',
+        ],
+      },
     ];
   });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -77,7 +88,7 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
         inputRef.current?.focus();
       }, 150);
     }
-  }, [isOpen, messages, isTyping]);
+  }, [isOpen, messages, isTyping, attachedPhoto]);
 
   const handleOpen = () => {
     if (!isOpen) {
@@ -88,25 +99,43 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
     setIsOpen(!isOpen);
   };
 
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      playClickSound();
+      const reader = new FileReader();
+      reader.onload = () => {
+        setAttachedPhoto(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+    e.target.value = '';
+  };
+
   const handleSendMessage = (textToSend?: string) => {
     const text = (textToSend || inputText).trim();
-    if (!text) return;
+    if (!text && !attachedPhoto) return;
 
     playClickSound();
+    const photoSnapshot = attachedPhoto;
+    const nowIso = new Date().toISOString();
+
     const userMsg: Message = {
       id: `user-${Date.now()}`,
       sender: 'user',
-      text: text,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      text: text || 'Photo evidence attached 📸',
+      timestamp: nowIso,
+      photoUrl: photoSnapshot || undefined,
     };
 
     setMessages((prev) => [...prev, userMsg]);
     setInputText('');
+    setAttachedPhoto(null);
     setIsTyping(true);
 
     try {
-      // Process with Picky built-in intake engine
-      const { response, newContext } = processPickyMessage(text, context);
+      // Process with Picky built-in intake engine with attached photo support
+      const { response, newContext } = processPickyMessage(text || 'Photo evidence attached', context, photoSnapshot);
       setContext(newContext);
 
       // Forward completed intakes to central admin dispatch states
@@ -117,6 +146,12 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
         // 1. Abuse Case Intake
         if (response.collectedData.type === 'report') {
           const existing = activeCasesTracked[cid];
+          const resolvedPhoto =
+            photoSnapshot ||
+            d.photoUrl ||
+            existing?.photoUrl ||
+            'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop&q=80';
+
           const caseToSave: RescueCase = {
             id: cid,
             title: `Reported via Picky: ${d.abuseType || 'Incident'}`,
@@ -126,18 +161,18 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
             location: d.location || existing?.location || 'Location being verified',
             coordinates: [40.7128 + (Math.random() - 0.5) * 0.05, -74.0060 + (Math.random() - 0.5) * 0.05],
             distance: 'Local Area',
-            reportedAt: 'Just now',
-            description: `${d.description || text} (Logged via Picky Assistant)`,
+            reportedAt: existing?.reportedAt || nowIso,
+            description: `${d.description || text || 'Photo evidence submitted'} (Logged via Picky Assistant)`,
             dogName: 'Reported Dog',
             dogBreed: 'Dog in Need of Help',
-            photoUrl: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop&q=80',
+            photoUrl: resolvedPhoto,
             reporter: d.reporter || existing?.reporter || 'Picky Assistant User',
             isAnonymous: d.reporter ? d.reporter.toLowerCase().includes('anon') : false,
-            adminNotes: 'Transmitted live via Picky chatbot assistant.',
+            adminNotes: 'Transmitted live via Picky chatbot assistant with photo evidence.',
             updates: [
-              { time: 'Just now', text: `Details from Picky: ${text}`, author: 'Picky Assistant' },
-              ...(existing?.updates || [])
-            ]
+              { time: nowIso, text: `Details from Picky: ${text || 'Photo evidence attached'}`, author: 'Picky Assistant' },
+              ...(existing?.updates || []),
+            ],
           };
 
           setActiveCasesTracked((prev) => ({ ...prev, [cid]: caseToSave }));
@@ -163,9 +198,9 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
             hasChildren: false,
             experienceLevel: 'Loving Dog Guardian',
             notes: `Adoption inquiry submitted via Picky. Desired Pet: ${d.preferredDog || 'N/A'}. Home environment: ${d.home || 'N/A'}. Contact details: ${d.contact || 'N/A'}`,
-            submittedAt: 'Just now',
+            submittedAt: nowIso,
             status: 'pending',
-            adminNotes: 'Submitted through Picky conversational intake assistant.'
+            adminNotes: 'Submitted through Picky conversational intake assistant.',
           });
         }
 
@@ -181,9 +216,10 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
             lastSeenDate: 'Recently',
             contactName: d.contact || 'Reporter',
             contactPhone: d.contact || 'Provided via Picky',
-            photoUrl: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&auto=format&fit=crop&q=80',
+            photoUrl: photoSnapshot || 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&auto=format&fit=crop&q=80',
             details: `Notice submitted via Picky. Pet info: ${d.petInfo || 'N/A'}. Last seen location: ${d.lastSeen || 'N/A'}. Contact: ${d.contact || 'N/A'}`,
-            caseStatus: 'open'
+            caseStatus: 'open',
+            submittedAt: nowIso,
           });
         }
 
@@ -199,8 +235,8 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
             availability: 'Flexible / On-call',
             hasVehicle: true,
             experience: `Volunteer signup via Picky. Desired role: ${d.role || 'N/A'}. Location: ${d.location || 'N/A'}`,
-            submittedAt: 'Just now',
-            status: 'pending'
+            submittedAt: nowIso,
+            status: 'pending',
           });
         }
       }
@@ -213,27 +249,27 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
           id: `picky-${Date.now()}`,
           sender: 'picky',
           text: response.reply,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          timestamp: new Date().toISOString(),
           actionLink: response.actionLink,
-          suggestedPrompts: response.suggestedPrompts
+          suggestedPrompts: response.suggestedPrompts,
         };
 
         setMessages((prev) => [...prev, pickyMsg]);
       }, 100);
     } catch (err) {
-      console.error('Picky message handling error:', err);
+      console.error('Picky message error:', err);
       setIsTyping(false);
       const fallbackMsg: Message = {
         id: `picky-fallback-${Date.now()}`,
         sender: 'picky',
-        text: "I'm right here with you! 🐾 How can I help? You can tell me about a dog in trouble, ask about adoption, or post a lost pet.",
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        text: "I'm right here with you! 🐾 How can I help? You can tell me about a dog in trouble, attach a photo, ask about adoption, or post a lost pet.",
+        timestamp: new Date().toISOString(),
         suggestedPrompts: [
           'Report a dog in trouble',
           'Adopt or foster a dog',
           'Post a lost or found dog',
-          'Volunteer with us'
-        ]
+          'Volunteer with us',
+        ],
       };
       setMessages((prev) => [...prev, fallbackMsg]);
     }
@@ -242,24 +278,34 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
   const handleResetChat = () => {
     playClickSound();
     setContext({ activeFlow: null, step: 0, draftData: {} });
+    setAttachedPhoto(null);
     setMessages([
       {
         id: `picky-reset-${Date.now()}`,
         sender: 'picky',
-        text: "Hi again! What can I help you with right now? 🐾",
-        timestamp: 'Just now',
+        text: "Hi again! What can I help you with right now? 🐾 You can also attach photos of dogs in trouble using the camera button below.",
+        timestamp: new Date().toISOString(),
         suggestedPrompts: [
           'Report a dog in trouble',
           'Adopt or foster a dog',
           'Post a lost or found dog',
-          'Support medical care'
-        ]
-      }
+          'Support medical care',
+        ],
+      },
     ]);
   };
 
   return (
     <>
+      {/* Hidden File Input for Evidence / Dog Image Upload */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept="image/*"
+        onChange={handlePhotoSelect}
+        className="hidden"
+      />
+
       {/* Floating Puppy Launcher Button */}
       <div className="fixed bottom-5 right-5 z-50">
         <button
@@ -380,6 +426,17 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
                         : 'bg-[#4a2e1b] text-white rounded-tr-sm'
                     }`}
                   >
+                    {/* Embedded Photo in message if user attached image */}
+                    {msg.photoUrl && (
+                      <div className="mb-2.5 rounded-xl overflow-hidden border border-white/20 max-w-[240px]">
+                        <img
+                          src={msg.photoUrl}
+                          alt="Attached Evidence"
+                          className="w-full h-auto max-h-44 object-cover hover:scale-105 transition-transform"
+                        />
+                      </div>
+                    )}
+
                     <p className="whitespace-pre-line">{msg.text}</p>
 
                     {/* Action link button if Picky suggests a section */}
@@ -398,7 +455,9 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
                     )}
                   </div>
 
-                  <span className="text-[10px] text-[#8a5b3a] px-1 pt-1">{msg.timestamp}</span>
+                  <span className="text-[10px] text-[#8a5b3a] px-1 pt-1">
+                    {getRelativeTime(msg.timestamp)}
+                  </span>
 
                   {/* Suggested quick prompt chips */}
                   {isPicky && msg.suggestedPrompts && (
@@ -430,12 +489,50 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input Box */}
+          {/* Attached Photo Preview Bar */}
+          {attachedPhoto && (
+            <div className="px-3 py-2 bg-[#faefe4] border-t border-[#ebd7c3] flex items-center justify-between animate-fadeIn">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl overflow-hidden border border-[#b87d55] bg-white flex-shrink-0">
+                  <img src={attachedPhoto} alt="Preview" className="w-full h-full object-cover" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xs font-fredoka font-bold text-[#4a2e1b]">Dog / Evidence Photo Attached</div>
+                  <div className="text-[10px] text-[#8a5b3a]">Ready to send with your message</div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAttachedPhoto(null)}
+                className="p-1.5 text-[#991b1b] hover:bg-[#fee2e2] rounded-xl transition-all"
+                title="Remove photo"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          {/* Input Box with Photo Attachment Button */}
           <div className="p-3 bg-white border-t border-[#ebd7c3] flex items-center gap-2 flex-shrink-0">
+            
+            {/* Camera / Photo Evidence Button */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className={`p-2.5 rounded-2xl border transition-all flex items-center justify-center ${
+                attachedPhoto
+                  ? 'bg-[#4a2e1b] text-white border-[#4a2e1b]'
+                  : 'bg-[#fbf6f0] hover:bg-[#faefe4] text-[#8a5b3a] hover:text-[#4a2e1b] border-[#ebd7c3]'
+              }`}
+              title="Attach photo evidence or dog image"
+            >
+              <Camera className="w-4 h-4" />
+            </button>
+
             <input
               ref={inputRef}
               type="text"
-              placeholder="Ask Picky anything or report an incident..."
+              placeholder="Type message or attach photo..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={(e) => {
@@ -443,9 +540,10 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
               }}
               className="flex-1 bg-[#fbf6f0] border border-[#ebd7c3] text-[#352018] placeholder:text-[#8a5b3a]/60 text-xs sm:text-sm rounded-2xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
             />
+
             <button
               onClick={() => handleSendMessage()}
-              disabled={!inputText.trim()}
+              disabled={!inputText.trim() && !attachedPhoto}
               className="bg-[#4a2e1b] hover:bg-[#352018] disabled:opacity-40 text-white p-2.5 rounded-2xl transition-all shadow"
             >
               <Send className="w-4 h-4" />

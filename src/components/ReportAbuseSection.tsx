@@ -86,7 +86,7 @@ export const ReportAbuseSection: React.FC<ReportAbuseSectionProps> = ({
         landmark: landmark,
         coordinates: [40.7128 + (Math.random() - 0.5) * 0.05, -74.0060 + (Math.random() - 0.5) * 0.05],
         distance: 'Local Area',
-        reportedAt: 'Just now',
+        reportedAt: new Date().toISOString(),
         description: `${dogCondition}${landmark ? ` | Landmark: ${landmark}` : ''}`,
         dogName: 'Reported Dog',
         dogBreed: dogBreed || 'Dog in Need',
@@ -95,7 +95,7 @@ export const ReportAbuseSection: React.FC<ReportAbuseSectionProps> = ({
         reporterPhone: isAnonymous ? undefined : reporterPhone,
         isAnonymous: isAnonymous,
         updates: [
-          { time: 'Just now', text: `Report submitted by ${isAnonymous ? 'Anonymous Reporter' : (reporterName || 'Community Member')}. Ready for dispatch and verification.`, author: 'Dispatch System' }
+          { time: new Date().toISOString(), text: `Report submitted by ${isAnonymous ? 'Anonymous Reporter' : (reporterName || 'Community Member')}. Ready for dispatch and verification.`, author: 'Dispatch System' }
         ]
       };
 

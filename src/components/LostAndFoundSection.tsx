@@ -63,14 +63,14 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
       breed: breed || 'Mixed Breed',
       color: color || 'Brown & White',
       lastSeenLocation: location || 'Reported Area',
-      date: 'Just now',
+      date: new Date().toISOString(),
       photoUrl: photoPreview || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop&q=80',
       contactName: contactName || 'Reporter',
       contactPhone: contactPhone || 'Contact provided',
       reward: reward ? `$${reward} Reward` : undefined,
       details: details || 'No additional details provided.',
       hasMicrochip,
-      submittedAt: 'Just now',
+      submittedAt: new Date().toISOString(),
     };
 
     onAddItem(newItem);

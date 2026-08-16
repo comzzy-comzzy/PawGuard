@@ -56,7 +56,7 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({
       hasChildren,
       experienceLevel,
       notes: inquiryNotes || 'Ready to provide a loving home.',
-      submittedAt: 'Just now',
+      submittedAt: new Date().toISOString(),
       status: 'pending',
     };
 
@@ -86,7 +86,7 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({
         goodWithKids: true,
         goodWithDogs: true,
         goodWithCats: false,
-        rescueDate: 'Recent',
+        rescueDate: new Date().toISOString(),
         status: 'available',
         submittedBy: listerName || 'Community Member',
         contactPhone: listerPhone || undefined,
