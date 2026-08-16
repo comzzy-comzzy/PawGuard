@@ -115,13 +115,13 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
             {/* Email Field */}
             <div className="space-y-1.5">
               <label className="block text-xs font-fredoka font-bold text-[#4a2e1b] uppercase tracking-wider">
-                Admin Email or Username
+                Admin Email
               </label>
               <div className="relative">
                 <input
-                  type="text"
+                  type="email"
                   required
-                  placeholder="kane69251@gmail.com"
+                  placeholder="Input your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#ebd7c3] bg-[#fbf6f0] text-sm text-[#352018] focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
@@ -139,7 +139,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
-                  placeholder="••••••••••••"
+                  placeholder="Input your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-10 pr-11 py-3 rounded-xl border border-[#ebd7c3] bg-[#fbf6f0] text-sm text-[#352018] focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
