@@ -608,6 +608,9 @@ export function App() {
       <PickyChatBox
         onNavigateSection={handleNavigate}
         onAddCase={handleAddCase}
+        onAddInquiry={handleAddAdoptionInquiry}
+        onAddLostFound={handleAddLostFound}
+        onAddVolunteer={handleAddVolunteer}
       />
     </div>
   );

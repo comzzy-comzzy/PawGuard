@@ -163,7 +163,12 @@ export const processPickyMessage = (
             label: 'Browse Adoptable Dogs',
             sectionId: 'adopt'
           },
-          suggestedPrompts: ['Learn about dog care', 'Volunteer to foster', 'How to support rescues']
+          suggestedPrompts: ['Learn about dog care', 'Volunteer to foster', 'How to support rescues'],
+          collectedData: {
+            type: 'adopt',
+            data: draft,
+            readyToSubmit: true
+          }
         },
         newContext: { activeFlow: null, step: 0, draftData: {} }
       };
@@ -210,7 +215,12 @@ export const processPickyMessage = (
             label: 'Open Lost & Found Noticeboard',
             sectionId: 'lost-found'
           },
-          suggestedPrompts: ['Create a missing pet flyer', 'Report a dog in danger', 'Return to home']
+          suggestedPrompts: ['Create a missing pet flyer', 'Report a dog in danger', 'Return to home'],
+          collectedData: {
+            type: 'lost',
+            data: draft,
+            readyToSubmit: true
+          }
         },
         newContext: { activeFlow: null, step: 0, draftData: {} }
       };
@@ -257,7 +267,12 @@ export const processPickyMessage = (
             label: 'View Volunteer Guild',
             sectionId: 'community'
           },
-          suggestedPrompts: ['Adopt a dog', 'Report an incident', 'Support medical funds']
+          suggestedPrompts: ['Adopt a dog', 'Report an incident', 'Support medical funds'],
+          collectedData: {
+            type: 'volunteer',
+            data: draft,
+            readyToSubmit: true
+          }
         },
         newContext: { activeFlow: null, step: 0, draftData: {} }
       };

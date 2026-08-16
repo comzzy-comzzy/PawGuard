@@ -2,10 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Send, ArrowRight, RotateCcw, Volume2, VolumeX } from 'lucide-react';
 import { playClickSound, playPuppyBark } from '../utils/audio';
 import { processPickyMessage, PickyConversationContext } from '../utils/pickyAi';
+import { RescueCase, AdoptionInquiry, LostFoundDog, VolunteerApplication } from '../types';
 
 interface PickyChatBoxProps {
   onNavigateSection: (sectionId: string) => void;
-  onAddCase?: (newCase: any) => void;
+  onAddCase?: (newCase: RescueCase) => void;
+  onAddInquiry?: (newInquiry: AdoptionInquiry) => void;
+  onAddLostFound?: (newItem: LostFoundDog) => void;
+  onAddVolunteer?: (newVolunteer: VolunteerApplication) => void;
 }
 
 interface Message {
@@ -20,7 +24,13 @@ interface Message {
   suggestedPrompts?: string[];
 }
 
-export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, onAddCase }) => {
+export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
+  onNavigateSection,
+  onAddCase,
+  onAddInquiry,
+  onAddLostFound,
+  onAddVolunteer,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -94,26 +104,85 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
     const { response, newContext } = processPickyMessage(text, context);
     setContext(newContext);
 
-    // If report intake was completed and gave data, add case to live rescue case list if handler available
-    if (response.collectedData && response.collectedData.readyToSubmit && onAddCase) {
+    // Forward completed intakes to central admin dispatch states
+    if (response.collectedData && response.collectedData.readyToSubmit) {
       const d = response.collectedData.data;
-      if (d.location && d.dogInfo) {
+
+      // 1. Abuse Case Intake
+      if (response.collectedData.type === 'report' && onAddCase) {
         onAddCase({
           id: `PG-RESCUE-${Math.floor(1000 + Math.random() * 9000)}`,
-          title: `Reported via Picky: ${d.incident || 'Incident'}`,
-          type: d.incident || 'Abuse/Violence',
+          title: `Reported via Picky: ${d.abuseType || 'Abuse Incident'}`,
+          type: d.abuseType || 'Abuse/Violence',
           urgency: 'critical',
           status: 'reported',
-          location: d.location,
+          location: d.location || 'Location provided in notes',
           coordinates: [40.7128 + (Math.random() - 0.5) * 0.05, -74.0060 + (Math.random() - 0.5) * 0.05],
           distance: 'Local Area',
           reportedAt: 'Just now',
-          description: `${d.dogInfo} (Logged with Picky)`,
+          description: `${d.description || 'Details reported to Picky'} (Logged via Picky Assistant)`,
           dogName: 'Reported Dog',
-          dogBreed: 'Reported Dog in Need',
+          dogBreed: 'Mixed Breed Dog in Need',
           photoUrl: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop&q=80',
-          reporter: d.reporter || 'Reported via Picky',
+          reporter: d.reporter || 'Picky User',
+          isAnonymous: d.reporter ? d.reporter.toLowerCase().includes('anon') : false,
+          adminNotes: 'Submitted through Picky conversational intake assistant.',
           updates: [{ time: 'Just now', text: 'Report details received from Picky. Responders alerted.', author: 'Picky' }]
+        });
+      }
+
+      // 2. Adoption Inquiry Intake
+      if (response.collectedData.type === 'adopt' && onAddInquiry) {
+        onAddInquiry({
+          id: `INQ-${Math.floor(1000 + Math.random() * 9000)}`,
+          applicantName: d.contact || 'Picky User Application',
+          applicantEmail: d.contact || 'Provided via Picky',
+          applicantPhone: d.contact || 'Provided via Picky',
+          dogName: d.preferredDog || 'Rescue Dog',
+          dogId: 'ADOPT-REQ',
+          housingType: d.home || 'Residential Home',
+          hasOtherPets: true,
+          hasChildren: false,
+          experienceLevel: 'Loving Dog Guardian',
+          notes: `Adoption inquiry submitted via Picky. Desired Pet: ${d.preferredDog || 'N/A'}. Home environment: ${d.home || 'N/A'}. Contact details: ${d.contact || 'N/A'}`,
+          submittedAt: 'Just now',
+          status: 'pending',
+          adminNotes: 'Submitted through Picky conversational intake assistant.'
+        });
+      }
+
+      // 3. Lost & Found Intake
+      if (response.collectedData.type === 'lost' && onAddLostFound) {
+        onAddLostFound({
+          id: `LF-${Math.floor(1000 + Math.random() * 9000)}`,
+          dogName: 'Reported Pet',
+          breed: d.petInfo || 'Dog',
+          color: 'Described in notes',
+          status: 'lost',
+          lastSeenLocation: d.lastSeen || 'Local Area',
+          lastSeenDate: 'Recently',
+          contactName: d.contact || 'Reporter',
+          contactPhone: d.contact || 'Provided via Picky',
+          photoUrl: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&auto=format&fit=crop&q=80',
+          details: `Notice submitted via Picky. Pet info: ${d.petInfo || 'N/A'}. Last seen location: ${d.lastSeen || 'N/A'}. Contact: ${d.contact || 'N/A'}`,
+          caseStatus: 'open'
+        });
+      }
+
+      // 4. Volunteer Guild Intake
+      if (response.collectedData.type === 'volunteer' && onAddVolunteer) {
+        onAddVolunteer({
+          id: `VOL-${Math.floor(1000 + Math.random() * 9000)}`,
+          name: d.contact || 'Volunteer Applicant',
+          email: d.contact || 'Provided via Picky',
+          phone: d.contact || 'Provided via Picky',
+          role: d.role || 'Rescue Driver & Field Support',
+          location: d.location || 'Local Area',
+          availability: 'Flexible / On-call',
+          hasVehicle: true,
+          experience: `Volunteer signup via Picky. Desired role: ${d.role || 'N/A'}. Location: ${d.location || 'N/A'}`,
+          submittedAt: 'Just now',
+          status: 'pending'
         });
       }
     }
@@ -158,230 +227,201 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({ onNavigateSection, o
     <>
       {/* Floating Puppy Launcher Button */}
       <div className="fixed bottom-5 right-5 z-50">
-        {!isOpen && (
-          <button
-            onClick={handleOpen}
-            className="group relative flex items-center gap-2.5 bg-[#4a2e1b] hover:bg-[#352018] text-white p-3.5 sm:px-5 sm:py-3.5 rounded-full shadow-2xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-[#f5d7b7] focus:outline-none"
-            aria-label="Open Picky Chat"
-          >
-            {/* Animated Puppy Face Avatar */}
-            <div className="relative w-10 h-10 rounded-full bg-[#fbf6f0] text-[#4a2e1b] flex items-center justify-center font-bold text-xl shadow-inner group-hover:rotate-6 transition-transform">
-              🐶
-              <span className="absolute -top-1.5 -right-1 text-xs">🎀</span>
-            </div>
+        <button
+          onClick={handleOpen}
+          className="relative group bg-[#4a2e1b] hover:bg-[#352018] text-white p-3 sm:p-3.5 rounded-full shadow-2xl border-2 border-[#ea8e24] hover:scale-105 transition-all flex items-center gap-2.5 focus:outline-none"
+          title="Chat with Picky"
+        >
+          {/* Picky SVG Puppy Face with Pink Bow */}
+          <div className="w-10 h-10 rounded-full bg-[#fbf6f0] flex items-center justify-center relative overflow-visible border-2 border-[#b87d55] flex-shrink-0">
+            {/* Pink Bow */}
+            <div className="absolute -top-1.5 -right-1 text-xs">🎀</div>
+            {/* Cute Puppy Face */}
+            <svg viewBox="0 0 36 36" className="w-7 h-7">
+              {/* Ears */}
+              <ellipse cx="8" cy="12" rx="4" ry="7" fill="#b87d55" transform="rotate(-15 8 12)" />
+              <ellipse cx="28" cy="12" rx="4" ry="7" fill="#b87d55" transform="rotate(15 28 12)" />
+              {/* Head */}
+              <circle cx="18" cy="18" r="12" fill="#e8c4a2" />
+              {/* White muzzle patch */}
+              <ellipse cx="18" cy="22" rx="6" ry="5" fill="#fff" />
+              {/* Eyes with sparkle */}
+              <circle cx="13" cy="16" r="2.2" fill="#2d1a10" />
+              <circle cx="12.2" cy="15.2" r="0.7" fill="#fff" />
+              <circle cx="23" cy="16" r="2.2" fill="#2d1a10" />
+              <circle cx="22.2" cy="15.2" r="0.7" fill="#fff" />
+              {/* Pink Cute Nose */}
+              <ellipse cx="18" cy="20.5" rx="2" ry="1.4" fill="#352018" />
+              {/* Smile */}
+              <path d="M 16 23 Q 18 25 20 23" stroke="#352018" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+            </svg>
+          </div>
 
-            {/* Label */}
-            <div className="hidden sm:block text-left">
-              <div className="font-fredoka text-sm font-bold text-[#fbf6f0] flex items-center gap-1">
-                <span>Picky</span>
-                <span className="text-[10px] bg-[#d94141] text-white font-fredoka px-1.5 py-0.2 rounded-full">Assistant</span>
-              </div>
-              <div className="text-[10px] text-[#f5d7b7] font-medium leading-none">
-                Friendly Puppy Helper 🐾
-              </div>
-            </div>
+          <div className="hidden sm:flex flex-col items-start pr-1 text-left">
+            <span className="font-fredoka text-sm font-bold text-white flex items-center gap-1">
+              <span>Ask Picky</span>
+            </span>
+            <span className="text-[10px] text-[#f5d7b7] font-medium leading-none">
+              Rescue Assistant
+            </span>
+          </div>
 
-            {/* Unread dot */}
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#d94141] text-white text-[11px] font-fredoka font-bold rounded-full flex items-center justify-center animate-bounce shadow">
-                1
-              </span>
-            )}
-          </button>
-        )}
+          {/* Unread badge */}
+          {unreadCount > 0 && !isOpen && (
+            <span className="absolute -top-1.5 -left-1.5 w-5 h-5 bg-[#d94141] text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white animate-bounce">
+              {unreadCount}
+            </span>
+          )}
+        </button>
       </div>
 
-      {/* Floating Chat Modal Box */}
+      {/* Chat Window Modal */}
       {isOpen && (
-        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[400px] h-[560px] max-h-[85vh] bg-[#fbf6f0] border-3 border-[#4a2e1b] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
+        <div className="fixed bottom-20 sm:bottom-24 right-4 sm:right-6 z-50 w-[92vw] sm:w-[400px] h-[540px] max-h-[82vh] bg-[#fbf6f0] rounded-3xl shadow-2xl border-4 border-[#4a2e1b] flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
           
           {/* Header */}
-          <div className="bg-[#4a2e1b] text-white px-5 py-4 flex items-center justify-between shadow-sm relative flex-shrink-0">
+          <div className="bg-[#4a2e1b] text-white px-4 py-3.5 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-3">
-              {/* Puppy Avatar */}
-              <div className="relative w-11 h-11 rounded-full bg-[#fbf6f0] text-[#4a2e1b] flex items-center justify-center text-2xl shadow-inner">
-                🐶
-                <span className="absolute -top-1 -right-1 text-xs">🎀</span>
+              <div className="w-10 h-10 rounded-full bg-[#fbf6f0] flex items-center justify-center relative overflow-visible border-2 border-[#b87d55]">
+                <div className="absolute -top-1.5 -right-1 text-xs">🎀</div>
+                <svg viewBox="0 0 36 36" className="w-7 h-7">
+                  <ellipse cx="8" cy="12" rx="4" ry="7" fill="#b87d55" transform="rotate(-15 8 12)" />
+                  <ellipse cx="28" cy="12" rx="4" ry="7" fill="#b87d55" transform="rotate(15 28 12)" />
+                  <circle cx="18" cy="18" r="12" fill="#e8c4a2" />
+                  <ellipse cx="18" cy="22" rx="6" ry="5" fill="#fff" />
+                  <circle cx="13" cy="16" r="2.2" fill="#2d1a10" />
+                  <circle cx="12.2" cy="15.2" r="0.7" fill="#fff" />
+                  <circle cx="23" cy="16" r="2.2" fill="#2d1a10" />
+                  <circle cx="22.2" cy="15.2" r="0.7" fill="#fff" />
+                  <ellipse cx="18" cy="20.5" rx="2" ry="1.4" fill="#352018" />
+                  <path d="M 16 23 Q 18 25 20 23" stroke="#352018" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+                </svg>
               </div>
 
               <div>
-                <div className="font-fredoka text-base font-bold text-white flex items-center gap-1.5">
-                  <span>Picky</span>
-                  <span className="text-[10px] font-fredoka bg-[#d94141] text-white px-1.5 py-0.5 rounded-full">
-                    Helper
+                <div className="flex items-center gap-1.5">
+                  <h3 className="font-fredoka text-base font-bold tracking-wide">Picky</h3>
+                  <span className="text-[10px] bg-[#22c55e] text-white px-1.5 py-0.2 rounded-full font-sans font-semibold">
+                    Online
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 text-[11px] text-[#f5d7b7]">
-                  <span className="w-2 h-2 rounded-full bg-[#86efac] animate-pulse"></span>
-                  <span>Online & Ready</span>
-                </div>
+                <p className="text-[11px] text-[#f5d7b7]">PawGuard Rescue Assistant 🎀</p>
               </div>
             </div>
 
-            {/* Header Controls */}
-            <div className="flex items-center gap-1.5 text-white/80">
-              {/* Audio Toggle */}
+            <div className="flex items-center gap-1">
               <button
                 onClick={() => setSoundEnabled(!soundEnabled)}
-                className="p-1.5 rounded-full hover:bg-white/10 hover:text-white transition-colors"
-                title={soundEnabled ? 'Mute Sounds' : 'Unmute Sounds'}
+                className="p-1.5 text-white/80 hover:text-white rounded-lg hover:bg-white/10"
+                title={soundEnabled ? 'Mute puppy sounds' : 'Enable puppy sounds'}
               >
                 {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 opacity-60" />}
               </button>
 
-              {/* Reset Chat */}
               <button
                 onClick={handleResetChat}
-                className="p-1.5 rounded-full hover:bg-white/10 hover:text-white transition-colors"
-                title="Restart Chat"
+                className="p-1.5 text-white/80 hover:text-white rounded-lg hover:bg-white/10"
+                title="Restart conversation"
               >
                 <RotateCcw className="w-4 h-4" />
               </button>
 
-              {/* Close Button */}
               <button
-                onClick={handleOpen}
-                className="p-1.5 rounded-full hover:bg-white/10 hover:text-white transition-colors"
-                title="Minimize Picky"
+                onClick={() => setIsOpen(false)}
+                className="p-1.5 text-white/80 hover:text-white rounded-lg hover:bg-white/10"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
           </div>
 
-          {/* Chat Messages List */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3.5 text-xs">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
-              >
-                <div className="flex items-end gap-2 max-w-[88%]">
-                  {msg.sender === 'picky' && (
-                    <div className="w-7 h-7 rounded-full bg-[#faefe4] border border-[#ebd7c3] text-[#4a2e1b] flex items-center justify-center text-sm flex-shrink-0 shadow-sm mb-1">
-                      🐶
-                    </div>
-                  )}
-
+          {/* Messages Area */}
+          <div className="flex-1 p-4 overflow-y-auto space-y-3.5 bg-[#fbf6f0]">
+            {messages.map((msg) => {
+              const isPicky = msg.sender === 'picky';
+              return (
+                <div
+                  key={msg.id}
+                  className={`flex flex-col ${isPicky ? 'items-start' : 'items-end'}`}
+                >
                   <div
-                    className={`p-3.5 rounded-2xl leading-relaxed whitespace-pre-line ${
-                      msg.sender === 'user'
-                        ? 'bg-[#4a2e1b] text-white rounded-br-none shadow-sm'
-                        : 'bg-white border border-[#ebd7c3] text-[#352018] rounded-bl-none shadow-sm'
+                    className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs sm:text-sm leading-relaxed shadow-sm ${
+                      isPicky
+                        ? 'bg-white text-[#352018] border border-[#ebd7c3] rounded-tl-sm'
+                        : 'bg-[#4a2e1b] text-white rounded-tr-sm'
                     }`}
                   >
-                    {msg.text}
-                  </div>
-                </div>
+                    <p className="whitespace-pre-line">{msg.text}</p>
 
-                {/* Direct Action Link button */}
-                {msg.actionLink && (
-                  <div className="mt-2 ml-9">
-                    <button
-                      onClick={() => {
-                        playClickSound();
-                        onNavigateSection(msg.actionLink!.sectionId);
-                      }}
-                      className="inline-flex items-center gap-1.5 bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka font-semibold text-xs px-3.5 py-2 rounded-xl border border-[#ebd7c3] shadow-sm transition-all"
-                    >
-                      <span>{msg.actionLink.label}</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-
-                {/* Suggested Prompts chips */}
-                {msg.suggestedPrompts && msg.suggestedPrompts.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mt-2 ml-9">
-                    {msg.suggestedPrompts.map((prompt, idx) => (
+                    {/* Action link button if Picky suggests a section */}
+                    {msg.actionLink && (
                       <button
-                        key={idx}
-                        onClick={() => handleSendMessage(prompt)}
-                        className="bg-[#faefe4] hover:bg-[#ebd7c3] text-[#6b442b] font-fredoka text-[11px] px-3 py-1 rounded-full border border-[#ebd7c3] transition-all"
+                        onClick={() => {
+                          playClickSound();
+                          onNavigateSection(msg.actionLink!.sectionId);
+                          setIsOpen(false);
+                        }}
+                        className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-fredoka font-bold bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] px-3 py-1.5 rounded-full border border-[#ebd7c3] transition-all"
                       >
-                        {prompt}
+                        <span>{msg.actionLink.label}</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </button>
-                    ))}
+                    )}
                   </div>
-                )}
 
-                <span className="text-[10px] text-[#a88d7b] px-1 mt-1">
-                  {msg.timestamp}
-                </span>
-              </div>
-            ))}
+                  <span className="text-[10px] text-[#8a5b3a] px-1 pt-1">{msg.timestamp}</span>
 
-            {/* Typing Indicator */}
+                  {/* Suggested quick prompt chips */}
+                  {isPicky && msg.suggestedPrompts && (
+                    <div className="flex flex-wrap gap-1.5 mt-2 max-w-[95%]">
+                      {msg.suggestedPrompts.map((prompt, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handleSendMessage(prompt)}
+                          className="bg-[#faefe4] hover:bg-[#4a2e1b] text-[#4a2e1b] hover:text-white text-[11px] font-fredoka font-medium px-3 py-1.5 rounded-full border border-[#ebd7c3] transition-all text-left shadow-xs"
+                        >
+                          {prompt}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
             {isTyping && (
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-[#faefe4] border border-[#ebd7c3] text-[#4a2e1b] flex items-center justify-center text-sm flex-shrink-0 shadow-sm">
-                  🐶
-                </div>
-                <div className="bg-white border border-[#ebd7c3] px-3 py-2 rounded-2xl rounded-bl-none flex items-center gap-1.5 shadow-sm">
-                  <span className="w-1.5 h-1.5 bg-[#8a5b3a] rounded-full animate-bounce"></span>
-                  <span className="w-1.5 h-1.5 bg-[#8a5b3a] rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                  <span className="w-1.5 h-1.5 bg-[#8a5b3a] rounded-full animate-bounce [animation-delay:0.4s]"></span>
-                </div>
+              <div className="flex items-center gap-2 text-xs text-[#8a5b3a] bg-white p-2.5 rounded-2xl border border-[#ebd7c3] w-fit">
+                <span className="w-2 h-2 rounded-full bg-[#ea8e24] animate-bounce"></span>
+                <span className="w-2 h-2 rounded-full bg-[#ea8e24] animate-bounce [animation-delay:0.2s]"></span>
+                <span className="w-2 h-2 rounded-full bg-[#ea8e24] animate-bounce [animation-delay:0.4s]"></span>
+                <span className="font-fredoka text-[11px] pl-1">Picky is typing...</span>
               </div>
             )}
 
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Shortcuts Bar */}
-          <div className="px-3 py-2 bg-[#faefe4] border-t border-[#ebd7c3] flex items-center gap-1.5 overflow-x-auto text-[11px]">
-            <button
-              onClick={() => handleSendMessage('Report a dog in trouble')}
-              className="bg-white hover:bg-[#fbf6f0] text-[#991b1b] border border-[#fca5a5] font-fredoka px-2.5 py-1 rounded-full whitespace-nowrap shadow-2xs"
-            >
-              Report Incident
-            </button>
-            <button
-              onClick={() => handleSendMessage('I want to adopt a dog')}
-              className="bg-white hover:bg-[#fbf6f0] text-[#166534] border border-[#86efac] font-fredoka px-2.5 py-1 rounded-full whitespace-nowrap shadow-2xs"
-            >
-              Adopt / Foster
-            </button>
-            <button
-              onClick={() => handleSendMessage('I lost or found a dog')}
-              className="bg-white hover:bg-[#fbf6f0] text-[#9a3412] border border-[#fdba74] font-fredoka px-2.5 py-1 rounded-full whitespace-nowrap shadow-2xs"
-            >
-              Lost & Found
-            </button>
-            <button
-              onClick={() => handleSendMessage('Volunteer for rescue')}
-              className="bg-white hover:bg-[#fbf6f0] text-[#8a4ea8] border border-[#e9d5ff] font-fredoka px-2.5 py-1 rounded-full whitespace-nowrap shadow-2xs"
-            >
-              Volunteer
-            </button>
-          </div>
-
-          {/* Input Bar */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSendMessage();
-            }}
-            className="p-3 bg-white border-t border-[#ebd7c3] flex items-center gap-2 flex-shrink-0"
-          >
+          {/* Input Box */}
+          <div className="p-3 bg-white border-t border-[#ebd7c3] flex items-center gap-2 flex-shrink-0">
             <input
               ref={inputRef}
               type="text"
-              placeholder="Ask Picky or type a message..."
+              placeholder="Ask Picky anything..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              className="flex-1 bg-[#fbf6f0] border border-[#ebd7c3] rounded-2xl px-3.5 py-2.5 text-xs text-[#352018] focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSendMessage();
+              }}
+              className="flex-1 bg-[#fbf6f0] border border-[#ebd7c3] text-[#352018] placeholder:text-[#8a5b3a]/60 text-xs sm:text-sm rounded-2xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
             />
-
             <button
-              type="submit"
+              onClick={() => handleSendMessage()}
               disabled={!inputText.trim()}
-              className="p-2.5 bg-[#4a2e1b] hover:bg-[#352018] disabled:opacity-40 text-white rounded-2xl shadow transition-colors flex items-center justify-center flex-shrink-0"
-              title="Send message"
+              className="bg-[#4a2e1b] hover:bg-[#352018] disabled:opacity-40 text-white p-2.5 rounded-2xl transition-all shadow"
             >
               <Send className="w-4 h-4" />
             </button>
-          </form>
+          </div>
 
         </div>
       )}
