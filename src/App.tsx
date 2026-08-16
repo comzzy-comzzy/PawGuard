@@ -408,11 +408,10 @@ export function App() {
         setActiveSection={handleNavigate}
         onOpenReport={() => handleNavigate('report')}
         onOpenEmergency={() => setIsEmergencyOpen(true)}
-        adminSubmissionsCount={totalSubmissionsCount}
       />
 
-      {/* Floating Alert Notification Toast */}
-      {liveToast && (
+      {/* Floating Alert Notification Toast (Admin Only) */}
+      {liveToast && activeSection === 'admin' && (
         <div className="fixed top-24 right-4 z-50 bg-[#352018] text-white p-4 rounded-2xl shadow-2xl border border-[#b87d55] max-w-sm w-full animate-fadeIn">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3">
@@ -422,16 +421,6 @@ export function App() {
               <div className="space-y-1">
                 <h4 className="font-fredoka text-sm font-bold text-[#f5d7b7]">{liveToast.title}</h4>
                 <p className="text-xs text-white/90 leading-relaxed">{liveToast.description}</p>
-                <button
-                  onClick={() => {
-                    setLiveToast(null);
-                    handleNavigate('admin');
-                  }}
-                  className="text-xs font-fredoka font-bold text-[#ea8e24] hover:text-white underline pt-1 inline-flex items-center gap-1"
-                >
-                  <span>Open in Admin</span>
-                  <ArrowRight className="w-3 h-3" />
-                </button>
               </div>
             </div>
             <button onClick={() => setLiveToast(null)} className="text-white/60 hover:text-white">
@@ -569,31 +558,6 @@ export function App() {
           </div>
         )}
       </main>
-
-      {/* Global Quick View Switcher Pill at bottom-left */}
-      <div className="fixed bottom-6 left-6 z-40">
-        <button
-          onClick={() => handleNavigate(activeSection === 'admin' ? 'home' : 'admin')}
-          className="bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-bold text-xs sm:text-sm px-4 sm:px-5 py-2.5 sm:py-3 rounded-full shadow-2xl border-2 border-[#b87d55] flex items-center gap-2 hover:scale-105 transition-all group"
-        >
-          {activeSection === 'admin' ? (
-            <>
-              <Globe className="w-4 h-4 text-[#ea8e24]" />
-              <span>Public Website</span>
-            </>
-          ) : (
-            <>
-              <ShieldCheck className="w-4 h-4 text-[#ea8e24] group-hover:rotate-12 transition-transform" />
-              <span>Admin Dashboard</span>
-              {totalSubmissionsCount > 0 && (
-                <span className="bg-[#ea8e24] text-white text-[10px] font-mono px-2 py-0.5 rounded-full">
-                  {totalSubmissionsCount}
-                </span>
-              )}
-            </>
-          )}
-        </button>
-      </div>
 
       {/* Global Footer */}
       <Footer

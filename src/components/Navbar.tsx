@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Volume2, VolumeX, Menu, X, Heart, ShieldAlert, PhoneCall, ShieldCheck, LayoutDashboard } from 'lucide-react';
+import { Volume2, VolumeX, Menu, X, Heart, ShieldAlert, PhoneCall } from 'lucide-react';
 import { toggleCalmPuppyMusic, isPuppyMusicPlaying, playClickSound } from '../utils/audio';
 
 interface NavbarProps {
@@ -7,14 +7,12 @@ interface NavbarProps {
   setActiveSection: (section: string) => void;
   onOpenReport: () => void;
   onOpenEmergency: () => void;
-  adminSubmissionsCount?: number;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   activeSection,
   setActiveSection,
   onOpenEmergency,
-  adminSubmissionsCount = 0,
 }) => {
   const [musicOn, setMusicOn] = useState(isPuppyMusicPlaying());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -100,25 +98,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             {musicOn ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5 opacity-60" />}
           </button>
 
-          {/* Admin Dashboard Switcher Button */}
-          <button
-            onClick={() => handleNavClick('admin')}
-            className={`relative flex items-center gap-1.5 font-fredoka font-bold text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-2.5 rounded-full border transition-all ${
-              activeSection === 'admin'
-                ? 'bg-[#4a2e1b] text-white border-[#352018] shadow-md'
-                : 'bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] border-[#ebd7c3]'
-            }`}
-            title="Open Admin Dashboard"
-          >
-            <ShieldCheck className="w-4 h-4 text-[#ea8e24]" />
-            <span className="hidden sm:inline">Admin Dashboard</span>
-            {adminSubmissionsCount > 0 && (
-              <span className="bg-[#d94141] text-white text-[10px] font-mono px-1.5 py-0.2 rounded-full shadow-sm animate-pulse">
-                {adminSubmissionsCount}
-              </span>
-            )}
-          </button>
-
           {/* "Get Help" button matching PNG */}
           <button
             onClick={() => {
@@ -159,26 +138,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               {activeSection === item.id && <span className="text-xs font-semibold text-white/80">Active</span>}
             </button>
           ))}
-
-          {/* Admin link in drawer */}
-          <button
-            onClick={() => handleNavClick('admin')}
-            className={`w-full text-left font-fredoka text-base px-4 py-3 rounded-xl transition-colors flex items-center justify-between ${
-              activeSection === 'admin'
-                ? 'bg-[#4a2e1b] text-white font-semibold'
-                : 'text-[#4a2e1b] bg-[#faefe4] font-bold'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-[#ea8e24]" />
-              <span>Admin Dashboard</span>
-            </div>
-            {adminSubmissionsCount > 0 && (
-              <span className="bg-[#d94141] text-white text-xs font-mono px-2 py-0.5 rounded-full">
-                {adminSubmissionsCount}
-              </span>
-            )}
-          </button>
           
           <div className="pt-3 border-t border-[#ebdcca] flex gap-2">
             <button
