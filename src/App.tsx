@@ -608,6 +608,7 @@ export function App() {
       <PickyChatBox
         onNavigateSection={handleNavigate}
         onAddCase={handleAddCase}
+        onUpdateCase={handleUpdateCase}
         onAddInquiry={handleAddAdoptionInquiry}
         onAddLostFound={handleAddLostFound}
         onAddVolunteer={handleAddVolunteer}

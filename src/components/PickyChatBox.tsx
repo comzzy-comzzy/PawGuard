@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Send, ArrowRight, RotateCcw, Volume2, VolumeX } from 'lucide-react';
-import { playClickSound, playPuppyBark } from '../utils/audio';
+import { X, Send, ArrowRight, RotateCcw, Volume2, VolumeX, ShieldAlert, Sparkles } from 'lucide-react';
+import { playClickSound, playPuppyBark, playAlertSound } from '../utils/audio';
 import { processPickyMessage, PickyConversationContext } from '../utils/pickyAi';
 import { RescueCase, AdoptionInquiry, LostFoundDog, VolunteerApplication } from '../types';
 
 interface PickyChatBoxProps {
   onNavigateSection: (sectionId: string) => void;
   onAddCase?: (newCase: RescueCase) => void;
+  onUpdateCase?: (updatedCase: RescueCase) => void;
   onAddInquiry?: (newInquiry: AdoptionInquiry) => void;
   onAddLostFound?: (newItem: LostFoundDog) => void;
   onAddVolunteer?: (newVolunteer: VolunteerApplication) => void;
@@ -27,6 +28,7 @@ interface Message {
 export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
   onNavigateSection,
   onAddCase,
+  onUpdateCase,
   onAddInquiry,
   onAddLostFound,
   onAddVolunteer,
@@ -37,12 +39,20 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [unreadCount, setUnreadCount] = useState(1);
   
+  // Quick Report Mode toggle inside chat
+  const [showQuickReport, setShowQuickReport] = useState(false);
+  const [quickLocation, setQuickLocation] = useState('');
+  const [quickDetails, setQuickDetails] = useState('');
+  const [quickPhone, setQuickPhone] = useState('');
+
   // Picky conversation context
   const [context, setContext] = useState<PickyConversationContext>({
     activeFlow: null,
     step: 0,
     draftData: {}
   });
+
+  const [activeCasesTracked, setActiveCasesTracked] = useState<Record<string, RescueCase>>({});
 
   const [messages, setMessages] = useState<Message[]>(() => {
     return [
@@ -73,7 +83,7 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
         inputRef.current?.focus();
       }, 150);
     }
-  }, [isOpen, messages, isTyping]);
+  }, [isOpen, messages, isTyping, showQuickReport]);
 
   const handleOpen = () => {
     if (!isOpen) {
@@ -107,28 +117,41 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
     // Forward completed intakes to central admin dispatch states
     if (response.collectedData && response.collectedData.readyToSubmit) {
       const d = response.collectedData.data;
+      const cid = response.collectedData.caseId || `PG-RESCUE-${Math.floor(1000 + Math.random() * 9000)}`;
 
       // 1. Abuse Case Intake
-      if (response.collectedData.type === 'report' && onAddCase) {
-        onAddCase({
-          id: `PG-RESCUE-${Math.floor(1000 + Math.random() * 9000)}`,
-          title: `Reported via Picky: ${d.abuseType || 'Abuse Incident'}`,
+      if (response.collectedData.type === 'report') {
+        const existing = activeCasesTracked[cid];
+        const caseToSave: RescueCase = {
+          id: cid,
+          title: `Reported via Picky: ${d.abuseType || 'Incident'}`,
           type: d.abuseType || 'Abuse/Violence',
           urgency: 'critical',
           status: 'reported',
-          location: d.location || 'Location provided in notes',
+          location: d.location || existing?.location || 'Location being verified',
           coordinates: [40.7128 + (Math.random() - 0.5) * 0.05, -74.0060 + (Math.random() - 0.5) * 0.05],
           distance: 'Local Area',
           reportedAt: 'Just now',
-          description: `${d.description || 'Details reported to Picky'} (Logged via Picky Assistant)`,
+          description: `${d.description || userText} (Logged via Picky Assistant)`,
           dogName: 'Reported Dog',
-          dogBreed: 'Mixed Breed Dog in Need',
+          dogBreed: 'Dog in Need of Help',
           photoUrl: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop&q=80',
-          reporter: d.reporter || 'Picky User',
+          reporter: d.reporter || existing?.reporter || 'Picky Assistant User',
           isAnonymous: d.reporter ? d.reporter.toLowerCase().includes('anon') : false,
-          adminNotes: 'Submitted through Picky conversational intake assistant.',
-          updates: [{ time: 'Just now', text: 'Report details received from Picky. Responders alerted.', author: 'Picky' }]
-        });
+          adminNotes: 'Transmitted live via Picky chatbot assistant.',
+          updates: [
+            { time: 'Just now', text: `Details from Picky: ${userText}`, author: 'Picky Assistant' },
+            ...(existing?.updates || [])
+          ]
+        };
+
+        setActiveCasesTracked((prev) => ({ ...prev, [cid]: caseToSave }));
+
+        if (response.collectedData.isUpdate && onUpdateCase && existing) {
+          onUpdateCase(caseToSave);
+        } else if (onAddCase) {
+          onAddCase(caseToSave);
+        }
       }
 
       // 2. Adoption Inquiry Intake
@@ -201,12 +224,64 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
       };
 
       setMessages((prev) => [...prev, pickyMsg]);
-    }, 450);
+    }, 350);
+  };
+
+  // Submit quick report directly from inside chat box
+  const handleQuickReportSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickLocation.trim() && !quickDetails.trim()) return;
+
+    playAlertSound();
+    const cid = `PG-RESCUE-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newCase: RescueCase = {
+      id: cid,
+      title: `Fast Dispatch via Picky: ${quickDetails.slice(0, 40) || 'Urgent Dog Incident'}`,
+      type: 'Abuse/Violence',
+      urgency: 'critical',
+      status: 'reported',
+      location: quickLocation || 'Location noted in report',
+      coordinates: [40.7128 + (Math.random() - 0.5) * 0.05, -74.0060 + (Math.random() - 0.5) * 0.05],
+      distance: 'Local Area',
+      reportedAt: 'Just now',
+      description: `${quickDetails} (Fast report via Picky Assistant)`,
+      dogName: 'Reported Dog',
+      dogBreed: 'Mixed Breed Dog in Need',
+      photoUrl: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop&q=80',
+      reporter: quickPhone ? `Reporter (${quickPhone})` : 'Anonymous Picky User',
+      reporterPhone: quickPhone || undefined,
+      isAnonymous: !quickPhone,
+      adminNotes: 'Submitted via Picky Fast-Report Card.',
+      updates: [{ time: 'Just now', text: 'Fast-report filed directly to Admin Dispatchers.', author: 'Picky' }]
+    };
+
+    if (onAddCase) {
+      onAddCase(newCase);
+    }
+
+    setShowQuickReport(false);
+    setQuickLocation('');
+    setQuickDetails('');
+    setQuickPhone('');
+
+    const confirmationMsg: Message = {
+      id: `picky-quick-${Date.now()}`,
+      sender: 'picky',
+      text: `🚨 Case #${cid} has been submitted directly to the Admin Dispatch Desk!\n\n• Location: ${newCase.location}\n• Situation: ${newCase.description}\n\nOur team has received this report and alerted rescue volunteers. Thank you! 🐾`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      actionLink: {
+        label: 'View Rescue Dispatch Board',
+        sectionId: 'rescue'
+      }
+    };
+
+    setMessages((prev) => [...prev, confirmationMsg]);
   };
 
   const handleResetChat = () => {
     playClickSound();
     setContext({ activeFlow: null, step: 0, draftData: {} });
+    setShowQuickReport(false);
     setMessages([
       {
         id: `picky-reset-${Date.now()}`,
@@ -238,21 +313,15 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
             <div className="absolute -top-1.5 -right-1 text-xs">🎀</div>
             {/* Cute Puppy Face */}
             <svg viewBox="0 0 36 36" className="w-7 h-7">
-              {/* Ears */}
               <ellipse cx="8" cy="12" rx="4" ry="7" fill="#b87d55" transform="rotate(-15 8 12)" />
               <ellipse cx="28" cy="12" rx="4" ry="7" fill="#b87d55" transform="rotate(15 28 12)" />
-              {/* Head */}
               <circle cx="18" cy="18" r="12" fill="#e8c4a2" />
-              {/* White muzzle patch */}
               <ellipse cx="18" cy="22" rx="6" ry="5" fill="#fff" />
-              {/* Eyes with sparkle */}
               <circle cx="13" cy="16" r="2.2" fill="#2d1a10" />
               <circle cx="12.2" cy="15.2" r="0.7" fill="#fff" />
               <circle cx="23" cy="16" r="2.2" fill="#2d1a10" />
               <circle cx="22.2" cy="15.2" r="0.7" fill="#fff" />
-              {/* Pink Cute Nose */}
               <ellipse cx="18" cy="20.5" rx="2" ry="1.4" fill="#352018" />
-              {/* Smile */}
               <path d="M 16 23 Q 18 25 20 23" stroke="#352018" strokeWidth="1.2" fill="none" strokeLinecap="round" />
             </svg>
           </div>
@@ -277,7 +346,7 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
 
       {/* Chat Window Modal */}
       {isOpen && (
-        <div className="fixed bottom-20 sm:bottom-24 right-4 sm:right-6 z-50 w-[92vw] sm:w-[400px] h-[540px] max-h-[82vh] bg-[#fbf6f0] rounded-3xl shadow-2xl border-4 border-[#4a2e1b] flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
+        <div className="fixed bottom-20 sm:bottom-24 right-4 sm:right-6 z-50 w-[92vw] sm:w-[410px] h-[550px] max-h-[82vh] bg-[#fbf6f0] rounded-3xl shadow-2xl border-4 border-[#4a2e1b] flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
           
           {/* Header */}
           <div className="bg-[#4a2e1b] text-white px-4 py-3.5 flex items-center justify-between flex-shrink-0">
@@ -311,6 +380,22 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
 
             <div className="flex items-center gap-1">
               <button
+                onClick={() => {
+                  playClickSound();
+                  setShowQuickReport(!showQuickReport);
+                }}
+                className={`p-1.5 rounded-lg text-xs font-fredoka flex items-center gap-1 border transition-all ${
+                  showQuickReport
+                    ? 'bg-[#d94141] text-white border-white/20'
+                    : 'bg-white/10 text-[#f5d7b7] border-white/10 hover:bg-white/20'
+                }`}
+                title="Instant Report Form"
+              >
+                <ShieldAlert className="w-3.5 h-3.5 text-[#ea8e24]" />
+                <span className="hidden xs:inline">Fast Report</span>
+              </button>
+
+              <button
                 onClick={() => setSoundEnabled(!soundEnabled)}
                 className="p-1.5 text-white/80 hover:text-white rounded-lg hover:bg-white/10"
                 title={soundEnabled ? 'Mute puppy sounds' : 'Enable puppy sounds'}
@@ -334,6 +419,58 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
               </button>
             </div>
           </div>
+
+          {/* Fast Report Overlay if toggled */}
+          {showQuickReport && (
+            <div className="bg-[#faefe4] p-4 border-b-2 border-[#ebd7c3] space-y-3 animate-fadeIn">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-xs font-fredoka font-bold text-[#d94141]">
+                  <ShieldAlert className="w-4 h-4" />
+                  <span>Instant Incident Dispatch to Admin</span>
+                </div>
+                <button
+                  onClick={() => setShowQuickReport(false)}
+                  className="text-xs text-[#8a5b3a] hover:text-[#4a2e1b]"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleQuickReportSubmit} className="space-y-2.5">
+                <input
+                  type="text"
+                  required
+                  placeholder="Where is the dog? (Street address, city, landmark)"
+                  value={quickLocation}
+                  onChange={(e) => setQuickLocation(e.target.value)}
+                  className="w-full bg-white border border-[#ebd7c3] rounded-xl px-3 py-2 text-xs text-[#352018] focus:outline-none focus:ring-1 focus:ring-[#4a2e1b]"
+                />
+                <textarea
+                  required
+                  rows={2}
+                  placeholder="Describe the situation (abuse, injury, chained dog)..."
+                  value={quickDetails}
+                  onChange={(e) => setQuickDetails(e.target.value)}
+                  className="w-full bg-white border border-[#ebd7c3] rounded-xl px-3 py-2 text-xs text-[#352018] focus:outline-none focus:ring-1 focus:ring-[#4a2e1b]"
+                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="Your phone (optional / leave blank for anonymous)"
+                    value={quickPhone}
+                    onChange={(e) => setQuickPhone(e.target.value)}
+                    className="flex-1 bg-white border border-[#ebd7c3] rounded-xl px-3 py-2 text-xs text-[#352018] focus:outline-none focus:ring-1 focus:ring-[#4a2e1b]"
+                  />
+                  <button
+                    type="submit"
+                    className="bg-[#d94141] hover:bg-[#b91c1c] text-white font-fredoka font-bold text-xs px-4 py-2 rounded-xl shadow transition-all flex items-center gap-1"
+                  >
+                    <span>Send to Admin</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
 
           {/* Messages Area */}
           <div className="flex-1 p-4 overflow-y-auto space-y-3.5 bg-[#fbf6f0]">
@@ -406,7 +543,7 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
             <input
               ref={inputRef}
               type="text"
-              placeholder="Ask Picky anything..."
+              placeholder="Ask Picky anything or report an incident..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={(e) => {

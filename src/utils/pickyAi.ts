@@ -1,5 +1,3 @@
-import { RescueCase } from '../types';
-
 export interface PickyResponse {
   reply: string;
   actionLink?: {
@@ -11,6 +9,8 @@ export interface PickyResponse {
     type: 'report' | 'adopt' | 'lost' | 'volunteer' | 'general';
     data: Record<string, any>;
     readyToSubmit?: boolean;
+    caseId?: string;
+    isUpdate?: boolean;
   };
 }
 
@@ -18,6 +18,7 @@ export interface PickyConversationContext {
   activeFlow?: 'report' | 'adopt' | 'lost' | 'volunteer' | null;
   step?: number;
   draftData?: Record<string, any>;
+  currentCaseId?: string;
 }
 
 /**
@@ -47,7 +48,7 @@ export const saveToAdminInbox = (record: {
 };
 
 /**
- * Picky's friendly, natural puppy conversational processor
+ * Picky's friendly, robust puppy conversational processor
  */
 export const processPickyMessage = (
   userText: string,
@@ -57,45 +58,91 @@ export const processPickyMessage = (
   let draft = { ...(context.draftData || {}) };
   let activeFlow = context.activeFlow || null;
   let step = context.step || 0;
+  let currentCaseId = context.currentCaseId || `PG-RESCUE-${Math.floor(1000 + Math.random() * 9000)}`;
 
-  // --- 1. Natural Step-by-Step Form Intakes ---
+  // --- 1. Active Step-by-Step Intakes ---
 
   // Flow: Reporting Abuse
   if (activeFlow === 'report') {
     if (step === 1) {
       draft.abuseType = userText;
-      return {
-        response: {
-          reply: `Thank you for sharing that. Where is the dog located right now? (Street name, city, or any landmarks like nearby shops or gates)`,
-          suggestedPrompts: ['Downtown Main Street near the market', 'Corner of 5th and Oak Ave', 'At an abandoned building'],
-        },
-        newContext: { activeFlow: 'report', step: 2, draftData: draft }
-      };
-    } else if (step === 2) {
-      draft.location = userText;
-      return {
-        response: {
-          reply: `Got the location! What does the dog look like (breed, color, size) and how are they doing?`,
-          suggestedPrompts: ['Brown mixed breed, medium size, limping', 'Small black puppy, looks very thin', 'Chained outside with no shelter'],
-        },
-        newContext: { activeFlow: 'report', step: 3, draftData: draft }
-      };
-    } else if (step === 3) {
-      draft.description = userText;
-      return {
-        response: {
-          reply: `Thank you. Would you like to keep your name private, or would you like to leave your name and phone number so rescuers can reach you?`,
-          suggestedPrompts: ['Keep me anonymous', 'My name is Alex, phone is 555-0192'],
-        },
-        newContext: { activeFlow: 'report', step: 4, draftData: draft }
-      };
-    } else if (step === 4) {
-      draft.reporter = userText;
-      
+      draft.caseId = currentCaseId;
+
+      // Save immediate case on step 1 so admin receives it immediately!
       saveToAdminInbox({
         type: 'Abuse Incident Report',
         userMessage: userText,
         details: {
+          caseId: currentCaseId,
+          incident: draft.abuseType,
+          status: 'Reported via Picky',
+          source: 'Picky Assistant'
+        }
+      });
+
+      return {
+        response: {
+          reply: `🚨 Incident registered with Admin Dispatch (Case #${currentCaseId})!\n\nWhere is the dog located right now? (Street name, city, landmark, or neighborhood)`,
+          suggestedPrompts: [
+            'Downtown Main Street near the market',
+            'Corner of 5th and Oak Ave',
+            'At an abandoned house'
+          ],
+          collectedData: {
+            type: 'report',
+            data: draft,
+            caseId: currentCaseId,
+            readyToSubmit: true
+          }
+        },
+        newContext: { activeFlow: 'report', step: 2, draftData: draft, currentCaseId }
+      };
+    } else if (step === 2) {
+      draft.location = userText;
+
+      return {
+        response: {
+          reply: `📍 Location recorded: "${userText}"!\n\nWhat does the dog look like (breed, color, size) and how are they doing?`,
+          suggestedPrompts: [
+            'Brown mixed breed, medium size, limping',
+            'Small black puppy, looks very thin',
+            'Chained outside with no food or water'
+          ],
+          collectedData: {
+            type: 'report',
+            data: draft,
+            caseId: currentCaseId,
+            readyToSubmit: true,
+            isUpdate: true
+          }
+        },
+        newContext: { activeFlow: 'report', step: 3, draftData: draft, currentCaseId }
+      };
+    } else if (step === 3) {
+      draft.description = userText;
+
+      return {
+        response: {
+          reply: `Thank you. Would you like to leave your name or contact phone number for rescuers, or keep it anonymous?`,
+          suggestedPrompts: ['Keep me anonymous', 'My name is Alex, phone is 555-0192'],
+          collectedData: {
+            type: 'report',
+            data: draft,
+            caseId: currentCaseId,
+            readyToSubmit: true,
+            isUpdate: true
+          }
+        },
+        newContext: { activeFlow: 'report', step: 4, draftData: draft, currentCaseId }
+      };
+    } else if (step === 4) {
+      draft.reporter = userText;
+
+      saveToAdminInbox({
+        type: 'Abuse Incident Report (Complete)',
+        userMessage: userText,
+        details: {
+          caseId: currentCaseId,
           incident: draft.abuseType,
           location: draft.location,
           dogInfo: draft.description,
@@ -106,7 +153,7 @@ export const processPickyMessage = (
 
       return {
         response: {
-          reply: `I've sent your report straight to our rescue dispatchers! 🐾 Thank you so much for looking out for this dog.\n\n• Incident: ${draft.abuseType}\n• Location: ${draft.location}\n• Details: ${draft.description}\n\nOur team has been alerted!`,
+          reply: `✅ Report #${currentCaseId} is fully filed and active on the Admin Dispatch Desk!\n\n• Incident: ${draft.abuseType || 'Reported Incident'}\n• Location: ${draft.location || 'Local Area'}\n• Details: ${draft.description || 'Logged'}\n• Reporter: ${draft.reporter}\n\nOur responders have been notified! Thank you for protecting this dog. 🐾`,
           actionLink: {
             label: 'View Rescue Dispatch Board',
             sectionId: 'rescue'
@@ -115,10 +162,12 @@ export const processPickyMessage = (
           collectedData: {
             type: 'report',
             data: draft,
-            readyToSubmit: true
+            caseId: currentCaseId,
+            readyToSubmit: true,
+            isUpdate: true
           }
         },
-        newContext: { activeFlow: null, step: 0, draftData: {} }
+        newContext: { activeFlow: null, step: 0, draftData: {}, currentCaseId: undefined }
       };
     }
   }
@@ -130,7 +179,12 @@ export const processPickyMessage = (
       return {
         response: {
           reply: `That's great! 🐶 Tell me a little about your home — do you have a yard, other pets, or kids?`,
-          suggestedPrompts: ['Apartment with lots of daily walks', 'Fenced yard with another friendly dog', 'Family home with kids'],
+          suggestedPrompts: ['Apartment with daily walks', 'Fenced yard with friendly dog', 'Family home with kids'],
+          collectedData: {
+            type: 'adopt',
+            data: draft,
+            readyToSubmit: true
+          }
         },
         newContext: { activeFlow: 'adopt', step: 2, draftData: draft }
       };
@@ -138,8 +192,13 @@ export const processPickyMessage = (
       draft.home = userText;
       return {
         response: {
-          reply: `Sounds like a cozy home! What's your name and email or phone number so our adoption team can reach out?`,
-          suggestedPrompts: ['Sarah Connor (sarah@example.com)', 'Call me at 555-0123'],
+          reply: `Sounds like a loving home! What's your name and email or phone number so our adoption team can reach out?`,
+          suggestedPrompts: ['Sarah (sarah@example.com, 555-0123)'],
+          collectedData: {
+            type: 'adopt',
+            data: draft,
+            readyToSubmit: true
+          }
         },
         newContext: { activeFlow: 'adopt', step: 3, draftData: draft }
       };
@@ -183,6 +242,11 @@ export const processPickyMessage = (
         response: {
           reply: `Got it. Where was the dog last seen? (Street, neighborhood, or city)`,
           suggestedPrompts: ['Near Maple Street park', 'Downtown area by the market', 'Suburban greenway'],
+          collectedData: {
+            type: 'lost',
+            data: draft,
+            readyToSubmit: true
+          }
         },
         newContext: { activeFlow: 'lost', step: 2, draftData: draft }
       };
@@ -192,6 +256,11 @@ export const processPickyMessage = (
         response: {
           reply: `What phone number or email should people contact if they spot the dog?`,
           suggestedPrompts: ['Call 555-0199', 'Email rescue@example.com'],
+          collectedData: {
+            type: 'lost',
+            data: draft,
+            readyToSubmit: true
+          }
         },
         newContext: { activeFlow: 'lost', step: 3, draftData: draft }
       };
@@ -235,6 +304,11 @@ export const processPickyMessage = (
         response: {
           reply: `We would love to have your help! 🐾 What city or area are you based in?`,
           suggestedPrompts: ['New York', 'Austin, TX', 'London', 'Lagos'],
+          collectedData: {
+            type: 'volunteer',
+            data: draft,
+            readyToSubmit: true
+          }
         },
         newContext: { activeFlow: 'volunteer', step: 2, draftData: draft }
       };
@@ -244,6 +318,11 @@ export const processPickyMessage = (
         response: {
           reply: `What's your name and contact phone or email?`,
           suggestedPrompts: ['Jordan (jordan@example.com)'],
+          collectedData: {
+            type: 'volunteer',
+            data: draft,
+            readyToSubmit: true
+          }
         },
         newContext: { activeFlow: 'volunteer', step: 3, draftData: draft }
       };
@@ -279,20 +358,76 @@ export const processPickyMessage = (
     }
   }
 
-  // --- 2. Natural Intent Triggers ---
+  // --- 2. Natural Intent Triggers & Instant Report Creation ---
 
-  // Report Abuse
-  if (text.includes('report') || text.includes('abuse') || text.includes('cruel') || text.includes('beat') || text.includes('chain') || text.includes('starv') || text.includes('hurt') || text.includes('danger') || text.includes('hit')) {
+  // Check if message is a full incident description (e.g. "There is a dog being beaten on 4th street")
+  const isDirectReport =
+    text.includes('abuse') ||
+    text.includes('cruel') ||
+    text.includes('beat') ||
+    text.includes('chain') ||
+    text.includes('starv') ||
+    text.includes('injured') ||
+    text.includes('hit by') ||
+    text.includes('in danger') ||
+    text.includes('emergency') ||
+    text.includes('trap');
+
+  if (isDirectReport) {
+    draft.abuseType = userText;
+    draft.description = userText;
+    draft.caseId = currentCaseId;
+
+    saveToAdminInbox({
+      type: 'Direct Abuse Alert',
+      userMessage: userText,
+      details: {
+        caseId: currentCaseId,
+        content: userText,
+        source: 'Picky Direct Intake'
+      }
+    });
+
     return {
       response: {
-        reply: `I'm here to help you report this dog right away. 🐾 What kind of situation is it? (For example: physical abuse, 24/7 chaining, abandonment, or an injured stray)`,
+        reply: `🚨 Case #${currentCaseId} immediately filed with Admin Dispatchers!\n\nI've sent this directly to our rescue queue. What is the exact street address, city, or nearest landmark so rescuers can navigate there?`,
         actionLink: {
-          label: 'Or Go to Report Abuse Page',
+          label: 'View Rescue Dispatch Board',
+          sectionId: 'rescue'
+        },
+        suggestedPrompts: [
+          'Downtown Main Street near the grocery',
+          'Corner of 5th and Oak Ave',
+          'Keep me anonymous'
+        ],
+        collectedData: {
+          type: 'report',
+          data: draft,
+          caseId: currentCaseId,
+          readyToSubmit: true
+        }
+      },
+      newContext: { activeFlow: 'report', step: 2, draftData: draft, currentCaseId }
+    };
+  }
+
+  // Report Abuse trigger button
+  if (text.includes('report') || text.includes('trouble') || text.includes('hurt')) {
+    return {
+      response: {
+        reply: `I'm here to help you report this dog right away. 🐾 What kind of situation is it? (For example: physical abuse, continuous chaining, abandonment, or an injured stray)`,
+        actionLink: {
+          label: 'Or Open Dedicated Report Page',
           sectionId: 'report'
         },
-        suggestedPrompts: ['Physical abuse or beating', 'Dog chained with no shelter', 'Injured hit-and-run dog', 'Abandoned stray dog']
+        suggestedPrompts: [
+          'Physical abuse or beating',
+          'Dog chained with no shelter',
+          'Injured hit-and-run dog',
+          'Abandoned starving stray'
+        ]
       },
-      newContext: { activeFlow: 'report', step: 1, draftData: {} }
+      newContext: { activeFlow: 'report', step: 1, draftData: {}, currentCaseId }
     };
   }
 
@@ -350,7 +485,7 @@ export const processPickyMessage = (
           label: 'Open Support & Crypto Wallets',
           sectionId: 'support'
         },
-        suggestedPrompts: ['How do I report abuse?', 'How do I adopt a dog?', 'Volunteer with us']
+        suggestedPrompts: ['Report abuse', 'How do I adopt a dog?', 'Volunteer with us']
       },
       newContext: { activeFlow: null, step: 0, draftData: {} }
     };
@@ -376,17 +511,22 @@ export const processPickyMessage = (
     return {
       response: {
         reply: `Hi friend! I'm Picky! 🐾 What can I help you with today? I can help you report an incident, find a dog to adopt, post a lost pet, or answer questions!`,
-        suggestedPrompts: ['Report dog abuse', 'Adopt a dog', 'Post a lost pet', 'Support medical fund']
+        suggestedPrompts: ['Report a dog in trouble', 'Adopt or foster a dog', 'Post a lost or found dog', 'Volunteer with us']
       },
       newContext: { activeFlow: null, step: 0, draftData: {} }
     };
   }
 
-  // Friendly Fallback
+  // Fallback
   return {
     response: {
-      reply: `I'm right here with you! 🐾 Tell me what you'd like to do:\n• Report a dog in trouble\n• Adopt or foster a dog\n• Post a lost or found dog\n• Join our volunteer guild\n• Support medical funds`,
-      suggestedPrompts: ['Report dog abuse', 'I want to adopt a dog', 'I lost my dog', 'Join as a volunteer', 'Donate to medical care']
+      reply: `I heard: "${userText}". 🐾 How would you like me to help? If there is an animal in danger, tell me where they are or choose one of the options below:`,
+      suggestedPrompts: [
+        'Report a dog in trouble',
+        'Adopt or foster a dog',
+        'Post a lost or found dog',
+        'Support medical care'
+      ]
     },
     newContext: { activeFlow: null, step: 0, draftData: {} }
   };
