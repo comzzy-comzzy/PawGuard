@@ -19,9 +19,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
 
   // Authorized credentials
   const VALID_CREDENTIALS = [
-    { email: 'kane69251@gmail.com', pass: 'pawguard2026' },
-    { email: 'admin@pawguard.org', pass: 'pawguard2026' },
-    { email: 'admin', pass: 'admin123' },
+    { email: 'kane69251@gmail.com', pass: 'Pawguard7892@' },
   ];
 
   const handleLogin = (e: React.FormEvent) => {
@@ -123,7 +121,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
                 <input
                   type="text"
                   required
-                  placeholder="admin@pawguard.org"
+                  placeholder="kane69251@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#ebd7c3] bg-[#fbf6f0] text-sm text-[#352018] focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
