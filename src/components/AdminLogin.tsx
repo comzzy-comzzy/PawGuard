@@ -135,23 +135,34 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
               <label className="block text-xs font-fredoka font-bold text-[#4a2e1b] uppercase tracking-wider">
                 Password
               </label>
-              <div className="relative">
+              <div className="relative flex items-center">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   placeholder="Input your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-11 py-3 rounded-xl border border-[#ebd7c3] bg-[#fbf6f0] text-sm text-[#352018] focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
+                  className="w-full pl-10 pr-12 py-3 rounded-xl border border-[#ebd7c3] bg-[#fbf6f0] text-sm text-[#352018] focus:outline-none focus:ring-2 focus:ring-[#4a2e1b]"
                 />
-                <Lock className="w-4 h-4 text-[#8a5b3a] absolute left-3.5 top-3.5" />
+                <Lock className="w-4 h-4 text-[#8a5b3a] absolute left-3.5 pointer-events-none" />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3.5 text-[#8a5b3a] hover:text-[#4a2e1b]"
+                  tabIndex={-1}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    playClickSound();
+                    setShowPassword((prev) => !prev);
+                  }}
+                  className="absolute right-2 p-2 rounded-lg text-[#8a5b3a] hover:text-[#4a2e1b] hover:bg-[#faefe4] transition-colors focus:outline-none cursor-pointer z-10"
                   title={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4 text-[#4a2e1b]" />
+                  ) : (
+                    <Eye className="w-4 h-4 text-[#8a5b3a]" />
+                  )}
                 </button>
               </div>
             </div>
