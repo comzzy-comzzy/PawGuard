@@ -54,6 +54,8 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
     }
   };
 
+  const activeCase = (selectedCase && filteredCases.some(c => c.id === selectedCase.id)) ? selectedCase : (filteredCases[0] || null);
+
   return (
     <section id="rescue" className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#fbf6f0]">
       <div className="max-w-7xl mx-auto space-y-10">
@@ -174,7 +176,7 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
             {/* Left Cases Column (5 cols) */}
             <div className="lg:col-span-5 space-y-4 max-h-[600px] overflow-y-auto pr-1">
               {filteredCases.map((c) => {
-                const isSelected = selectedCase?.id === c.id;
+                const isSelected = activeCase?.id === c.id;
                 return (
                   <div
                     key={c.id}
@@ -230,7 +232,7 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
 
             {/* Right Case Inspector (7 cols) */}
             <div className="lg:col-span-7">
-              {selectedCase ? (
+              {activeCase ? (
                 <div className="bg-white rounded-3xl border-2 border-[#4a2e1b] shadow-xl p-6 sm:p-8 space-y-6">
                   
                   {/* Case Top Bar */}
@@ -238,13 +240,13 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-xs font-bold text-[#8a5b3a] bg-[#faefe4] px-2 py-0.5 rounded border border-[#ebd7c3]">
-                          {selectedCase.id}
+                          {activeCase.id}
                         </span>
-                        {getUrgencyBadge(selectedCase.urgency)}
-                        {getStatusBadge(selectedCase.status)}
+                        {getUrgencyBadge(activeCase.urgency)}
+                        {getStatusBadge(activeCase.status)}
                       </div>
                       <h3 className="font-fredoka text-xl sm:text-2xl font-bold text-[#26160d]">
-                        {selectedCase.title}
+                        {activeCase.title}
                       </h3>
                     </div>
 
@@ -267,10 +269,10 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
                       Report Details & Location:
                     </h4>
                     <p className="text-xs sm:text-sm text-[#5e4537] leading-relaxed bg-[#fbf6f0] p-4 rounded-2xl border border-[#ebd7c3]">
-                      {selectedCase.description}
+                      {activeCase.description}
                     </p>
                     <p className="text-xs text-[#6b4c38] font-medium">
-                      <strong>Address:</strong> {selectedCase.location}
+                      <strong>Address:</strong> {activeCase.location}
                     </p>
                   </div>
 

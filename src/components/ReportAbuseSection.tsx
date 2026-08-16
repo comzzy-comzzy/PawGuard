@@ -83,6 +83,7 @@ export const ReportAbuseSection: React.FC<ReportAbuseSectionProps> = ({
         urgency: urgency,
         status: 'reported',
         location: location || 'Location details provided in report',
+        landmark: landmark,
         coordinates: [40.7128 + (Math.random() - 0.5) * 0.05, -74.0060 + (Math.random() - 0.5) * 0.05],
         distance: 'Local Area',
         reportedAt: 'Just now',
@@ -91,8 +92,10 @@ export const ReportAbuseSection: React.FC<ReportAbuseSectionProps> = ({
         dogBreed: dogBreed || 'Dog in Need',
         photoUrl: evidencePreview || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop&q=80',
         reporter: isAnonymous ? 'Anonymous Reporter' : (reporterName || 'Community Member'),
+        reporterPhone: isAnonymous ? undefined : reporterPhone,
+        isAnonymous: isAnonymous,
         updates: [
-          { time: 'Just now', text: 'Report submitted. Ready for dispatch and verification.', author: 'Dispatch System' }
+          { time: 'Just now', text: `Report submitted by ${isAnonymous ? 'Anonymous Reporter' : (reporterName || 'Community Member')}. Ready for dispatch and verification.`, author: 'Dispatch System' }
         ]
       };
 

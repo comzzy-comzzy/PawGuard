@@ -1,4 +1,14 @@
-import { EducationalArticle } from '../types';
+import {
+  EducationalArticle,
+  RescueCase,
+  AdoptableDog,
+  LostFoundDog,
+  AdoptionInquiry,
+  VolunteerApplication,
+  DonationRecord,
+  EmergencyAlert,
+  AdminActivityLog,
+} from '../types';
 
 export const CONTACT_INFO = {
   email: 'kane69251@gmail.com',
@@ -13,6 +23,16 @@ export const DONATION_WALLETS = {
   eth: '0x0D57D06bD867cB052eCC1dA67561a5b199578360',
   bnb: '0x0D57D06bD867cB052eCC1dA67561a5b199578360',
 };
+
+// No mock data - all lists start completely empty and populate exclusively from real user submissions
+export const DEFAULT_CASES: RescueCase[] = [];
+export const DEFAULT_DOGS: AdoptableDog[] = [];
+export const DEFAULT_LOST_FOUND: LostFoundDog[] = [];
+export const DEFAULT_ADOPTION_INQUIRIES: AdoptionInquiry[] = [];
+export const DEFAULT_VOLUNTEER_APPLICATIONS: VolunteerApplication[] = [];
+export const DEFAULT_DONATIONS: DonationRecord[] = [];
+export const DEFAULT_EMERGENCY_ALERTS: EmergencyAlert[] = [];
+export const DEFAULT_ACTIVITY_LOGS: AdminActivityLog[] = [];
 
 export const EDUCATIONAL_ARTICLES: EducationalArticle[] = [
   {

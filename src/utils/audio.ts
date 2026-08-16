@@ -321,3 +321,75 @@ export const playPuppyBark = () => {
     // Graceful fallback
   }
 };
+
+/**
+ * Modern dispatch alert chime for admin dashboard
+ */
+export const playDispatchPing = () => {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc1.type = 'sine';
+    osc2.type = 'triangle';
+
+    osc1.frequency.setValueAtTime(587.33, now); // D5
+    osc1.frequency.setValueAtTime(880.00, now + 0.08); // A5
+    osc1.frequency.setValueAtTime(1174.66, now + 0.16); // D6
+
+    osc2.frequency.setValueAtTime(293.66, now); // D4
+    osc2.frequency.setValueAtTime(440.00, now + 0.08); // A4
+    osc2.frequency.setValueAtTime(587.33, now + 0.16); // D5
+
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + 0.46);
+    osc2.stop(now + 0.46);
+  } catch {
+    // Graceful fallback
+  }
+};
+
+/**
+ * Success fanfare / resolution chime
+ */
+export const playSuccessChime = () => {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    const chords = [523.25, 659.25, 783.99, 1046.50]; // C - E - G - C
+    chords.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+
+      gain.gain.setValueAtTime(0.001, now + idx * 0.06);
+      gain.gain.linearRampToValueAtTime(0.06, now + idx * 0.06 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.35);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now + idx * 0.06);
+      osc.stop(now + idx * 0.06 + 0.36);
+    });
+  } catch {
+    // Graceful fallback
+  }
+};
+

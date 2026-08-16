@@ -104,6 +104,11 @@ export const Footer: React.FC<FooterProps> = ({
                   Medical Support Wallets
                 </button>
               </li>
+              <li>
+                <button onClick={() => handleNav('admin')} className="text-[#ea8e24] hover:text-[#f5d7b7] font-bold transition-colors flex items-center gap-1.5">
+                  <span>🛡️ Admin Dispatch Desk</span>
+                </button>
+              </li>
             </ul>
           </div>
 
