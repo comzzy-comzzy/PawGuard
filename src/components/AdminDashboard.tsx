@@ -41,6 +41,7 @@ import {
   LayoutDashboard,
   Calendar,
   Layers,
+  LogOut,
 } from 'lucide-react';
 import {
   playClickSound,
@@ -85,6 +86,7 @@ interface AdminDashboardProps {
   onDeleteEmergencyAlert: (id: string) => void;
 
   onNavigateSection: (sectionId: string) => void;
+  onLogout: () => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -113,6 +115,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onUpdateEmergencyAlert,
   onDeleteEmergencyAlert,
   onNavigateSection,
+  onLogout,
 }) => {
   const [activeTab, setActiveTab] = useState<
     'overview' | 'cases' | 'inquiries' | 'lostfound' | 'volunteers' | 'donations' | 'emergency' | 'dogs' | 'logs'
@@ -295,66 +298,71 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       )}
 
-      {/* Admin Top Header */}
-      <div className="bg-[#4a2e1b] text-white border-b-4 border-[#352018] sticky top-20 z-30 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            
-            {/* Title & Live Status */}
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-[#fbf6f0] text-[#4a2e1b] flex items-center justify-center shadow">
-                <ShieldCheck className="w-6 h-6 text-[#4a2e1b]" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2.5">
-                  <h1 className="font-fredoka text-2xl sm:text-3xl font-bold tracking-tight text-white">
-                    PawGuard Admin Dashboard
-                  </h1>
-                  <span className="flex items-center gap-1.5 bg-[#22c55e]/20 text-[#86efac] border border-[#22c55e]/40 text-[11px] font-fredoka font-semibold px-2.5 py-0.5 rounded-full">
-                    <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-ping inline-block"></span>
-                    <span>Live Updates</span>
-                  </span>
-                </div>
-                <p className="text-xs text-[#f5d7b7]/90 font-medium">
-                  Direct management desk for reports, adoption inquiries, notices, and volunteers
-                </p>
-              </div>
+      {/* Dedicated Admin Top Header - Only Logo on left, Admin Actions on right */}
+      <header className="sticky top-0 z-40 bg-[#fbf6f0]/95 backdrop-blur-md border-b border-[#ebdcca]/90 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+          
+          {/* Only PawGuard Logo */}
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-2xl bg-[#4a2e1b] flex items-center justify-center text-white shadow-sm">
+              <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
+                <circle cx="12" cy="15" r="4.5" />
+                <circle cx="6.5" cy="10" r="2.2" />
+                <circle cx="17.5" cy="10" r="2.2" />
+                <circle cx="9" cy="6" r="2.2" />
+                <circle cx="15" cy="6" r="2.2" />
+              </svg>
             </div>
-
-            {/* Actions in Header */}
-            <div className="flex flex-wrap items-center gap-2.5">
-              {/* Direct Link indicator */}
-              <div className="hidden lg:flex items-center gap-1.5 bg-[#352018] px-3 py-2 rounded-xl text-xs font-mono text-[#f5d7b7] border border-white/10">
-                <span className="text-white/60">URL:</span>
-                <span>/admin</span>
-              </div>
-
-              {/* Export JSON */}
-              <button
-                onClick={handleExportJSON}
-                className="bg-[#6b442b] hover:bg-[#57351f] text-[#fbf6f0] text-xs sm:text-sm font-fredoka font-medium px-3.5 py-2.5 rounded-xl border border-[#8a5b3a] transition-all flex items-center gap-1.5"
-                title="Download export of all received submissions"
-              >
-                <Download className="w-4 h-4" />
-                <span>Export Submissions</span>
-              </button>
-
-              {/* Return to Public Website */}
-              <button
-                onClick={() => {
-                  playClickSound();
-                  onNavigateSection('home');
-                }}
-                className="bg-[#fbf6f0] hover:bg-white text-[#4a2e1b] text-xs sm:text-sm font-fredoka font-bold px-4 py-2.5 rounded-xl shadow transition-all flex items-center gap-1.5"
-              >
-                <span>View Website</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
+            <div>
+              <span className="font-fredoka text-2xl sm:text-3xl font-bold tracking-tight text-[#352018]">
+                PawGuard
+              </span>
+              <span className="ml-2.5 text-[11px] font-fredoka font-semibold text-[#8a5b3a] bg-[#faefe4] px-2 py-0.5 rounded-full border border-[#ebd7c3]">
+                Admin Portal
+              </span>
             </div>
-
           </div>
+
+          {/* Right Admin Controls */}
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* Export JSON */}
+            <button
+              onClick={handleExportJSON}
+              className="bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] text-xs font-fredoka font-semibold px-3 sm:px-4 py-2 sm:py-2.5 rounded-full border border-[#ebd7c3] transition-all flex items-center gap-1.5"
+              title="Download export of all received submissions"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Export JSON</span>
+            </button>
+
+            {/* Exit to Public Website */}
+            <button
+              onClick={() => {
+                playClickSound();
+                onNavigateSection('home');
+              }}
+              className="text-xs font-fredoka font-semibold text-[#8a5b3a] hover:text-[#4a2e1b] bg-[#fbf6f0] hover:bg-[#faefe4] px-3 sm:px-4 py-2 sm:py-2.5 rounded-full border border-[#ebd7c3] transition-all flex items-center gap-1.5"
+            >
+              <span>Public Site</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Sign Out */}
+            <button
+              onClick={() => {
+                playClickSound();
+                onLogout();
+              }}
+              className="bg-[#fee2e2] hover:bg-[#fca5a5] text-[#991b1b] text-xs font-fredoka font-bold px-3 sm:px-4 py-2 sm:py-2.5 rounded-full border border-[#fca5a5] transition-all flex items-center gap-1.5 shadow-sm"
+              title="Log out of Admin Dashboard"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Log Out</span>
+            </button>
+          </div>
+
         </div>
-      </div>
+      </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
         

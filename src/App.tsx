@@ -14,6 +14,7 @@ import { Footer } from './components/Footer';
 import { EmergencyHotlineModal } from './components/EmergencyHotlineModal';
 import { PickyChatBox } from './components/PickyChatBox';
 import { AdminDashboard } from './components/AdminDashboard';
+import { AdminLogin } from './components/AdminLogin';
 import {
   RescueCase,
   AdoptableDog,
@@ -25,7 +26,7 @@ import {
   AdminActivityLog,
 } from './types';
 import { playDispatchPing } from './utils/audio';
-import { ShieldCheck, Globe, X, ArrowRight, Bell } from 'lucide-react';
+import { Bell, X } from 'lucide-react';
 
 const getInitialSection = (): string => {
   if (typeof window === 'undefined') return 'home';
@@ -44,6 +45,17 @@ const getInitialSection = (): string => {
 
 export function App() {
   const [activeSection, setActiveSection] = useState<string>(getInitialSection);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
+    try {
+      return (
+        localStorage.getItem('pawguard_admin_auth') === 'true' ||
+        sessionStorage.getItem('pawguard_admin_session') === 'true'
+      );
+    } catch {
+      return false;
+    }
+  });
+
   const [liveToast, setLiveToast] = useState<{
     id: string;
     title: string;
@@ -382,14 +394,6 @@ export function App() {
     logActivity('SOS Alert Cleared', id, 'emergency_alert', `Alert ${id} removed.`);
   };
 
-  const totalSubmissionsCount =
-    cases.length +
-    adoptionInquiries.length +
-    lostFoundItems.length +
-    volunteerApplications.length +
-    donationRecords.length +
-    emergencyAlerts.length;
-
   const handleNavigate = (sectionId: string) => {
     setActiveSection(sectionId);
     const newPath = sectionId === 'home' ? '/' : `/${sectionId}`;
@@ -399,10 +403,86 @@ export function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleLogout = () => {
+    setIsAdminAuthenticated(false);
+    try {
+      localStorage.removeItem('pawguard_admin_auth');
+      sessionStorage.removeItem('pawguard_admin_session');
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // If in Admin section:
+  if (activeSection === 'admin') {
+    if (!isAdminAuthenticated) {
+      return (
+        <AdminLogin
+          onLoginSuccess={() => setIsAdminAuthenticated(true)}
+          onNavigateHome={() => handleNavigate('home')}
+        />
+      );
+    }
+
+    return (
+      <div className="min-h-screen bg-[#f7f0e7] text-[#352018]">
+        {/* Floating Toast (Admin Only) */}
+        {liveToast && (
+          <div className="fixed top-24 right-4 z-50 bg-[#352018] text-white p-4 rounded-2xl shadow-2xl border border-[#b87d55] max-w-sm w-full animate-fadeIn">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-xl bg-[#ea8e24] text-white flex items-center justify-center font-bold flex-shrink-0">
+                  <Bell className="w-4 h-4" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-fredoka text-sm font-bold text-[#f5d7b7]">{liveToast.title}</h4>
+                  <p className="text-xs text-white/90 leading-relaxed">{liveToast.description}</p>
+                </div>
+              </div>
+              <button onClick={() => setLiveToast(null)} className="text-white/60 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        <AdminDashboard
+          cases={cases}
+          dogs={dogs}
+          lostFoundItems={lostFoundItems}
+          adoptionInquiries={adoptionInquiries}
+          volunteerApplications={volunteerApplications}
+          donationRecords={donationRecords}
+          emergencyAlerts={emergencyAlerts}
+          activityLogs={activityLogs}
+          onUpdateCase={handleUpdateCase}
+          onDeleteCase={handleDeleteCase}
+          onAddCase={handleAddCase}
+          onUpdateDog={handleUpdateDog}
+          onDeleteDog={handleDeleteDog}
+          onAddDog={handleAddDog}
+          onUpdateLostFound={handleUpdateLostFound}
+          onDeleteLostFound={handleDeleteLostFound}
+          onUpdateAdoptionInquiry={handleUpdateAdoptionInquiry}
+          onDeleteAdoptionInquiry={handleDeleteAdoptionInquiry}
+          onUpdateVolunteer={handleUpdateVolunteer}
+          onDeleteVolunteer={handleDeleteVolunteer}
+          onUpdateDonation={handleUpdateDonation}
+          onDeleteDonation={handleDeleteDonation}
+          onUpdateEmergencyAlert={handleUpdateEmergencyAlert}
+          onDeleteEmergencyAlert={handleDeleteEmergencyAlert}
+          onNavigateSection={handleNavigate}
+          onLogout={handleLogout}
+        />
+      </div>
+    );
+  }
+
+  // Public Website View
   return (
     <div className="min-h-screen flex flex-col bg-[#fbf6f0] text-[#352018]">
       
-      {/* Top Sticky Navigation */}
+      {/* Top Sticky Public Navigation */}
       <Navbar
         activeSection={activeSection}
         setActiveSection={handleNavigate}
@@ -410,62 +490,9 @@ export function App() {
         onOpenEmergency={() => setIsEmergencyOpen(true)}
       />
 
-      {/* Floating Alert Notification Toast (Admin Only) */}
-      {liveToast && activeSection === 'admin' && (
-        <div className="fixed top-24 right-4 z-50 bg-[#352018] text-white p-4 rounded-2xl shadow-2xl border border-[#b87d55] max-w-sm w-full animate-fadeIn">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-xl bg-[#ea8e24] text-white flex items-center justify-center font-bold flex-shrink-0">
-                <Bell className="w-4 h-4" />
-              </div>
-              <div className="space-y-1">
-                <h4 className="font-fredoka text-sm font-bold text-[#f5d7b7]">{liveToast.title}</h4>
-                <p className="text-xs text-white/90 leading-relaxed">{liveToast.description}</p>
-              </div>
-            </div>
-            <button onClick={() => setLiveToast(null)} className="text-white/60 hover:text-white">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Main Page Views (Embedded by Section) */}
+      {/* Main Public Page Views */}
       <main className="flex-1">
         
-        {/* Admin Dashboard */}
-        {activeSection === 'admin' && (
-          <div className="animate-fadeIn">
-            <AdminDashboard
-              cases={cases}
-              dogs={dogs}
-              lostFoundItems={lostFoundItems}
-              adoptionInquiries={adoptionInquiries}
-              volunteerApplications={volunteerApplications}
-              donationRecords={donationRecords}
-              emergencyAlerts={emergencyAlerts}
-              activityLogs={activityLogs}
-              onUpdateCase={handleUpdateCase}
-              onDeleteCase={handleDeleteCase}
-              onAddCase={handleAddCase}
-              onUpdateDog={handleUpdateDog}
-              onDeleteDog={handleDeleteDog}
-              onAddDog={handleAddDog}
-              onUpdateLostFound={handleUpdateLostFound}
-              onDeleteLostFound={handleDeleteLostFound}
-              onUpdateAdoptionInquiry={handleUpdateAdoptionInquiry}
-              onDeleteAdoptionInquiry={handleDeleteAdoptionInquiry}
-              onUpdateVolunteer={handleUpdateVolunteer}
-              onDeleteVolunteer={handleDeleteVolunteer}
-              onUpdateDonation={handleUpdateDonation}
-              onDeleteDonation={handleDeleteDonation}
-              onUpdateEmergencyAlert={handleUpdateEmergencyAlert}
-              onDeleteEmergencyAlert={handleDeleteEmergencyAlert}
-              onNavigateSection={handleNavigate}
-            />
-          </div>
-        )}
-
         {/* Public Homepage */}
         {activeSection === 'home' && (
           <div className="animate-fadeIn">
@@ -559,7 +586,7 @@ export function App() {
         )}
       </main>
 
-      {/* Global Footer */}
+      {/* Global Public Footer */}
       <Footer
         onOpenReport={() => handleNavigate('report')}
         onOpenEmergency={() => setIsEmergencyOpen(true)}
