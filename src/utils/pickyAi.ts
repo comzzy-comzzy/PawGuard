@@ -82,7 +82,7 @@ export const processPickyMessage = (
 
       return {
         response: {
-          reply: `🚨 Incident registered with Admin Dispatch (Case #${currentCaseId})!\n\nWhere is the dog located right now? (Street name, city, landmark, or neighborhood)`,
+          reply: `🚨 Incident recorded (Case #${currentCaseId})! Rescuers and dispatchers have been alerted.\n\nWhere is the dog located right now? (Street name, city, landmark, or neighborhood)`,
           suggestedPrompts: [
             'Downtown Main Street near the market',
             'Corner of 5th and Oak Ave',
@@ -153,7 +153,7 @@ export const processPickyMessage = (
 
       return {
         response: {
-          reply: `✅ Report #${currentCaseId} is fully filed and active on the Admin Dispatch Desk!\n\n• Incident: ${draft.abuseType || 'Reported Incident'}\n• Location: ${draft.location || 'Local Area'}\n• Details: ${draft.description || 'Logged'}\n• Reporter: ${draft.reporter}\n\nOur responders have been notified! Thank you for protecting this dog. 🐾`,
+          reply: `✅ Report #${currentCaseId} is fully filed and active!\n\n• Incident: ${draft.abuseType || 'Reported Incident'}\n• Location: ${draft.location || 'Local Area'}\n• Details: ${draft.description || 'Logged'}\n• Reporter: ${draft.reporter}\n\nOur rescue responders have been notified! Thank you for protecting this dog. 🐾`,
           actionLink: {
             label: 'View Rescue Dispatch Board',
             sectionId: 'rescue'
@@ -390,7 +390,7 @@ export const processPickyMessage = (
 
     return {
       response: {
-        reply: `🚨 Case #${currentCaseId} immediately filed with Admin Dispatchers!\n\nI've sent this directly to our rescue queue. What is the exact street address, city, or nearest landmark so rescuers can navigate there?`,
+        reply: `🚨 Case #${currentCaseId} recorded with rescue dispatchers!\n\nI've sent this directly to our rescue queue. What is the exact street address, city, or nearest landmark so rescuers can navigate there?`,
         actionLink: {
           label: 'View Rescue Dispatch Board',
           sectionId: 'rescue'
