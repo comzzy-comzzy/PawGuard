@@ -102,6 +102,8 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
 
     setMessages((prev) => [...prev, userMsg]);
     setInputText('');
+    setIsTyping(true);
+
     // Process with Picky built-in intake engine
     const { response, newContext } = processPickyMessage(text, context);
     setContext(newContext);
@@ -202,18 +204,21 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
       }
     }
 
-    if (soundEnabled) playPuppyBark();
+    setTimeout(() => {
+      setIsTyping(false);
+      if (soundEnabled) playPuppyBark();
 
-    const pickyMsg: Message = {
-      id: `picky-${Date.now()}`,
-      sender: 'picky',
-      text: response.reply,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      actionLink: response.actionLink,
-      suggestedPrompts: response.suggestedPrompts
-    };
+      const pickyMsg: Message = {
+        id: `picky-${Date.now()}`,
+        sender: 'picky',
+        text: response.reply,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        actionLink: response.actionLink,
+        suggestedPrompts: response.suggestedPrompts
+      };
 
-    setMessages((prev) => [...prev, pickyMsg]);
+      setMessages((prev) => [...prev, pickyMsg]);
+    }, 140);
   };
 
   const handleResetChat = () => {
@@ -394,6 +399,15 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
                 </div>
               );
             })}
+
+            {isTyping && (
+              <div className="flex items-center gap-2 text-xs text-[#8a5b3a] bg-white px-3.5 py-2.5 rounded-2xl border border-[#ebd7c3] w-fit shadow-xs animate-fadeIn">
+                <span className="w-2 h-2 rounded-full bg-[#ea8e24] animate-bounce"></span>
+                <span className="w-2 h-2 rounded-full bg-[#ea8e24] animate-bounce [animation-delay:0.15s]"></span>
+                <span className="w-2 h-2 rounded-full bg-[#ea8e24] animate-bounce [animation-delay:0.3s]"></span>
+                <span className="font-fredoka text-[11px] text-[#4a2e1b] pl-1 font-medium">Picky is typing...</span>
+              </div>
+            )}
 
             <div ref={messagesEndRef} />
           </div>
