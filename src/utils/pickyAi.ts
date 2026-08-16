@@ -30,6 +30,9 @@ export const saveToAdminInbox = (record: {
   details: Record<string, any>;
 }) => {
   try {
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+      return null;
+    }
     const existing = JSON.parse(localStorage.getItem('pawguard_admin_inbox') || '[]');
     const newEntry = {
       id: `ADMIN-MSG-${Date.now()}`,

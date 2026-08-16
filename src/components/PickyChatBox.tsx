@@ -104,121 +104,139 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
     setInputText('');
     setIsTyping(true);
 
-    // Process with Picky built-in intake engine
-    const { response, newContext } = processPickyMessage(text, context);
-    setContext(newContext);
+    try {
+      // Process with Picky built-in intake engine
+      const { response, newContext } = processPickyMessage(text, context);
+      setContext(newContext);
 
-    // Forward completed intakes to central admin dispatch states
-    if (response.collectedData && response.collectedData.readyToSubmit) {
-      const d = response.collectedData.data;
-      const cid = response.collectedData.caseId || `PG-RESCUE-${Math.floor(1000 + Math.random() * 9000)}`;
+      // Forward completed intakes to central admin dispatch states
+      if (response.collectedData && response.collectedData.readyToSubmit) {
+        const d = response.collectedData.data;
+        const cid = response.collectedData.caseId || `PG-RESCUE-${Math.floor(1000 + Math.random() * 9000)}`;
 
-      // 1. Abuse Case Intake
-      if (response.collectedData.type === 'report') {
-        const existing = activeCasesTracked[cid];
-        const caseToSave: RescueCase = {
-          id: cid,
-          title: `Reported via Picky: ${d.abuseType || 'Incident'}`,
-          type: d.abuseType || 'Abuse/Violence',
-          urgency: 'critical',
-          status: 'reported',
-          location: d.location || existing?.location || 'Location being verified',
-          coordinates: [40.7128 + (Math.random() - 0.5) * 0.05, -74.0060 + (Math.random() - 0.5) * 0.05],
-          distance: 'Local Area',
-          reportedAt: 'Just now',
-          description: `${d.description || userText} (Logged via Picky Assistant)`,
-          dogName: 'Reported Dog',
-          dogBreed: 'Dog in Need of Help',
-          photoUrl: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop&q=80',
-          reporter: d.reporter || existing?.reporter || 'Picky Assistant User',
-          isAnonymous: d.reporter ? d.reporter.toLowerCase().includes('anon') : false,
-          adminNotes: 'Transmitted live via Picky chatbot assistant.',
-          updates: [
-            { time: 'Just now', text: `Details from Picky: ${userText}`, author: 'Picky Assistant' },
-            ...(existing?.updates || [])
-          ]
-        };
+        // 1. Abuse Case Intake
+        if (response.collectedData.type === 'report') {
+          const existing = activeCasesTracked[cid];
+          const caseToSave: RescueCase = {
+            id: cid,
+            title: `Reported via Picky: ${d.abuseType || 'Incident'}`,
+            type: d.abuseType || 'Abuse/Violence',
+            urgency: 'critical',
+            status: 'reported',
+            location: d.location || existing?.location || 'Location being verified',
+            coordinates: [40.7128 + (Math.random() - 0.5) * 0.05, -74.0060 + (Math.random() - 0.5) * 0.05],
+            distance: 'Local Area',
+            reportedAt: 'Just now',
+            description: `${d.description || text} (Logged via Picky Assistant)`,
+            dogName: 'Reported Dog',
+            dogBreed: 'Dog in Need of Help',
+            photoUrl: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop&q=80',
+            reporter: d.reporter || existing?.reporter || 'Picky Assistant User',
+            isAnonymous: d.reporter ? d.reporter.toLowerCase().includes('anon') : false,
+            adminNotes: 'Transmitted live via Picky chatbot assistant.',
+            updates: [
+              { time: 'Just now', text: `Details from Picky: ${text}`, author: 'Picky Assistant' },
+              ...(existing?.updates || [])
+            ]
+          };
 
-        setActiveCasesTracked((prev) => ({ ...prev, [cid]: caseToSave }));
+          setActiveCasesTracked((prev) => ({ ...prev, [cid]: caseToSave }));
 
-        if (response.collectedData.isUpdate && onUpdateCase && existing) {
-          onUpdateCase(caseToSave);
-        } else if (onAddCase) {
-          onAddCase(caseToSave);
+          if (response.collectedData.isUpdate && onUpdateCase && existing) {
+            onUpdateCase(caseToSave);
+          } else if (onAddCase) {
+            onAddCase(caseToSave);
+          }
+        }
+
+        // 2. Adoption Inquiry Intake
+        if (response.collectedData.type === 'adopt' && onAddInquiry) {
+          onAddInquiry({
+            id: `INQ-${Math.floor(1000 + Math.random() * 9000)}`,
+            applicantName: d.contact || 'Picky User Application',
+            applicantEmail: d.contact || 'Provided via Picky',
+            applicantPhone: d.contact || 'Provided via Picky',
+            dogName: d.preferredDog || 'Rescue Dog',
+            dogId: 'ADOPT-REQ',
+            housingType: d.home || 'Residential Home',
+            hasOtherPets: true,
+            hasChildren: false,
+            experienceLevel: 'Loving Dog Guardian',
+            notes: `Adoption inquiry submitted via Picky. Desired Pet: ${d.preferredDog || 'N/A'}. Home environment: ${d.home || 'N/A'}. Contact details: ${d.contact || 'N/A'}`,
+            submittedAt: 'Just now',
+            status: 'pending',
+            adminNotes: 'Submitted through Picky conversational intake assistant.'
+          });
+        }
+
+        // 3. Lost & Found Intake
+        if (response.collectedData.type === 'lost' && onAddLostFound) {
+          onAddLostFound({
+            id: `LF-${Math.floor(1000 + Math.random() * 9000)}`,
+            dogName: 'Reported Pet',
+            breed: d.petInfo || 'Dog',
+            color: 'Described in notes',
+            status: 'lost',
+            lastSeenLocation: d.lastSeen || 'Local Area',
+            lastSeenDate: 'Recently',
+            contactName: d.contact || 'Reporter',
+            contactPhone: d.contact || 'Provided via Picky',
+            photoUrl: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&auto=format&fit=crop&q=80',
+            details: `Notice submitted via Picky. Pet info: ${d.petInfo || 'N/A'}. Last seen location: ${d.lastSeen || 'N/A'}. Contact: ${d.contact || 'N/A'}`,
+            caseStatus: 'open'
+          });
+        }
+
+        // 4. Volunteer Guild Intake
+        if (response.collectedData.type === 'volunteer' && onAddVolunteer) {
+          onAddVolunteer({
+            id: `VOL-${Math.floor(1000 + Math.random() * 9000)}`,
+            name: d.contact || 'Volunteer Applicant',
+            email: d.contact || 'Provided via Picky',
+            phone: d.contact || 'Provided via Picky',
+            role: d.role || 'Rescue Driver & Field Support',
+            location: d.location || 'Local Area',
+            availability: 'Flexible / On-call',
+            hasVehicle: true,
+            experience: `Volunteer signup via Picky. Desired role: ${d.role || 'N/A'}. Location: ${d.location || 'N/A'}`,
+            submittedAt: 'Just now',
+            status: 'pending'
+          });
         }
       }
 
-      // 2. Adoption Inquiry Intake
-      if (response.collectedData.type === 'adopt' && onAddInquiry) {
-        onAddInquiry({
-          id: `INQ-${Math.floor(1000 + Math.random() * 9000)}`,
-          applicantName: d.contact || 'Picky User Application',
-          applicantEmail: d.contact || 'Provided via Picky',
-          applicantPhone: d.contact || 'Provided via Picky',
-          dogName: d.preferredDog || 'Rescue Dog',
-          dogId: 'ADOPT-REQ',
-          housingType: d.home || 'Residential Home',
-          hasOtherPets: true,
-          hasChildren: false,
-          experienceLevel: 'Loving Dog Guardian',
-          notes: `Adoption inquiry submitted via Picky. Desired Pet: ${d.preferredDog || 'N/A'}. Home environment: ${d.home || 'N/A'}. Contact details: ${d.contact || 'N/A'}`,
-          submittedAt: 'Just now',
-          status: 'pending',
-          adminNotes: 'Submitted through Picky conversational intake assistant.'
-        });
-      }
+      setTimeout(() => {
+        setIsTyping(false);
+        if (soundEnabled) playPuppyBark();
 
-      // 3. Lost & Found Intake
-      if (response.collectedData.type === 'lost' && onAddLostFound) {
-        onAddLostFound({
-          id: `LF-${Math.floor(1000 + Math.random() * 9000)}`,
-          dogName: 'Reported Pet',
-          breed: d.petInfo || 'Dog',
-          color: 'Described in notes',
-          status: 'lost',
-          lastSeenLocation: d.lastSeen || 'Local Area',
-          lastSeenDate: 'Recently',
-          contactName: d.contact || 'Reporter',
-          contactPhone: d.contact || 'Provided via Picky',
-          photoUrl: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&auto=format&fit=crop&q=80',
-          details: `Notice submitted via Picky. Pet info: ${d.petInfo || 'N/A'}. Last seen location: ${d.lastSeen || 'N/A'}. Contact: ${d.contact || 'N/A'}`,
-          caseStatus: 'open'
-        });
-      }
+        const pickyMsg: Message = {
+          id: `picky-${Date.now()}`,
+          sender: 'picky',
+          text: response.reply,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          actionLink: response.actionLink,
+          suggestedPrompts: response.suggestedPrompts
+        };
 
-      // 4. Volunteer Guild Intake
-      if (response.collectedData.type === 'volunteer' && onAddVolunteer) {
-        onAddVolunteer({
-          id: `VOL-${Math.floor(1000 + Math.random() * 9000)}`,
-          name: d.contact || 'Volunteer Applicant',
-          email: d.contact || 'Provided via Picky',
-          phone: d.contact || 'Provided via Picky',
-          role: d.role || 'Rescue Driver & Field Support',
-          location: d.location || 'Local Area',
-          availability: 'Flexible / On-call',
-          hasVehicle: true,
-          experience: `Volunteer signup via Picky. Desired role: ${d.role || 'N/A'}. Location: ${d.location || 'N/A'}`,
-          submittedAt: 'Just now',
-          status: 'pending'
-        });
-      }
-    }
-
-    setTimeout(() => {
+        setMessages((prev) => [...prev, pickyMsg]);
+      }, 100);
+    } catch (err) {
+      console.error('Picky message handling error:', err);
       setIsTyping(false);
-      if (soundEnabled) playPuppyBark();
-
-      const pickyMsg: Message = {
-        id: `picky-${Date.now()}`,
+      const fallbackMsg: Message = {
+        id: `picky-fallback-${Date.now()}`,
         sender: 'picky',
-        text: response.reply,
+        text: "I'm right here with you! 🐾 How can I help? You can tell me about a dog in trouble, ask about adoption, or post a lost pet.",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        actionLink: response.actionLink,
-        suggestedPrompts: response.suggestedPrompts
+        suggestedPrompts: [
+          'Report a dog in trouble',
+          'Adopt or foster a dog',
+          'Post a lost or found dog',
+          'Volunteer with us'
+        ]
       };
-
-      setMessages((prev) => [...prev, pickyMsg]);
-    }, 140);
+      setMessages((prev) => [...prev, fallbackMsg]);
+    }
   };
 
   const handleResetChat = () => {
