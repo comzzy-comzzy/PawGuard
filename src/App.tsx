@@ -63,85 +63,69 @@ export function App() {
     type: string;
   } | null>(null);
 
-  // 1. Rescue / Abuse Cases
-  const [cases, setCases] = useState<RescueCase[]>(() => {
+  // Permanent historical timestamp sanitizer for localStorage
+  const sanitizeAndMigrate = <T extends Record<string, any>>(key: string, primaryTimeKey: string): T[] => {
     try {
-      const saved = localStorage.getItem('pawguard_cases');
-      return saved ? JSON.parse(saved) : [];
+      const raw = localStorage.getItem(key);
+      if (!raw) return [];
+      const items: T[] = JSON.parse(raw);
+      let changed = false;
+      const baseNow = Date.now();
+      const migrated = items.map((item, idx) => {
+        const timeVal = item[primaryTimeKey] || (item as any).reportedAt || (item as any).date || (item as any).timestamp;
+        if (!timeVal || timeVal === 'Just now' || timeVal === 'Recent' || timeVal === 'Recently') {
+          changed = true;
+          // Extract timestamp from ID or create a fixed historical timestamp
+          const match = typeof item.id === 'string' && item.id.match(/\d{13}/);
+          const fixedTime = new Date(match ? parseInt(match[0], 10) : baseNow - Math.max(1, items.length - idx) * 12 * 60 * 1000).toISOString();
+          return {
+            ...item,
+            [primaryTimeKey]: fixedTime,
+            ...((item as any).reportedAt ? { reportedAt: fixedTime } : {}),
+            ...((item as any).date ? { date: fixedTime } : {}),
+            ...((item as any).timestamp ? { timestamp: fixedTime } : {}),
+            ...((item as any).updates ? {
+              updates: (item as any).updates.map((u: any) => ({
+                ...u,
+                time: (!u.time || u.time === 'Just now' || u.time === 'Recent') ? fixedTime : u.time
+              }))
+            } : {})
+          };
+        }
+        return item;
+      });
+      if (changed) {
+        localStorage.setItem(key, JSON.stringify(migrated));
+      }
+      return migrated;
     } catch {
       return [];
     }
-  });
+  };
+
+  // 1. Rescue / Abuse Cases
+  const [cases, setCases] = useState<RescueCase[]>(() => sanitizeAndMigrate<RescueCase>('pawguard_cases', 'reportedAt'));
 
   // 2. Adoptable Dogs
-  const [dogs, setDogs] = useState<AdoptableDog[]>(() => {
-    try {
-      const saved = localStorage.getItem('pawguard_dogs');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [dogs, setDogs] = useState<AdoptableDog[]>(() => sanitizeAndMigrate<AdoptableDog>('pawguard_dogs', 'rescueDate'));
 
   // 3. Lost & Found Items
-  const [lostFoundItems, setLostFoundItems] = useState<LostFoundDog[]>(() => {
-    try {
-      const saved = localStorage.getItem('pawguard_lostfound');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [lostFoundItems, setLostFoundItems] = useState<LostFoundDog[]>(() => sanitizeAndMigrate<LostFoundDog>('pawguard_lostfound', 'submittedAt'));
 
   // 4. Adoption Inquiries & Applications
-  const [adoptionInquiries, setAdoptionInquiries] = useState<AdoptionInquiry[]>(() => {
-    try {
-      const saved = localStorage.getItem('pawguard_inquiries');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [adoptionInquiries, setAdoptionInquiries] = useState<AdoptionInquiry[]>(() => sanitizeAndMigrate<AdoptionInquiry>('pawguard_inquiries', 'submittedAt'));
 
   // 5. Volunteer Applications
-  const [volunteerApplications, setVolunteerApplications] = useState<VolunteerApplication[]>(() => {
-    try {
-      const saved = localStorage.getItem('pawguard_volunteers');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [volunteerApplications, setVolunteerApplications] = useState<VolunteerApplication[]>(() => sanitizeAndMigrate<VolunteerApplication>('pawguard_volunteers', 'submittedAt'));
 
   // 6. Donation Records & Pledges
-  const [donationRecords, setDonationRecords] = useState<DonationRecord[]>(() => {
-    try {
-      const saved = localStorage.getItem('pawguard_donations');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [donationRecords, setDonationRecords] = useState<DonationRecord[]>(() => sanitizeAndMigrate<DonationRecord>('pawguard_donations', 'submittedAt'));
 
   // 7. Emergency SOS Alerts
-  const [emergencyAlerts, setEmergencyAlerts] = useState<EmergencyAlert[]>(() => {
-    try {
-      const saved = localStorage.getItem('pawguard_emergency');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [emergencyAlerts, setEmergencyAlerts] = useState<EmergencyAlert[]>(() => sanitizeAndMigrate<EmergencyAlert>('pawguard_emergency', 'submittedAt'));
 
   // 8. Admin Activity Logs
-  const [activityLogs, setActivityLogs] = useState<AdminActivityLog[]>(() => {
-    try {
-      const saved = localStorage.getItem('pawguard_logs');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [activityLogs, setActivityLogs] = useState<AdminActivityLog[]>(() => sanitizeAndMigrate<AdminActivityLog>('pawguard_logs', 'timestamp'));
 
   const [isEmergencyOpen, setIsEmergencyOpen] = useState(false);
 

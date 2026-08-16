@@ -118,14 +118,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onNavigateSection,
   onLogout,
 }) => {
-  const [, setTick] = useState(0);
-
-  // Live timestamp refresh every 30 seconds
-  useEffect(() => {
-    const timer = setInterval(() => setTick((t) => t + 1), 30000);
-    return () => clearInterval(timer);
-  }, []);
-
   const [activeTab, setActiveTab] = useState<
     'overview' | 'cases' | 'inquiries' | 'lostfound' | 'volunteers' | 'donations' | 'emergency' | 'dogs' | 'logs'
   >('overview');
