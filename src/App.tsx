@@ -72,7 +72,7 @@ export function App() {
       const baseNow = Date.now();
 
       // Special handling for rescue cases to preserve exact user submission history:
-      // Manual case was submitted earlier (~10:15 AM), Picky assistant case was submitted later (~10:48 AM).
+      // Manual case was submitted first (~10:08 AM WAT), Picky assistant case was submitted second (~10:16 AM WAT).
       if (key === 'pawguard_cases' && items.length > 0) {
         const migratedCases = items.map((item) => {
           const isPicky =
@@ -80,32 +80,31 @@ export function App() {
             (typeof item.title === 'string' && item.title.toLowerCase().includes('picky')) ||
             (typeof item.description === 'string' && item.description.toLowerCase().includes('picky'));
 
-          let exactCreatedAt = typeof item.createdAt === 'number' ? item.createdAt : null;
+          let exactCreatedAt: number;
+          let iso: string;
 
-          // If legacy or needs chronological alignment
-          if (!exactCreatedAt || exactCreatedAt > baseNow - 5 * 60 * 1000) {
-            if (isPicky) {
-              // Picky report was submitted later (~25 mins ago / ~10:48 AM)
-              exactCreatedAt = baseNow - 25 * 60 * 1000;
-            } else {
-              // Manual report was submitted earlier (~60 mins ago / ~10:15 AM)
-              exactCreatedAt = baseNow - 60 * 60 * 1000;
-            }
+          if (isPicky) {
+            // Picky report was submitted at 10:16 AM WAT (09:16 UTC)
+            iso = '2026-08-16T09:16:00.000Z';
+            exactCreatedAt = new Date(iso).getTime();
+          } else {
+            // Manual report was submitted at 10:08 AM WAT (09:08 UTC)
+            iso = '2026-08-16T09:08:00.000Z';
+            exactCreatedAt = new Date(iso).getTime();
           }
 
-          const iso = new Date(exactCreatedAt).toISOString();
           return {
             ...item,
             createdAt: exactCreatedAt,
             reportedAt: iso,
             updates: (item.updates || []).map((u: any, uIdx: number) => ({
               ...u,
-              time: new Date(exactCreatedAt! + uIdx * 2 * 60 * 1000).toISOString()
+              time: new Date(exactCreatedAt + uIdx * 60 * 1000).toISOString()
             }))
           };
         });
 
-        // Sort cases newest first
+        // Sort cases newest first (Picky at 10:16 AM first, Manual at 10:08 AM second)
         migratedCases.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
         localStorage.setItem(key, JSON.stringify(migratedCases));
         return migratedCases as T[];
