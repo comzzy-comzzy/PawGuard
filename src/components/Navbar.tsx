@@ -108,10 +108,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 ? 'bg-[#4a2e1b] text-white border-[#352018] shadow-md'
                 : 'bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] border-[#ebd7c3]'
             }`}
-            title="Open Admin Dashboard & Dispatch Intake"
+            title="Open Admin Dashboard"
           >
             <ShieldCheck className="w-4 h-4 text-[#ea8e24]" />
-            <span className="hidden sm:inline">Admin Desk</span>
+            <span className="hidden sm:inline">Admin Dashboard</span>
             {adminSubmissionsCount > 0 && (
               <span className="bg-[#d94141] text-white text-[10px] font-mono px-1.5 py-0.2 rounded-full shadow-sm animate-pulse">
                 {adminSubmissionsCount}
@@ -171,11 +171,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-[#ea8e24]" />
-              <span>Admin Dashboard Desk</span>
+              <span>Admin Dashboard</span>
             </div>
             {adminSubmissionsCount > 0 && (
               <span className="bg-[#d94141] text-white text-xs font-mono px-2 py-0.5 rounded-full">
-                {adminSubmissionsCount} submissions
+                {adminSubmissionsCount}
               </span>
             )}
           </button>

@@ -11,6 +11,7 @@ import {
 } from '../types';
 import {
   ShieldAlert,
+  ShieldCheck,
   Heart,
   Search,
   Users,
@@ -35,9 +36,11 @@ import {
   X,
   Eye,
   Activity,
-  Siren,
+  PhoneCall,
   Dog,
-  Sparkles,
+  LayoutDashboard,
+  Calendar,
+  Layers,
 } from 'lucide-react';
 import {
   playClickSound,
@@ -119,8 +122,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [urgencyFilter, setUrgencyFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
-  // Dossier detail modal state
-  const [selectedDossier, setSelectedDossier] = useState<{
+  // Detail modal state
+  const [selectedDetails, setSelectedDetails] = useState<{
     type: 'case' | 'inquiry' | 'lostfound' | 'volunteer' | 'donation' | 'emergency' | 'dog';
     data: any;
   } | null>(null);
@@ -130,7 +133,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [newTimelineNote, setNewTimelineNote] = useState('');
   const [adminNoteInput, setAdminNoteInput] = useState('');
 
-  // Toast / feedback message
+  // Toast message
   const [feedbackToast, setFeedbackToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -138,7 +141,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setTimeout(() => setFeedbackToast(null), 3500);
   };
 
-  // Counts & KPIs
+  // Counts
   const totalSubmissions =
     cases.length +
     adoptionInquiries.length +
@@ -152,7 +155,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const pendingVolunteersCount = volunteerApplications.filter((v) => v.status === 'pending').length;
   const activeEmergenciesCount = emergencyAlerts.filter((e) => e.status === 'active').length;
 
-  // Global search filtering across cases
+  // Filter cases
   const filteredCases = useMemo(() => {
     return cases.filter((c) => {
       const matchUrgency = urgencyFilter === 'all' || c.urgency === urgencyFilter;
@@ -168,7 +171,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     });
   }, [cases, urgencyFilter, statusFilter, searchQuery]);
 
-  // Global search filtering across inquiries
+  // Filter inquiries
   const filteredInquiries = useMemo(() => {
     return adoptionInquiries.filter((inq) => {
       const matchQuery =
@@ -181,7 +184,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     });
   }, [adoptionInquiries, searchQuery]);
 
-  // Export all submissions to JSON
+  // Export submissions to JSON
   const handleExportJSON = () => {
     playClickSound();
     const data = {
@@ -201,7 +204,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
-    showToast('Submissions data export downloaded successfully.');
+    showToast('Submissions data export downloaded.');
   };
 
   // Status changer for cases
@@ -212,7 +215,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       dispatching: 'Dispatching Response',
       volunteer_en_route: 'Volunteer En Route',
       at_vet: 'Under Vet Care',
-      rescued_safe: 'Rescued & Safe ❤️',
+      rescued_safe: 'Rescued & Sheltered',
     };
     const updated: RescueCase = {
       ...caseItem,
@@ -221,14 +224,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {
           time: 'Just now',
           text: `Status updated to: ${statusLabels[newStatus]}`,
-          author: 'Admin Dispatcher',
+          author: 'Admin',
         },
         ...caseItem.updates,
       ],
     };
     onUpdateCase(updated);
-    if (selectedDossier && selectedDossier.data.id === caseItem.id) {
-      setSelectedDossier({ type: 'case', data: updated });
+    if (selectedDetails && selectedDetails.data.id === caseItem.id) {
+      setSelectedDetails({ type: 'case', data: updated });
     }
     if (newStatus === 'rescued_safe') {
       playSuccessChime();
@@ -236,7 +239,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     showToast(`Case ${caseItem.id} status updated to ${statusLabels[newStatus]}`);
   };
 
-  // Add timeline note to case
+  // Add timeline note
   const handleAddTimelineNote = (caseItem: RescueCase) => {
     if (!newTimelineNote.trim()) return;
     playClickSound();
@@ -246,14 +249,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {
           time: 'Just now',
           text: newTimelineNote.trim(),
-          author: 'Admin Dispatcher',
+          author: 'Admin',
         },
         ...caseItem.updates,
       ],
     };
     onUpdateCase(updated);
-    if (selectedDossier && selectedDossier.data.id === caseItem.id) {
-      setSelectedDossier({ type: 'case', data: updated });
+    if (selectedDetails && selectedDetails.data.id === caseItem.id) {
+      setSelectedDetails({ type: 'case', data: updated });
     }
     setNewTimelineNote('');
     showToast('Timeline note recorded.');
@@ -270,16 +273,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     else if (type === 'donation') onUpdateDonation(updatedItem);
     else if (type === 'emergency') onUpdateEmergencyAlert(updatedItem);
 
-    if (selectedDossier) {
-      setSelectedDossier({ ...selectedDossier, data: updatedItem });
+    if (selectedDetails) {
+      setSelectedDetails({ ...selectedDetails, data: updatedItem });
     }
     showToast('Internal note saved.');
   };
 
-  // Open dossier helper
-  const openDossier = (type: any, data: any) => {
+  const openDetails = (type: any, data: any) => {
     playClickSound();
-    setSelectedDossier({ type, data });
+    setSelectedDetails({ type, data });
     setAdminNoteInput(data.adminNotes || '');
   };
 
@@ -287,40 +289,46 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     <div className="min-h-screen bg-[#f7f0e7] text-[#352018] font-sans pb-24">
       {/* Toast Banner */}
       {feedbackToast && (
-        <div className="fixed top-24 right-4 z-50 bg-[#4a2e1b] text-white px-5 py-3.5 rounded-2xl shadow-2xl border-2 border-[#b87d55] flex items-center gap-3 animate-fadeIn">
-          <Sparkles className="w-5 h-5 text-[#f5d7b7] animate-pulse" />
-          <span className="font-fredoka text-sm font-semibold">{feedbackToast}</span>
+        <div className="fixed top-24 right-4 z-50 bg-[#4a2e1b] text-white px-5 py-3 rounded-2xl shadow-xl border border-[#b87d55] flex items-center gap-2.5 animate-fadeIn">
+          <CheckCircle className="w-4 h-4 text-[#86efac]" />
+          <span className="font-fredoka text-xs sm:text-sm font-semibold">{feedbackToast}</span>
         </div>
       )}
 
-      {/* Admin Top Command Header */}
+      {/* Admin Top Header */}
       <div className="bg-[#4a2e1b] text-white border-b-4 border-[#352018] sticky top-20 z-30 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             
             {/* Title & Live Status */}
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#fbf6f0] text-[#4a2e1b] flex items-center justify-center font-bold text-xl shadow">
-                🛡️
+              <div className="w-11 h-11 rounded-2xl bg-[#fbf6f0] text-[#4a2e1b] flex items-center justify-center shadow">
+                <ShieldCheck className="w-6 h-6 text-[#4a2e1b]" />
               </div>
               <div>
                 <div className="flex items-center gap-2.5">
                   <h1 className="font-fredoka text-2xl sm:text-3xl font-bold tracking-tight text-white">
-                    PawGuard Admin Dispatch Desk
+                    PawGuard Admin Dashboard
                   </h1>
-                  <span className="flex items-center gap-1.5 bg-[#22c55e]/20 text-[#86efac] border border-[#22c55e]/40 text-[11px] font-fredoka font-bold px-3 py-0.5 rounded-full">
+                  <span className="flex items-center gap-1.5 bg-[#22c55e]/20 text-[#86efac] border border-[#22c55e]/40 text-[11px] font-fredoka font-semibold px-2.5 py-0.5 rounded-full">
                     <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-ping inline-block"></span>
-                    <span>LIVE INTAKE</span>
+                    <span>Live Updates</span>
                   </span>
                 </div>
                 <p className="text-xs text-[#f5d7b7]/90 font-medium">
-                  Central Real-Time Intake Desk for All Details Submitted by Users
+                  Direct management desk for reports, adoption inquiries, notices, and volunteers
                 </p>
               </div>
             </div>
 
             {/* Actions in Header */}
             <div className="flex flex-wrap items-center gap-2.5">
+              {/* Direct Link indicator */}
+              <div className="hidden lg:flex items-center gap-1.5 bg-[#352018] px-3 py-2 rounded-xl text-xs font-mono text-[#f5d7b7] border border-white/10">
+                <span className="text-white/60">URL:</span>
+                <span>/admin</span>
+              </div>
+
               {/* Export JSON */}
               <button
                 onClick={handleExportJSON}
@@ -459,7 +467,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
             <div className="font-fredoka text-3xl font-black text-[#26160d]">{donationRecords.length}</div>
             <div className="text-[11px] text-[#8a5b3a] mt-1 font-semibold">
-              USD + Crypto Records
+              Payment Records
             </div>
           </button>
 
@@ -477,14 +485,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-fredoka font-bold uppercase text-[#d94141] flex items-center gap-1">
-                <Siren className="w-3.5 h-3.5 animate-bounce" />
+                <Radio className="w-3.5 h-3.5" />
                 <span>SOS Alert</span>
               </span>
-              <Radio className="w-5 h-5 text-[#d94141]" />
+              <PhoneCall className="w-5 h-5 text-[#d94141]" />
             </div>
             <div className="font-fredoka text-3xl font-black text-[#d94141]">{emergencyAlerts.length}</div>
             <div className="text-[11px] text-[#991b1b] mt-1 font-semibold">
-              {activeEmergenciesCount} Active Dispatch
+              {activeEmergenciesCount} Active
             </div>
           </button>
 
@@ -495,40 +503,44 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           
           <div className="flex flex-wrap items-center gap-1 sm:gap-2">
             {[
-              { id: 'overview', label: '📊 Command Center', count: totalSubmissions },
-              { id: 'cases', label: '🚨 Abuse Reports', count: cases.length },
-              { id: 'inquiries', label: '🐾 Adoption Apps', count: adoptionInquiries.length },
-              { id: 'lostfound', label: '🔍 Lost & Found', count: lostFoundItems.length },
-              { id: 'volunteers', label: '🤝 Volunteers', count: volunteerApplications.length },
-              { id: 'donations', label: '💖 Donation Ledger', count: donationRecords.length },
-              { id: 'emergency', label: '⚡ SOS Hotline', count: emergencyAlerts.length },
-              { id: 'dogs', label: '🐕 Dog Catalog', count: dogs.length },
-              { id: 'logs', label: '📜 Activity Log', count: activityLogs.length },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  playClickSound();
-                  setActiveTab(tab.id as any);
-                }}
-                className={`font-fredoka text-xs sm:text-sm px-3.5 py-2 rounded-2xl transition-all flex items-center gap-1.5 ${
-                  activeTab === tab.id
-                    ? 'bg-[#4a2e1b] text-white font-bold shadow-md'
-                    : 'text-[#5e4537] hover:bg-[#faefe4] font-medium'
-                }`}
-              >
-                <span>{tab.label}</span>
-                <span
-                  className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+              { id: 'overview', label: 'Overview', icon: LayoutDashboard, count: totalSubmissions },
+              { id: 'cases', label: 'Incident Reports', icon: ShieldAlert, count: cases.length },
+              { id: 'inquiries', label: 'Adoption Applications', icon: Heart, count: adoptionInquiries.length },
+              { id: 'lostfound', label: 'Lost & Found', icon: Search, count: lostFoundItems.length },
+              { id: 'volunteers', label: 'Volunteers', icon: Users, count: volunteerApplications.length },
+              { id: 'donations', label: 'Donation Ledger', icon: Coins, count: donationRecords.length },
+              { id: 'emergency', label: 'Emergency Requests', icon: PhoneCall, count: emergencyAlerts.length },
+              { id: 'dogs', label: 'Dog Catalog', icon: Dog, count: dogs.length },
+              { id: 'logs', label: 'Activity Log', icon: Activity, count: activityLogs.length },
+            ].map((tab) => {
+              const TabIcon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    playClickSound();
+                    setActiveTab(tab.id as any);
+                  }}
+                  className={`font-fredoka text-xs sm:text-sm px-3.5 py-2 rounded-2xl transition-all flex items-center gap-1.5 ${
                     activeTab === tab.id
-                      ? 'bg-white/20 text-white'
-                      : 'bg-[#faefe4] text-[#8a5b3a]'
+                      ? 'bg-[#4a2e1b] text-white font-bold shadow-md'
+                      : 'text-[#5e4537] hover:bg-[#faefe4] font-medium'
                   }`}
                 >
-                  {tab.count}
-                </span>
-              </button>
-            ))}
+                  <TabIcon className="w-3.5 h-3.5" />
+                  <span>{tab.label}</span>
+                  <span
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                      activeTab === tab.id
+                        ? 'bg-white/20 text-white'
+                        : 'bg-[#faefe4] text-[#8a5b3a]'
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Search */}
@@ -554,7 +566,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
 
         {/* ---------------------------------------------------- */}
-        {/* TAB: COMMAND CENTER OVERVIEW */}
+        {/* TAB: OVERVIEW */}
         {/* ---------------------------------------------------- */}
         {activeTab === 'overview' && (
           <div className="space-y-8 animate-fadeIn">
@@ -564,11 +576,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="flex items-center justify-between border-b border-[#ebd7c3] pb-4">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-xl bg-[#fee2e2] text-[#d94141] flex items-center justify-center font-bold">
-                    🚨
+                    <ShieldAlert className="w-4 h-4 text-[#d94141]" />
                   </div>
                   <div>
                     <h2 className="font-fredoka text-xl font-bold text-[#26160d]">
-                      Critical Incident & Dispatch Stream
+                      Critical Incident Stream
                     </h2>
                     <p className="text-xs text-[#8a5b3a]">
                       Cases requiring immediate rescue responder dispatch or medical attention
@@ -586,12 +598,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               {cases.length === 0 ? (
                 <div className="text-center py-10 space-y-2">
-                  <div className="w-12 h-12 rounded-2xl bg-[#faefe4] text-[#4a2e1b] flex items-center justify-center mx-auto text-xl">
-                    🛡️
+                  <div className="w-12 h-12 rounded-2xl bg-[#faefe4] text-[#4a2e1b] flex items-center justify-center mx-auto">
+                    <ShieldCheck className="w-6 h-6 text-[#4a2e1b]" />
                   </div>
                   <h3 className="font-fredoka text-lg font-bold text-[#26160d]">No Submissions Yet</h3>
                   <p className="text-xs text-[#8a5b3a] max-w-sm mx-auto">
-                    When a user submits an abuse report, emergency hotline alert, or case through the website, it will appear here in real-time.
+                    When a user submits an abuse report or emergency hotline alert through the website, it will appear here in real-time.
                   </p>
                 </div>
               ) : (
@@ -599,7 +611,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   {cases.slice(0, 4).map((item) => (
                     <div
                       key={item.id}
-                      onClick={() => openDossier('case', item)}
+                      onClick={() => openDetails('case', item)}
                       className="bg-[#fbf6f0] p-4 sm:p-5 rounded-2xl border border-[#ebd7c3] hover:border-[#d94141] shadow-sm hover:shadow-md transition-all cursor-pointer flex gap-4 items-start group"
                     >
                       <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-200 flex-shrink-0 border border-[#ebd7c3]">
@@ -625,7 +637,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                         <div className="flex items-center justify-between text-[11px] text-[#8a5b3a] pt-1">
                           <span>Reporter: {item.reporter}</span>
-                          <span className="text-[#4a2e1b] font-bold group-hover:underline">Open Dossier →</span>
+                          <span className="text-[#4a2e1b] font-bold group-hover:underline">View Details →</span>
                         </div>
                       </div>
                     </div>
@@ -663,7 +675,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     {adoptionInquiries.slice(0, 3).map((inq) => (
                       <div
                         key={inq.id}
-                        onClick={() => openDossier('inquiry', inq)}
+                        onClick={() => openDetails('inquiry', inq)}
                         className="bg-[#fbf6f0] p-3.5 rounded-2xl border border-[#ebd7c3] hover:border-[#3aa866] transition-all cursor-pointer flex items-center justify-between"
                       >
                         <div>
@@ -717,7 +729,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     {volunteerApplications.slice(0, 3).map((vol) => (
                       <div
                         key={vol.id}
-                        onClick={() => openDossier('volunteer', vol)}
+                        onClick={() => openDetails('volunteer', vol)}
                         className="bg-[#fbf6f0] p-3.5 rounded-2xl border border-[#ebd7c3] hover:border-[#8a4ea8] transition-all cursor-pointer flex items-center justify-between"
                       >
                         <div>
@@ -749,7 +761,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         )}
 
         {/* ---------------------------------------------------- */}
-        {/* TAB: ABUSE & RESCUE DISPATCHES */}
+        {/* TAB: INCIDENT REPORTS */}
         {/* ---------------------------------------------------- */}
         {activeTab === 'cases' && (
           <div className="space-y-6 animate-fadeIn">
@@ -776,8 +788,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   className="bg-[#fbf6f0] border border-[#ebd7c3] rounded-xl text-xs font-semibold px-3 py-2 text-[#4a2e1b]"
                 >
                   <option value="all">All Urgencies</option>
-                  <option value="critical">🚨 Critical</option>
-                  <option value="high">⚠️ High</option>
+                  <option value="critical">Critical</option>
+                  <option value="high">High</option>
                   <option value="moderate">Moderate</option>
                 </select>
 
@@ -800,11 +812,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             {filteredCases.length === 0 ? (
               <div className="bg-white rounded-3xl p-12 text-center border-2 border-[#ebd7c3] space-y-2">
                 <div className="w-12 h-12 rounded-2xl bg-[#fee2e2] text-[#d94141] flex items-center justify-center mx-auto text-xl">
-                  🚨
+                  <ShieldAlert className="w-6 h-6 text-[#d94141]" />
                 </div>
                 <h3 className="font-fredoka text-lg font-bold text-[#26160d]">No Abuse Reports in Queue</h3>
                 <p className="text-xs text-[#8a5b3a] max-w-sm mx-auto">
-                  When a user reports an incident through the "Report Abuse" section, all information including photos, GPS, and contact info will appear here.
+                  When a user reports an incident through the Report Abuse section, all information including photos, GPS, and contact info will appear here.
                 </p>
               </div>
             ) : (
@@ -887,18 +899,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         {/* Status update select */}
                         <div className="space-y-1">
                           <label className="text-[10px] font-fredoka font-bold uppercase text-[#8a5b3a]">
-                            Dispatch Status:
+                            Status:
                           </label>
                           <select
                             value={item.status}
                             onChange={(e) => handleStatusChange(item, e.target.value as any)}
                             className="w-full bg-[#fbf6f0] border border-[#ebd7c3] font-fredoka font-semibold text-xs rounded-xl p-2 focus:ring-2 focus:ring-[#4a2e1b]"
                           >
-                            <option value="reported">1. Reported (Needs Triage)</option>
-                            <option value="dispatching">2. Dispatching Responder</option>
-                            <option value="volunteer_en_route">3. Volunteer En Route</option>
-                            <option value="at_vet">4. Under Medical / Vet Care</option>
-                            <option value="rescued_safe">5. Rescued Safe & Sheltered ❤️</option>
+                            <option value="reported">Reported</option>
+                            <option value="dispatching">Dispatching Responder</option>
+                            <option value="volunteer_en_route">Volunteer En Route</option>
+                            <option value="at_vet">Under Medical Care</option>
+                            <option value="rescued_safe">Rescued & Sheltered</option>
                           </select>
                         </div>
                       </div>
@@ -907,11 +919,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     {/* Bottom Actions */}
                     <div className="p-5 sm:p-6 pt-0 flex gap-2">
                       <button
-                        onClick={() => openDossier('case', item)}
+                        onClick={() => openDetails('case', item)}
                         className="flex-1 bg-[#4a2e1b] hover:bg-[#352018] text-white text-xs font-fredoka font-semibold py-2.5 rounded-full shadow flex items-center justify-center gap-1.5"
                       >
                         <Eye className="w-3.5 h-3.5" />
-                        <span>View Full Details</span>
+                        <span>View Details</span>
                       </button>
 
                       <button
@@ -957,7 +969,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             {filteredInquiries.length === 0 ? (
               <div className="bg-white rounded-3xl p-12 text-center border-2 border-[#ebd7c3] space-y-2">
                 <div className="w-12 h-12 rounded-2xl bg-[#dcfce7] text-[#166534] flex items-center justify-center mx-auto text-xl">
-                  🐾
+                  <Heart className="w-6 h-6 text-[#3aa866]" />
                 </div>
                 <h3 className="font-fredoka text-lg font-bold text-[#26160d]">No Adoption Applications Yet</h3>
                 <p className="text-xs text-[#8a5b3a] max-w-sm mx-auto">
@@ -1055,11 +1067,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               : 'bg-[#faefe4] text-[#4a2e1b] border-[#ebd7c3] hover:bg-[#dcfce7]'
                           }`}
                         >
-                          {inq.status === 'approved' ? '✓ Approved' : 'Approve App'}
+                          {inq.status === 'approved' ? 'Approved' : 'Approve Application'}
                         </button>
 
                         <button
-                          onClick={() => openDossier('inquiry', inq)}
+                          onClick={() => openDetails('inquiry', inq)}
                           className="px-3 bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] text-xs font-fredoka font-semibold rounded-xl"
                           title="Full Details"
                         >
@@ -1096,7 +1108,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             {lostFoundItems.length === 0 ? (
               <div className="bg-white rounded-3xl p-12 text-center border-2 border-[#ebd7c3] space-y-2">
                 <div className="w-12 h-12 rounded-2xl bg-[#ffedd5] text-[#9a3412] flex items-center justify-center mx-auto text-xl">
-                  🔍
+                  <Search className="w-6 h-6 text-[#ea8e24]" />
                 </div>
                 <h3 className="font-fredoka text-lg font-bold text-[#26160d]">No Lost or Found Notices Yet</h3>
                 <p className="text-xs text-[#8a5b3a] max-w-sm mx-auto">
@@ -1128,7 +1140,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </div>
                         {item.caseStatus === 'reunited' && (
                           <div className="absolute top-3 right-3 bg-[#166534] text-white text-[10px] font-fredoka font-bold px-2.5 py-0.5 rounded-full">
-                            Reunited ❤️
+                            Reunited
                           </div>
                         )}
                       </div>
@@ -1164,11 +1176,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         }}
                         className="flex-1 bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] text-xs font-fredoka font-semibold py-2.5 rounded-xl transition-all"
                       >
-                        {item.caseStatus === 'reunited' ? 'Reopen Case' : 'Mark Reunited ❤️'}
+                        {item.caseStatus === 'reunited' ? 'Reopen Case' : 'Mark Reunited'}
                       </button>
 
                       <button
-                        onClick={() => openDossier('lostfound', item)}
+                        onClick={() => openDetails('lostfound', item)}
                         className="px-4 bg-[#4a2e1b] text-white text-xs font-fredoka font-semibold rounded-xl"
                       >
                         View
@@ -1191,7 +1203,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <Users className="w-6 h-6 text-[#8a4ea8]" />
                 <div>
                   <h2 className="font-fredoka text-xl font-bold text-[#26160d]">
-                    Volunteer Guild Applicants ({volunteerApplications.length})
+                    Volunteer Applicants ({volunteerApplications.length})
                   </h2>
                   <p className="text-xs text-[#8a5b3a]">
                     Community members offering transport, foster homes, and veterinary assistance
@@ -1203,11 +1215,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             {volunteerApplications.length === 0 ? (
               <div className="bg-white rounded-3xl p-12 text-center border-2 border-[#ebd7c3] space-y-2">
                 <div className="w-12 h-12 rounded-2xl bg-[#f3e8ff] text-[#6b21a8] flex items-center justify-center mx-auto text-xl">
-                  🤝
+                  <Users className="w-6 h-6 text-[#8a4ea8]" />
                 </div>
                 <h3 className="font-fredoka text-lg font-bold text-[#26160d]">No Volunteer Applications Yet</h3>
                 <p className="text-xs text-[#8a5b3a] max-w-sm mx-auto">
-                  When a user signs up to volunteer as a rescue driver, emergency foster, or field spotter, their full details will appear here.
+                  When a user signs up to volunteer as a rescue driver, emergency foster, or field spotter, their details will appear here.
                 </p>
               </div>
             ) : (
@@ -1255,7 +1267,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </div>
                         <div className="flex items-center justify-between text-[11px]">
                           <span className="text-[#8a5b3a]">Vehicle Access:</span>
-                          <span className="font-bold text-[#3aa866]">{vol.hasVehicle ? '✓ Yes (Equipped)' : 'No'}</span>
+                          <span className="font-bold text-[#3aa866]">{vol.hasVehicle ? 'Yes' : 'No'}</span>
                         </div>
                       </div>
 
@@ -1279,11 +1291,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               : 'bg-[#faefe4] text-[#4a2e1b] border-[#ebd7c3] hover:bg-[#dcfce7]'
                           }`}
                         >
-                          {vol.status === 'approved' ? '✓ Approved Member' : 'Approve Volunteer'}
+                          {vol.status === 'approved' ? 'Approved' : 'Approve Volunteer'}
                         </button>
 
                         <button
-                          onClick={() => openDossier('volunteer', vol)}
+                          onClick={() => openDetails('volunteer', vol)}
                           className="px-4 bg-[#4a2e1b] text-white text-xs font-fredoka font-semibold rounded-xl"
                         >
                           Details
@@ -1319,7 +1331,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             {donationRecords.length === 0 ? (
               <div className="bg-white rounded-3xl p-12 text-center border-2 border-[#ebd7c3] space-y-2">
                 <div className="w-12 h-12 rounded-2xl bg-[#faefe4] text-[#b87d55] flex items-center justify-center mx-auto text-xl">
-                  💖
+                  <Coins className="w-6 h-6 text-[#b87d55]" />
                 </div>
                 <h3 className="font-fredoka text-lg font-bold text-[#26160d]">No Donation Records Yet</h3>
                 <p className="text-xs text-[#8a5b3a] max-w-sm mx-auto">
@@ -1401,11 +1413,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               : 'bg-[#faefe4] text-[#4a2e1b] border-[#ebd7c3] hover:bg-[#dcfce7]'
                           }`}
                         >
-                          {don.status === 'verified' ? '✓ Verified on Ledger' : 'Verify Donation'}
+                          {don.status === 'verified' ? 'Verified' : 'Verify Donation'}
                         </button>
 
                         <button
-                          onClick={() => openDossier('donation', don)}
+                          onClick={() => openDetails('donation', don)}
                           className="px-4 bg-[#4a2e1b] text-white text-xs font-fredoka font-semibold rounded-xl"
                         >
                           Details
@@ -1426,7 +1438,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="space-y-6 animate-fadeIn">
             <div className="flex items-center justify-between bg-white p-4 rounded-3xl border-2 border-[#d94141]">
               <div className="flex items-center gap-3">
-                <Siren className="w-6 h-6 text-[#d94141] animate-bounce" />
+                <PhoneCall className="w-6 h-6 text-[#d94141]" />
                 <div>
                   <h2 className="font-fredoka text-xl font-bold text-[#d94141]">
                     Emergency SOS Alerts ({emergencyAlerts.length})
@@ -1441,11 +1453,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             {emergencyAlerts.length === 0 ? (
               <div className="bg-white rounded-3xl p-12 text-center border-2 border-[#d94141]/40 space-y-2">
                 <div className="w-12 h-12 rounded-2xl bg-[#fee2e2] text-[#d94141] flex items-center justify-center mx-auto text-xl">
-                  ⚡
+                  <PhoneCall className="w-6 h-6 text-[#d94141]" />
                 </div>
-                <h3 className="font-fredoka text-lg font-bold text-[#26160d]">No Active Emergency SOS Alerts</h3>
+                <h3 className="font-fredoka text-lg font-bold text-[#26160d]">No Active Emergency Requests</h3>
                 <p className="text-xs text-[#8a5b3a] max-w-sm mx-auto">
-                  When a user in distress submits an SOS callback request through the Emergency Help modal, it will immediately sound an alarm and appear here.
+                  When a user in distress submits an SOS callback request through the Emergency Help modal, it will immediately appear here.
                 </p>
               </div>
             ) : (
@@ -1499,7 +1511,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           className="flex-1 bg-[#d94141] hover:bg-[#b91c1c] text-white text-xs font-fredoka font-bold py-3 rounded-xl flex items-center justify-center gap-1.5 shadow"
                         >
                           <Phone className="w-4 h-4" />
-                          <span>Call Back Now</span>
+                          <span>Call Back</span>
                         </a>
 
                         <a
@@ -1523,11 +1535,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           }}
                           className="flex-1 bg-[#fbf6f0] hover:bg-[#ebd7c3] text-[#4a2e1b] text-xs font-fredoka font-semibold py-2 rounded-xl border border-[#ebd7c3]"
                         >
-                          {sos.status === 'resolved' ? 'Reopen SOS' : '✓ Mark Resolved'}
+                          {sos.status === 'resolved' ? 'Reopen SOS' : 'Mark Resolved'}
                         </button>
 
                         <button
-                          onClick={() => openDossier('emergency', sos)}
+                          onClick={() => openDetails('emergency', sos)}
                           className="px-4 bg-[#4a2e1b] text-white text-xs font-fredoka font-semibold rounded-xl"
                         >
                           Details
@@ -1564,24 +1576,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 className="bg-[#4a2e1b] hover:bg-[#352018] text-white text-xs font-fredoka font-semibold px-4 py-2.5 rounded-2xl shadow flex items-center gap-1.5"
               >
                 <PlusCircle className="w-4 h-4" />
-                <span>Add New Dog</span>
+                <span>Add Dog</span>
               </button>
             </div>
 
             {dogs.length === 0 ? (
               <div className="bg-white rounded-3xl p-12 text-center border-2 border-[#ebd7c3] space-y-4">
                 <div className="w-12 h-12 rounded-2xl bg-[#faefe4] text-[#4a2e1b] flex items-center justify-center mx-auto text-xl">
-                  🐕
+                  <Dog className="w-6 h-6 text-[#4a2e1b]" />
                 </div>
-                <h3 className="font-fredoka text-lg font-bold text-[#26160d]">No Dogs Listed in Database Yet</h3>
+                <h3 className="font-fredoka text-lg font-bold text-[#26160d]">No Dogs in Catalog Yet</h3>
                 <p className="text-xs text-[#8a5b3a] max-w-sm mx-auto">
-                  Click "Add New Dog" above or submit a pet through the "List a Rescued Dog" public form to add dogs to the adoption directory.
+                  Click "Add Dog" above or submit a pet through the "List a Rescued Dog" public form to add dogs to the adoption directory.
                 </p>
                 <button
                   onClick={() => setIsAddDogModalOpen(true)}
                   className="bg-[#4a2e1b] text-white font-fredoka text-xs px-5 py-2.5 rounded-full"
                 >
-                  + Add First Dog
+                  + Add Dog
                 </button>
               </div>
             ) : (
@@ -1605,7 +1617,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 : 'bg-[#dcfce7] text-[#166534]'
                             }`}
                           >
-                            {dog.status === 'adopted' ? 'Adopted ❤️' : 'Available'}
+                            {dog.status === 'adopted' ? 'Adopted' : 'Available'}
                           </span>
                         </div>
                       </div>
@@ -1631,7 +1643,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         }}
                         className="flex-1 bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] text-xs font-fredoka font-semibold py-2 rounded-xl"
                       >
-                        {dog.status === 'adopted' ? 'Make Available' : 'Mark Adopted ❤️'}
+                        {dog.status === 'adopted' ? 'Make Available' : 'Mark Adopted'}
                       </button>
 
                       <button
@@ -1664,10 +1676,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <Activity className="w-6 h-6 text-[#4a2e1b]" />
                 <div>
                   <h2 className="font-fredoka text-xl font-bold text-[#26160d]">
-                    Live Audit & Real-Time Activity Log
+                    Activity Log
                   </h2>
                   <p className="text-xs text-[#8a5b3a]">
-                    Chronological audit trail of incoming user submissions and administrative actions
+                    Chronological audit trail of user submissions and administrative updates
                   </p>
                 </div>
               </div>
@@ -1686,7 +1698,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-[#faefe4] text-[#4a2e1b] flex items-center justify-center font-bold">
-                        📝
+                        <FileText className="w-5 h-5 text-[#4a2e1b]" />
                       </div>
                       <div>
                         <div className="font-fredoka text-sm font-bold text-[#26160d]">
@@ -1711,49 +1723,49 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       </div>
 
       {/* ==================================================== */}
-      {/* FULL SUBMISSION DOSSIER MODAL */}
+      {/* FULL SUBMISSION DETAILS MODAL */}
       {/* ==================================================== */}
-      {selectedDossier && (
+      {selectedDetails && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/65 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fadeIn">
           <div className="bg-[#fbf6f0] rounded-3xl max-w-2xl w-full border-4 border-[#4a2e1b] shadow-2xl overflow-hidden relative max-h-[90vh] flex flex-col">
             
-            {/* Dossier Header */}
+            {/* Modal Header */}
             <div className="bg-[#4a2e1b] text-white p-5 sm:p-6 flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-white text-[#4a2e1b] flex items-center justify-center font-bold text-lg">
-                  📋
+                  <FileText className="w-5 h-5 text-[#4a2e1b]" />
                 </div>
                 <div>
                   <h3 className="font-fredoka text-xl font-bold tracking-tight">
-                    Submission Dossier: {selectedDossier.data.id || selectedDossier.data.name}
+                    Submission Details: {selectedDetails.data.id || selectedDetails.data.name}
                   </h3>
                   <p className="text-xs text-[#f5d7b7]">
-                    Full user submission payload & administrative dispatch controls
+                    User submission data and status controls
                   </p>
                 </div>
               </div>
 
               <button
-                onClick={() => setSelectedDossier(null)}
+                onClick={() => setSelectedDetails(null)}
                 className="text-white/80 hover:text-white p-1 rounded-full hover:bg-white/10"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
 
-            {/* Dossier Body */}
+            {/* Modal Body */}
             <div className="p-6 sm:p-8 space-y-6 overflow-y-auto flex-1">
               
               {/* Photo & Main Meta */}
-              {selectedDossier.data.photoUrl && (
+              {selectedDetails.data.photoUrl && (
                 <div className="h-64 rounded-2xl overflow-hidden border-2 border-[#ebd7c3] relative bg-[#faefe4]">
                   <img
-                    src={selectedDossier.data.photoUrl}
-                    alt="Evidence"
+                    src={selectedDetails.data.photoUrl}
+                    alt="Uploaded Attachment"
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute bottom-3 left-3 bg-[#4a2e1b]/80 backdrop-blur-md text-white text-xs font-fredoka px-3 py-1 rounded-full">
-                    User Uploaded Attachment
+                    User Attachment
                   </div>
                 </div>
               )}
@@ -1761,46 +1773,46 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {/* Title & Core Fields */}
               <div className="space-y-2">
                 <h4 className="font-fredoka text-2xl font-bold text-[#26160d]">
-                  {selectedDossier.data.title || selectedDossier.data.applicantName || selectedDossier.data.dogName || selectedDossier.data.callerName || selectedDossier.data.name}
+                  {selectedDetails.data.title || selectedDetails.data.applicantName || selectedDetails.data.dogName || selectedDetails.data.callerName || selectedDetails.data.name}
                 </h4>
                 <div className="flex flex-wrap gap-2 text-xs">
-                  {selectedDossier.data.urgency && (
+                  {selectedDetails.data.urgency && (
                     <span className="bg-[#fee2e2] text-[#991b1b] font-fredoka font-bold px-3 py-1 rounded-full">
-                      Urgency: {selectedDossier.data.urgency}
+                      Urgency: {selectedDetails.data.urgency}
                     </span>
                   )}
-                  {selectedDossier.data.status && (
+                  {selectedDetails.data.status && (
                     <span className="bg-[#dcfce7] text-[#166534] font-fredoka font-bold px-3 py-1 rounded-full">
-                      Status: {selectedDossier.data.status}
+                      Status: {selectedDetails.data.status}
                     </span>
                   )}
-                  {selectedDossier.data.reportedAt && (
+                  {selectedDetails.data.reportedAt && (
                     <span className="bg-white border border-[#ebd7c3] text-[#8a5b3a] font-mono px-3 py-1 rounded-full">
-                      Submitted: {selectedDossier.data.reportedAt}
+                      Submitted: {selectedDetails.data.reportedAt}
                     </span>
                   )}
                 </div>
               </div>
 
               {/* Contact Card with 1-Click WhatsApp & Call */}
-              {(selectedDossier.data.reporterPhone || selectedDossier.data.applicantPhone || selectedDossier.data.contactPhone || selectedDossier.data.phone) && (
+              {(selectedDetails.data.reporterPhone || selectedDetails.data.applicantPhone || selectedDetails.data.contactPhone || selectedDetails.data.phone) && (
                 <div className="bg-white p-5 rounded-2xl border border-[#ebd7c3] space-y-3">
                   <div className="text-xs font-fredoka font-bold uppercase text-[#8a5b3a]">
-                    Contact Communications Desk:
+                    Contact Information:
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <div className="font-fredoka text-base font-bold text-[#26160d]">
-                        {selectedDossier.data.reporter || selectedDossier.data.applicantName || selectedDossier.data.contactName || selectedDossier.data.callerName || selectedDossier.data.name}
+                        {selectedDetails.data.reporter || selectedDetails.data.applicantName || selectedDetails.data.contactName || selectedDetails.data.callerName || selectedDetails.data.name}
                       </div>
                       <div className="font-mono text-xs text-[#8a5b3a]">
-                        {selectedDossier.data.reporterPhone || selectedDossier.data.applicantPhone || selectedDossier.data.contactPhone || selectedDossier.data.phone}
+                        {selectedDetails.data.reporterPhone || selectedDetails.data.applicantPhone || selectedDetails.data.contactPhone || selectedDetails.data.phone}
                       </div>
                     </div>
 
                     <div className="flex gap-2">
                       <a
-                        href={`tel:${selectedDossier.data.reporterPhone || selectedDossier.data.applicantPhone || selectedDossier.data.contactPhone || selectedDossier.data.phone}`}
+                        href={`tel:${selectedDetails.data.reporterPhone || selectedDetails.data.applicantPhone || selectedDetails.data.contactPhone || selectedDetails.data.phone}`}
                         className="bg-[#4a2e1b] hover:bg-[#352018] text-white text-xs font-fredoka font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5"
                       >
                         <Phone className="w-3.5 h-3.5" />
@@ -1808,7 +1820,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </a>
 
                       <a
-                        href={`https://wa.me/${(selectedDossier.data.reporterPhone || selectedDossier.data.applicantPhone || selectedDossier.data.contactPhone || selectedDossier.data.phone || '').replace(/[^0-9]/g, '')}`}
+                        href={`https://wa.me/${(selectedDetails.data.reporterPhone || selectedDetails.data.applicantPhone || selectedDetails.data.contactPhone || selectedDetails.data.phone || '').replace(/[^0-9]/g, '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-fredoka font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5"
@@ -1822,24 +1834,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               )}
 
               {/* Location & GPS */}
-              {(selectedDossier.data.location || selectedDossier.data.lastSeenLocation) && (
+              {(selectedDetails.data.location || selectedDetails.data.lastSeenLocation) && (
                 <div className="bg-white p-4 rounded-2xl border border-[#ebd7c3] space-y-1 text-xs">
                   <div className="font-fredoka font-bold text-[#8a5b3a] uppercase">Incident Location:</div>
                   <div className="flex items-center gap-1.5 text-sm font-semibold text-[#26160d]">
                     <MapPin className="w-4 h-4 text-[#ea8e24]" />
-                    <span>{selectedDossier.data.location || selectedDossier.data.lastSeenLocation}</span>
+                    <span>{selectedDetails.data.location || selectedDetails.data.lastSeenLocation}</span>
                   </div>
-                  {selectedDossier.data.landmark && (
-                    <p className="text-[#6b4c38]">Landmark: {selectedDossier.data.landmark}</p>
+                  {selectedDetails.data.landmark && (
+                    <p className="text-[#6b4c38]">Landmark: {selectedDetails.data.landmark}</p>
                   )}
-                  {selectedDossier.data.coordinates && (
+                  {selectedDetails.data.coordinates && (
                     <a
-                      href={`https://www.google.com/maps?q=${selectedDossier.data.coordinates[0]},${selectedDossier.data.coordinates[1]}`}
+                      href={`https://www.google.com/maps?q=${selectedDetails.data.coordinates[0]},${selectedDetails.data.coordinates[1]}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-[#b87d55] font-bold underline pt-1"
                     >
-                      <span>Open in Google Maps ({selectedDossier.data.coordinates[0]}, {selectedDossier.data.coordinates[1]})</span>
+                      <span>Open in Google Maps ({selectedDetails.data.coordinates[0]}, {selectedDetails.data.coordinates[1]})</span>
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   )}
@@ -1847,24 +1859,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               )}
 
               {/* Description / Story / Notes */}
-              {(selectedDossier.data.description || selectedDossier.data.notes || selectedDossier.data.details || selectedDossier.data.story || selectedDossier.data.experience) && (
+              {(selectedDetails.data.description || selectedDetails.data.notes || selectedDetails.data.details || selectedDetails.data.story || selectedDetails.data.experience) && (
                 <div className="bg-white p-4 rounded-2xl border border-[#ebd7c3] space-y-1.5 text-xs">
-                  <div className="font-fredoka font-bold text-[#8a5b3a] uppercase">Submitted Details & Narrative:</div>
+                  <div className="font-fredoka font-bold text-[#8a5b3a] uppercase">Submitted Details:</div>
                   <p className="text-sm text-[#5e4537] leading-relaxed whitespace-pre-line">
-                    {selectedDossier.data.description || selectedDossier.data.notes || selectedDossier.data.details || selectedDossier.data.story || selectedDossier.data.experience}
+                    {selectedDetails.data.description || selectedDetails.data.notes || selectedDetails.data.details || selectedDetails.data.story || selectedDetails.data.experience}
                   </p>
                 </div>
               )}
 
               {/* Timeline Updates Log (for Rescue Cases) */}
-              {selectedDossier.data.updates && (
+              {selectedDetails.data.updates && (
                 <div className="bg-white p-5 rounded-2xl border border-[#ebd7c3] space-y-4">
                   <div className="font-fredoka font-bold text-[#26160d] text-sm uppercase">
-                    Incident Dispatch Timeline & Updates:
+                    Timeline & Updates:
                   </div>
 
                   <div className="space-y-3">
-                    {selectedDossier.data.updates.map((up: any, idx: number) => (
+                    {selectedDetails.data.updates.map((up: any, idx: number) => (
                       <div key={idx} className="flex items-start gap-3 text-xs">
                         <div className="w-2 h-2 rounded-full bg-[#4a2e1b] mt-1.5 flex-shrink-0"></div>
                         <div className="flex-1 bg-[#fbf6f0] p-3 rounded-xl border border-[#ebd7c3]/60">
@@ -1882,13 +1894,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div className="flex gap-2 pt-2">
                     <input
                       type="text"
-                      placeholder="Add responder dispatch update..."
+                      placeholder="Add status update or dispatch note..."
                       value={newTimelineNote}
                       onChange={(e) => setNewTimelineNote(e.target.value)}
                       className="flex-1 p-2.5 rounded-xl border border-[#ebd7c3] bg-[#fbf6f0] text-xs focus:ring-2 focus:ring-[#4a2e1b]"
                     />
                     <button
-                      onClick={() => handleAddTimelineNote(selectedDossier.data)}
+                      onClick={() => handleAddTimelineNote(selectedDetails.data)}
                       className="bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka text-xs font-semibold px-4 py-2.5 rounded-xl"
                     >
                       Post Note
@@ -1904,13 +1916,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
                 <textarea
                   rows={3}
-                  placeholder="Record internal team observations, vet clinic coordinates, or volunteer notes..."
+                  placeholder="Record internal team observations or contact logs..."
                   value={adminNoteInput}
                   onChange={(e) => setAdminNoteInput(e.target.value)}
                   className="w-full p-3 rounded-xl border border-[#ebd7c3] bg-white text-xs focus:ring-2 focus:ring-[#4a2e1b]"
                 ></textarea>
                 <button
-                  onClick={() => handleSaveAdminNote(selectedDossier.data, selectedDossier.type)}
+                  onClick={() => handleSaveAdminNote(selectedDetails.data, selectedDetails.type)}
                   className="bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka text-xs font-semibold px-5 py-2.5 rounded-xl"
                 >
                   Save Internal Note
@@ -1919,18 +1931,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             </div>
 
-            {/* Dossier Footer */}
+            {/* Modal Footer */}
             <div className="bg-white p-4 border-t border-[#ebd7c3] flex items-center justify-between flex-shrink-0">
               <button
                 onClick={() => window.print()}
                 className="bg-[#faefe4] hover:bg-[#ebd7c3] text-[#4a2e1b] font-fredoka text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center gap-1.5"
               >
                 <Printer className="w-4 h-4" />
-                <span>Print Dossier</span>
+                <span>Print</span>
               </button>
 
               <button
-                onClick={() => setSelectedDossier(null)}
+                onClick={() => setSelectedDetails(null)}
                 className="bg-[#4a2e1b] text-white font-fredoka text-xs font-semibold px-6 py-2.5 rounded-xl shadow"
               >
                 Close
@@ -1949,7 +1961,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 border-4 border-[#4a2e1b] shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-[#ebd7c3] pb-3">
               <h3 className="font-fredoka text-xl font-bold text-[#26160d]">
-                Add Adoptable Dog to Database
+                Add Dog to Catalog
               </h3>
               <button onClick={() => setIsAddDogModalOpen(false)} className="text-gray-400 hover:text-black">
                 <X className="w-6 h-6" />
@@ -2011,8 +2023,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               <div>
-                <label className="block font-fredoka font-bold text-[#352018] mb-1">Rescue Story & Personality *</label>
-                <textarea name="story" required rows={3} placeholder="Background, rescue notes, behavior..." className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-[#fbf6f0] text-sm"></textarea>
+                <label className="block font-fredoka font-bold text-[#352018] mb-1">Rescue Story & Notes *</label>
+                <textarea name="story" required rows={3} placeholder="Background, health notes, temperament..." className="w-full p-2.5 rounded-xl border border-[#ebd7c3] bg-[#fbf6f0] text-sm"></textarea>
               </div>
 
               <div className="pt-2 flex gap-3">
@@ -2027,7 +2039,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   type="submit"
                   className="w-2/3 bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-semibold py-3 rounded-full shadow"
                 >
-                  Publish Dog
+                  Save Dog
                 </button>
               </div>
             </form>

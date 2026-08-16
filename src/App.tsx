@@ -25,10 +25,25 @@ import {
   AdminActivityLog,
 } from './types';
 import { playDispatchPing } from './utils/audio';
-import { ShieldCheck, X, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Globe, X, ArrowRight, Bell } from 'lucide-react';
+
+const getInitialSection = (): string => {
+  if (typeof window === 'undefined') return 'home';
+  const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
+  if (path === 'admin') return 'admin';
+  if (['about', 'report', 'rescue', 'adopt', 'lost-found', 'learn', 'community', 'support'].includes(path)) {
+    return path;
+  }
+  const hash = window.location.hash.replace(/^#\/?/, '');
+  if (hash === 'admin') return 'admin';
+  if (['about', 'report', 'rescue', 'adopt', 'lost-found', 'learn', 'community', 'support'].includes(hash)) {
+    return hash;
+  }
+  return 'home';
+};
 
 export function App() {
-  const [activeSection, setActiveSection] = useState('home');
+  const [activeSection, setActiveSection] = useState<string>(getInitialSection);
   const [liveToast, setLiveToast] = useState<{
     id: string;
     title: string;
@@ -36,7 +51,7 @@ export function App() {
     type: string;
   } | null>(null);
 
-  // 1. Rescue / Abuse Cases (100% Real User Submissions)
+  // 1. Rescue / Abuse Cases
   const [cases, setCases] = useState<RescueCase[]>(() => {
     try {
       const saved = localStorage.getItem('pawguard_cases');
@@ -46,7 +61,7 @@ export function App() {
     }
   });
 
-  // 2. Adoptable Dogs (Real Listings)
+  // 2. Adoptable Dogs
   const [dogs, setDogs] = useState<AdoptableDog[]>(() => {
     try {
       const saved = localStorage.getItem('pawguard_dogs');
@@ -56,7 +71,7 @@ export function App() {
     }
   });
 
-  // 3. Lost & Found Items (Real User Notices)
+  // 3. Lost & Found Items
   const [lostFoundItems, setLostFoundItems] = useState<LostFoundDog[]>(() => {
     try {
       const saved = localStorage.getItem('pawguard_lostfound');
@@ -66,7 +81,7 @@ export function App() {
     }
   });
 
-  // 4. Adoption Inquiries & Applications (Real User Applications)
+  // 4. Adoption Inquiries & Applications
   const [adoptionInquiries, setAdoptionInquiries] = useState<AdoptionInquiry[]>(() => {
     try {
       const saved = localStorage.getItem('pawguard_inquiries');
@@ -76,7 +91,7 @@ export function App() {
     }
   });
 
-  // 5. Volunteer Guild Applications (Real User Signups)
+  // 5. Volunteer Applications
   const [volunteerApplications, setVolunteerApplications] = useState<VolunteerApplication[]>(() => {
     try {
       const saved = localStorage.getItem('pawguard_volunteers');
@@ -86,7 +101,7 @@ export function App() {
     }
   });
 
-  // 6. Donation Records & Pledges (Real Supporter Pledges)
+  // 6. Donation Records & Pledges
   const [donationRecords, setDonationRecords] = useState<DonationRecord[]>(() => {
     try {
       const saved = localStorage.getItem('pawguard_donations');
@@ -96,7 +111,7 @@ export function App() {
     }
   });
 
-  // 7. Emergency SOS Alerts (Real Emergency Calls)
+  // 7. Emergency SOS Alerts
   const [emergencyAlerts, setEmergencyAlerts] = useState<EmergencyAlert[]>(() => {
     try {
       const saved = localStorage.getItem('pawguard_emergency');
@@ -117,6 +132,22 @@ export function App() {
   });
 
   const [isEmergencyOpen, setIsEmergencyOpen] = useState(false);
+
+  // Sync route on popstate (browser back/forward)
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
+      if (path === 'admin') {
+        setActiveSection('admin');
+      } else if (path && ['about', 'report', 'rescue', 'adopt', 'lost-found', 'learn', 'community', 'support'].includes(path)) {
+        setActiveSection(path);
+      } else {
+        setActiveSection('home');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Sync to localStorage
   useEffect(() => {
@@ -211,8 +242,8 @@ export function App() {
   // Case handlers
   const handleAddCase = (newCase: RescueCase) => {
     setCases([newCase, ...cases]);
-    logActivity('New Abuse Report Received', newCase.id, 'rescue_case', `${newCase.reporter}: ${newCase.title}`);
-    triggerLiveAlert(`🚨 Abuse Report Received (${newCase.id})`, `${newCase.title} at ${newCase.location}`, 'case');
+    logActivity('Incident Report Received', newCase.id, 'rescue_case', `${newCase.reporter}: ${newCase.title}`);
+    triggerLiveAlert(`Abuse Report Received (${newCase.id})`, `${newCase.title} at ${newCase.location}`, 'case');
   };
 
   const handleUpdateCase = (updatedCase: RescueCase) => {
@@ -229,7 +260,7 @@ export function App() {
   const handleAddDog = (newDog: AdoptableDog) => {
     setDogs([newDog, ...dogs]);
     logActivity('Adoptable Dog Added', newDog.id, 'dog', `${newDog.name} added to public catalog.`);
-    triggerLiveAlert(`🐕 Dog Listed (${newDog.name})`, `${newDog.breed} is now live on adoption directory`, 'dog');
+    triggerLiveAlert(`Dog Listed (${newDog.name})`, `${newDog.breed} is now live on adoption directory`, 'dog');
   };
 
   const handleUpdateDog = (updatedDog: AdoptableDog) => {
@@ -246,7 +277,7 @@ export function App() {
   const handleAddLostFound = (newItem: LostFoundDog) => {
     setLostFoundItems([newItem, ...lostFoundItems]);
     logActivity('Lost/Found Notice Published', newItem.id, 'lost_found', `${newItem.status.toUpperCase()}: ${newItem.dogName || newItem.breed}`);
-    triggerLiveAlert(`🔍 Lost & Found Notice (${newItem.id})`, `${newItem.dogName || 'Dog'} at ${newItem.lastSeenLocation}`, 'lostfound');
+    triggerLiveAlert(`Lost & Found Notice (${newItem.id})`, `${newItem.dogName || 'Dog'} at ${newItem.lastSeenLocation}`, 'lostfound');
   };
 
   const handleUpdateLostFound = (updatedItem: LostFoundDog) => {
@@ -263,7 +294,7 @@ export function App() {
   const handleAddAdoptionInquiry = (newInq: AdoptionInquiry) => {
     setAdoptionInquiries([newInq, ...adoptionInquiries]);
     logActivity('Adoption Application Received', newInq.id, 'adoption_inquiry', `${newInq.applicantName} applied for ${newInq.dogName}`);
-    triggerLiveAlert(`🐾 Adoption Application (${newInq.id})`, `${newInq.applicantName} applied to adopt ${newInq.dogName}`, 'inquiry');
+    triggerLiveAlert(`Adoption Application (${newInq.id})`, `${newInq.applicantName} applied to adopt ${newInq.dogName}`, 'inquiry');
   };
 
   const handleUpdateAdoptionInquiry = (updatedInq: AdoptionInquiry) => {
@@ -286,7 +317,7 @@ export function App() {
   const handleAddVolunteer = (newVol: VolunteerApplication) => {
     setVolunteerApplications([newVol, ...volunteerApplications]);
     logActivity('Volunteer Registration Received', newVol.id, 'volunteer', `${newVol.name} registered for ${newVol.role}`);
-    triggerLiveAlert(`🤝 Volunteer Application (${newVol.id})`, `${newVol.name} joined as ${newVol.role}`, 'volunteer');
+    triggerLiveAlert(`Volunteer Application (${newVol.id})`, `${newVol.name} joined as ${newVol.role}`, 'volunteer');
   };
 
   const handleUpdateVolunteer = (updatedVol: VolunteerApplication) => {
@@ -309,7 +340,7 @@ export function App() {
   const handleAddDonation = (newDon: DonationRecord) => {
     setDonationRecords([newDon, ...donationRecords]);
     logActivity('Donation Pledge Recorded', newDon.id, 'donation', `${newDon.donorName}: ${newDon.amount} for ${newDon.targetCause}`);
-    triggerLiveAlert(`💖 Donation Pledge (${newDon.id})`, `${newDon.donorName} pledged ${newDon.amount} (${newDon.currency})`, 'donation');
+    triggerLiveAlert(`Donation Pledge (${newDon.id})`, `${newDon.donorName} pledged ${newDon.amount} (${newDon.currency})`, 'donation');
   };
 
   const handleUpdateDonation = (updatedDon: DonationRecord) => {
@@ -332,7 +363,7 @@ export function App() {
   const handleAddEmergencyAlert = (newAlert: EmergencyAlert) => {
     setEmergencyAlerts([newAlert, ...emergencyAlerts]);
     logActivity('Emergency SOS Transmitted', newAlert.id, 'emergency_alert', `${newAlert.callerName}: ${newAlert.emergencyType} at ${newAlert.location}`);
-    triggerLiveAlert(`⚡ High Priority SOS Alert (${newAlert.id})`, `${newAlert.emergencyType} reported at ${newAlert.location}`, 'emergency');
+    triggerLiveAlert(`Emergency Alert (${newAlert.id})`, `${newAlert.emergencyType} reported at ${newAlert.location}`, 'emergency');
   };
 
   const handleUpdateEmergencyAlert = (updatedAlert: EmergencyAlert) => {
@@ -361,6 +392,10 @@ export function App() {
 
   const handleNavigate = (sectionId: string) => {
     setActiveSection(sectionId);
+    const newPath = sectionId === 'home' ? '/' : `/${sectionId}`;
+    if (window.location.pathname !== newPath) {
+      window.history.pushState({ section: sectionId }, '', newPath);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -376,13 +411,13 @@ export function App() {
         adminSubmissionsCount={totalSubmissionsCount}
       />
 
-      {/* Floating Live Dispatch Alert Notification Toast */}
+      {/* Floating Alert Notification Toast */}
       {liveToast && (
-        <div className="fixed top-24 right-4 z-50 bg-[#352018] text-white p-4 rounded-2xl shadow-2xl border-2 border-[#ea8e24] max-w-sm w-full animate-fadeIn">
+        <div className="fixed top-24 right-4 z-50 bg-[#352018] text-white p-4 rounded-2xl shadow-2xl border border-[#b87d55] max-w-sm w-full animate-fadeIn">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-xl bg-[#ea8e24] text-white flex items-center justify-center font-bold flex-shrink-0">
-                🔔
+                <Bell className="w-4 h-4" />
               </div>
               <div className="space-y-1">
                 <h4 className="font-fredoka text-sm font-bold text-[#f5d7b7]">{liveToast.title}</h4>
@@ -394,7 +429,7 @@ export function App() {
                   }}
                   className="text-xs font-fredoka font-bold text-[#ea8e24] hover:text-white underline pt-1 inline-flex items-center gap-1"
                 >
-                  <span>Open in Admin Desk</span>
+                  <span>Open in Admin</span>
                   <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
@@ -409,7 +444,7 @@ export function App() {
       {/* Main Page Views (Embedded by Section) */}
       <main className="flex-1">
         
-        {/* Admin Dashboard Desk */}
+        {/* Admin Dashboard */}
         {activeSection === 'admin' && (
           <div className="animate-fadeIn">
             <AdminDashboard
@@ -541,12 +576,21 @@ export function App() {
           onClick={() => handleNavigate(activeSection === 'admin' ? 'home' : 'admin')}
           className="bg-[#4a2e1b] hover:bg-[#352018] text-white font-fredoka font-bold text-xs sm:text-sm px-4 sm:px-5 py-2.5 sm:py-3 rounded-full shadow-2xl border-2 border-[#b87d55] flex items-center gap-2 hover:scale-105 transition-all group"
         >
-          <ShieldCheck className="w-4 h-4 text-[#ea8e24] group-hover:rotate-12 transition-transform" />
-          <span>{activeSection === 'admin' ? '🌐 View Public Website' : '🛡️ Switch to Admin Desk'}</span>
-          {totalSubmissionsCount > 0 && activeSection !== 'admin' && (
-            <span className="bg-[#ea8e24] text-white text-[10px] font-mono px-2 py-0.5 rounded-full">
-              {totalSubmissionsCount}
-            </span>
+          {activeSection === 'admin' ? (
+            <>
+              <Globe className="w-4 h-4 text-[#ea8e24]" />
+              <span>Public Website</span>
+            </>
+          ) : (
+            <>
+              <ShieldCheck className="w-4 h-4 text-[#ea8e24] group-hover:rotate-12 transition-transform" />
+              <span>Admin Dashboard</span>
+              {totalSubmissionsCount > 0 && (
+                <span className="bg-[#ea8e24] text-white text-[10px] font-mono px-2 py-0.5 rounded-full">
+                  {totalSubmissionsCount}
+                </span>
+              )}
+            </>
           )}
         </button>
       </div>
