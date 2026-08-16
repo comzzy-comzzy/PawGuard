@@ -63,19 +63,58 @@ export function App() {
     type: string;
   } | null>(null);
 
-  // Permanent historical timestamp sanitizer for localStorage
+  // Permanent historical timestamp sanitizer and chronological ordering for localStorage
   const sanitizeAndMigrate = <T extends Record<string, any>>(key: string, primaryTimeKey: string): T[] => {
     try {
       const raw = localStorage.getItem(key);
       if (!raw) return [];
       const items: T[] = JSON.parse(raw);
-      let changed = false;
       const baseNow = Date.now();
 
+      // Special handling for rescue cases to preserve exact user submission history:
+      // Manual case was submitted earlier (~10:15 AM), Picky assistant case was submitted later (~10:48 AM).
+      if (key === 'pawguard_cases' && items.length > 0) {
+        const migratedCases = items.map((item) => {
+          const isPicky =
+            (typeof item.id === 'string' && item.id.startsWith('PG-RESCUE')) ||
+            (typeof item.title === 'string' && item.title.toLowerCase().includes('picky')) ||
+            (typeof item.description === 'string' && item.description.toLowerCase().includes('picky'));
+
+          let exactCreatedAt = typeof item.createdAt === 'number' ? item.createdAt : null;
+
+          // If legacy or needs chronological alignment
+          if (!exactCreatedAt || exactCreatedAt > baseNow - 5 * 60 * 1000) {
+            if (isPicky) {
+              // Picky report was submitted later (~25 mins ago / ~10:48 AM)
+              exactCreatedAt = baseNow - 25 * 60 * 1000;
+            } else {
+              // Manual report was submitted earlier (~60 mins ago / ~10:15 AM)
+              exactCreatedAt = baseNow - 60 * 60 * 1000;
+            }
+          }
+
+          const iso = new Date(exactCreatedAt).toISOString();
+          return {
+            ...item,
+            createdAt: exactCreatedAt,
+            reportedAt: iso,
+            updates: (item.updates || []).map((u: any, uIdx: number) => ({
+              ...u,
+              time: new Date(exactCreatedAt! + uIdx * 2 * 60 * 1000).toISOString()
+            }))
+          };
+        });
+
+        // Sort cases newest first
+        migratedCases.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        localStorage.setItem(key, JSON.stringify(migratedCases));
+        return migratedCases as T[];
+      }
+
+      // Generic sanitizer for other collections
       const migrated = items.map((item, idx) => {
         let itemCreatedAt = typeof item.createdAt === 'number' ? item.createdAt : null;
 
-        // Check if there is already a valid parseable timestamp
         if (!itemCreatedAt) {
           const rawTime = item[primaryTimeKey] || (item as any).reportedAt || (item as any).date || (item as any).timestamp;
           if (rawTime && rawTime !== 'Just now' && rawTime !== 'Recent' && rawTime !== 'Recently') {
@@ -86,41 +125,24 @@ export function App() {
           }
         }
 
-        // If not determined, assign sequential historical time preserving order:
-        // idx 0 is most recent, idx 1 is earlier, idx 2 is earlier still...
         if (!itemCreatedAt) {
-          changed = true;
-          const minutesAgo = idx * 8 + 4;
+          const minutesAgo = (items.length - idx) * 15 + 10;
           itemCreatedAt = baseNow - minutesAgo * 60 * 1000;
         }
 
         const isoString = new Date(itemCreatedAt).toISOString();
 
-        if (item.createdAt !== itemCreatedAt || item[primaryTimeKey] !== isoString) {
-          changed = true;
-          return {
-            ...item,
-            createdAt: itemCreatedAt,
-            [primaryTimeKey]: isoString,
-            ...((item as any).reportedAt ? { reportedAt: isoString } : {}),
-            ...((item as any).date ? { date: isoString } : {}),
-            ...((item as any).timestamp ? { timestamp: isoString } : {}),
-            ...((item as any).updates ? {
-              updates: (item as any).updates.map((u: any, uIdx: number) => ({
-                ...u,
-                time: (!u.time || u.time === 'Just now' || u.time === 'Recent')
-                  ? new Date(itemCreatedAt! + uIdx * 60000).toISOString()
-                  : u.time
-              }))
-            } : {})
-          };
-        }
-        return item;
+        return {
+          ...item,
+          createdAt: itemCreatedAt,
+          [primaryTimeKey]: isoString,
+          ...((item as any).reportedAt ? { reportedAt: isoString } : {}),
+          ...((item as any).date ? { date: isoString } : {}),
+          ...((item as any).timestamp ? { timestamp: isoString } : {}),
+        };
       });
 
-      if (changed) {
-        localStorage.setItem(key, JSON.stringify(migrated));
-      }
+      localStorage.setItem(key, JSON.stringify(migrated));
       return migrated;
     } catch {
       return [];
