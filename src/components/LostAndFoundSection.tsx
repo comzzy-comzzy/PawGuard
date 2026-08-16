@@ -71,6 +71,7 @@ export const LostAndFoundSection: React.FC<LostAndFoundSectionProps> = ({ items,
       details: details || 'No additional details provided.',
       hasMicrochip,
       submittedAt: new Date().toISOString(),
+      createdAt: Date.now(),
     };
 
     onAddItem(newItem);

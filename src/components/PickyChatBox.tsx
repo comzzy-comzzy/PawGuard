@@ -161,6 +161,7 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
             coordinates: [40.7128 + (Math.random() - 0.5) * 0.05, -74.0060 + (Math.random() - 0.5) * 0.05],
             distance: 'Local Area',
             reportedAt: existing?.reportedAt || nowIso,
+            createdAt: existing?.createdAt || Date.now(),
             description: `${d.description || text || 'Photo evidence submitted'} (Logged via Picky Assistant)`,
             dogName: 'Reported Dog',
             dogBreed: 'Dog in Need of Help',
@@ -198,6 +199,7 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
             experienceLevel: 'Loving Dog Guardian',
             notes: `Adoption inquiry submitted via Picky. Desired Pet: ${d.preferredDog || 'N/A'}. Home environment: ${d.home || 'N/A'}. Contact details: ${d.contact || 'N/A'}`,
             submittedAt: nowIso,
+            createdAt: Date.now(),
             status: 'pending',
             adminNotes: 'Submitted through Picky conversational intake assistant.',
           });
@@ -219,6 +221,7 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
             details: `Notice submitted via Picky. Pet info: ${d.petInfo || 'N/A'}. Last seen location: ${d.lastSeen || 'N/A'}. Contact: ${d.contact || 'N/A'}`,
             caseStatus: 'open',
             submittedAt: nowIso,
+            createdAt: Date.now(),
           });
         }
 
@@ -235,6 +238,7 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
             hasVehicle: true,
             experience: `Volunteer signup via Picky. Desired role: ${d.role || 'N/A'}. Location: ${d.location || 'N/A'}`,
             submittedAt: nowIso,
+            createdAt: Date.now(),
             status: 'pending',
           });
         }

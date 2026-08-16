@@ -57,6 +57,7 @@ export const AdoptionSection: React.FC<AdoptionSectionProps> = ({
       experienceLevel,
       notes: inquiryNotes || 'Ready to provide a loving home.',
       submittedAt: new Date().toISOString(),
+      createdAt: Date.now(),
       status: 'pending',
     };
 

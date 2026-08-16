@@ -71,29 +71,53 @@ export function App() {
       const items: T[] = JSON.parse(raw);
       let changed = false;
       const baseNow = Date.now();
+
       const migrated = items.map((item, idx) => {
-        const timeVal = item[primaryTimeKey] || (item as any).reportedAt || (item as any).date || (item as any).timestamp;
-        if (!timeVal || timeVal === 'Just now' || timeVal === 'Recent' || timeVal === 'Recently') {
+        let itemCreatedAt = typeof item.createdAt === 'number' ? item.createdAt : null;
+
+        // Check if there is already a valid parseable timestamp
+        if (!itemCreatedAt) {
+          const rawTime = item[primaryTimeKey] || (item as any).reportedAt || (item as any).date || (item as any).timestamp;
+          if (rawTime && rawTime !== 'Just now' && rawTime !== 'Recent' && rawTime !== 'Recently') {
+            const parsed = Date.parse(rawTime);
+            if (!isNaN(parsed)) {
+              itemCreatedAt = parsed;
+            }
+          }
+        }
+
+        // If not determined, assign sequential historical time preserving order:
+        // idx 0 is most recent, idx 1 is earlier, idx 2 is earlier still...
+        if (!itemCreatedAt) {
           changed = true;
-          // Extract timestamp from ID or create a fixed historical timestamp
-          const match = typeof item.id === 'string' && item.id.match(/\d{13}/);
-          const fixedTime = new Date(match ? parseInt(match[0], 10) : baseNow - Math.max(1, items.length - idx) * 12 * 60 * 1000).toISOString();
+          const minutesAgo = idx * 8 + 4;
+          itemCreatedAt = baseNow - minutesAgo * 60 * 1000;
+        }
+
+        const isoString = new Date(itemCreatedAt).toISOString();
+
+        if (item.createdAt !== itemCreatedAt || item[primaryTimeKey] !== isoString) {
+          changed = true;
           return {
             ...item,
-            [primaryTimeKey]: fixedTime,
-            ...((item as any).reportedAt ? { reportedAt: fixedTime } : {}),
-            ...((item as any).date ? { date: fixedTime } : {}),
-            ...((item as any).timestamp ? { timestamp: fixedTime } : {}),
+            createdAt: itemCreatedAt,
+            [primaryTimeKey]: isoString,
+            ...((item as any).reportedAt ? { reportedAt: isoString } : {}),
+            ...((item as any).date ? { date: isoString } : {}),
+            ...((item as any).timestamp ? { timestamp: isoString } : {}),
             ...((item as any).updates ? {
-              updates: (item as any).updates.map((u: any) => ({
+              updates: (item as any).updates.map((u: any, uIdx: number) => ({
                 ...u,
-                time: (!u.time || u.time === 'Just now' || u.time === 'Recent') ? fixedTime : u.time
+                time: (!u.time || u.time === 'Just now' || u.time === 'Recent')
+                  ? new Date(itemCreatedAt! + uIdx * 60000).toISOString()
+                  : u.time
               }))
             } : {})
           };
         }
         return item;
       });
+
       if (changed) {
         localStorage.setItem(key, JSON.stringify(migrated));
       }

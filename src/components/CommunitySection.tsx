@@ -37,6 +37,7 @@ export const CommunitySection: React.FC<CommunitySectionProps> = ({ onAddVolunte
       hasVehicle,
       experience: vNotes || 'Eager to help dogs in need.',
       submittedAt: new Date().toISOString(),
+      createdAt: Date.now(),
       status: 'pending',
     };
 

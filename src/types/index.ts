@@ -15,6 +15,7 @@ export interface RescueCase {
   coordinates: [number, number];
   distance: string;
   reportedAt: string;
+  createdAt?: number;
   description: string;
   dogName?: string;
   dogBreed?: string;
@@ -44,6 +45,7 @@ export interface AdoptableDog {
   goodWithDogs: boolean;
   goodWithCats: boolean;
   rescueDate: string;
+  createdAt?: number;
   status?: 'available' | 'adoption_pending' | 'adopted';
   submittedBy?: string;
   contactPhone?: string;
@@ -62,6 +64,7 @@ export interface AdoptionInquiry {
   experienceLevel: 'First-time Owner' | 'Experienced Dog Parent' | 'Professional Trainer/Foster';
   notes: string;
   submittedAt: string;
+  createdAt?: number;
   status: 'pending' | 'under_review' | 'approved' | 'contacted' | 'declined';
   adminNotes?: string;
 }
@@ -82,6 +85,7 @@ export interface LostFoundDog {
   details: string;
   hasMicrochip: boolean;
   submittedAt?: string;
+  createdAt?: number;
   adminNotes?: string;
 }
 
@@ -96,6 +100,7 @@ export interface VolunteerApplication {
   hasVehicle: boolean;
   experience: string;
   submittedAt: string;
+  createdAt?: number;
   status: 'pending' | 'approved' | 'contacted' | 'declined';
   adminNotes?: string;
 }
@@ -112,6 +117,7 @@ export interface DonationRecord {
   txHashOrReceipt?: string;
   donorNote?: string;
   submittedAt: string;
+  createdAt?: number;
   status: 'verified' | 'pending_verification' | 'thanked';
   adminNotes?: string;
 }
@@ -125,6 +131,7 @@ export interface EmergencyAlert {
   emergencyType: 'Cruelty / Abuse in Progress' | 'Severe Injury / Hit & Run' | 'Starvation / Trapped Dog' | 'Other Emergency';
   notes: string;
   submittedAt: string;
+  createdAt?: number;
   status: 'active' | 'in_touch' | 'resolved';
   adminNotes?: string;
 }
@@ -134,6 +141,7 @@ export interface AdminActivityLog {
   action: string;
   targetId: string;
   timestamp: string;
+  createdAt?: number;
   type: 'rescue_case' | 'adoption_inquiry' | 'lost_found' | 'volunteer' | 'donation' | 'emergency_alert' | 'dog';
   details: string;
 }

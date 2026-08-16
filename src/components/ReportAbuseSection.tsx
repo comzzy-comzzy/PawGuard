@@ -87,6 +87,7 @@ export const ReportAbuseSection: React.FC<ReportAbuseSectionProps> = ({
         coordinates: [40.7128 + (Math.random() - 0.5) * 0.05, -74.0060 + (Math.random() - 0.5) * 0.05],
         distance: 'Local Area',
         reportedAt: new Date().toISOString(),
+        createdAt: Date.now(),
         description: `${dogCondition}${landmark ? ` | Landmark: ${landmark}` : ''}`,
         dogName: 'Reported Dog',
         dogBreed: dogBreed || 'Dog in Need',
