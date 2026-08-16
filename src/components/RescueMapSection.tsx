@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { RescueCase } from '../types';
 import { ShieldAlert, MapPin, Clock, Radio, Share2, ArrowLeft } from 'lucide-react';
 import { playClickSound } from '../utils/audio';
-import { getRelativeTime } from '../utils/time';
 
 interface RescueMapSectionProps {
   cases: RescueCase[];
@@ -220,7 +219,7 @@ export const RescueMapSection: React.FC<RescueMapSectionProps> = ({
                         <div className="flex items-center justify-between pt-1 border-t border-[#f4ece1] text-[11px]">
                           <span className="text-[#8a6853] flex items-center gap-1">
                             <Clock className="w-3 h-3" />
-                            {getRelativeTime(c.reportedAt)}
+                            {c.reportedAt}
                           </span>
                           {getStatusBadge(c.status)}
                         </div>

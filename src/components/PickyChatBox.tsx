@@ -3,7 +3,6 @@ import { X, Send, ArrowRight, RotateCcw, Volume2, VolumeX, Camera, Image as Imag
 import { playClickSound, playPuppyBark } from '../utils/audio';
 import { processPickyMessage, PickyConversationContext } from '../utils/pickyAi';
 import { RescueCase, AdoptionInquiry, LostFoundDog, VolunteerApplication } from '../types';
-import { getRelativeTime } from '../utils/time';
 
 interface PickyChatBoxProps {
   onNavigateSection: (sectionId: string) => void;
@@ -456,7 +455,11 @@ export const PickyChatBox: React.FC<PickyChatBoxProps> = ({
                   </div>
 
                   <span className="text-[10px] text-[#8a5b3a] px-1 pt-1">
-                    {getRelativeTime(msg.timestamp)}
+                    {msg.timestamp ? (
+                      isNaN(Date.parse(msg.timestamp))
+                        ? msg.timestamp
+                        : new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    ) : ''}
                   </span>
 
                   {/* Suggested quick prompt chips */}

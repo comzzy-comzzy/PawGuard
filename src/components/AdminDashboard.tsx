@@ -50,7 +50,7 @@ import {
   playDispatchPing,
   playSuccessChime,
 } from '../utils/audio';
-import { getRelativeTime, formatExactDateTime, formatTimeWithRelative } from '../utils/time';
+import { formatAdminTime } from '../utils/time';
 
 interface AdminDashboardProps {
   cases: RescueCase[];
@@ -655,7 +655,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <div className="flex items-center justify-between text-[11px] text-[#8a5b3a] pt-1">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3 text-[#ea8e24]" />
-                            {getRelativeTime(item.reportedAt)}
+                            {formatAdminTime(item.reportedAt)}
                           </span>
                           <span className="text-[#4a2e1b] font-bold group-hover:underline">View Details →</span>
                         </div>
@@ -704,7 +704,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </div>
                           <div className="text-xs text-[#6b4c38] flex items-center gap-2">
                             <span>{inq.applicantPhone} • {inq.housingType}</span>
-                            <span className="text-[10px] text-[#8a5b3a]">({getRelativeTime(inq.submittedAt)})</span>
+                            <span className="text-[10px] text-[#8a5b3a]">({formatAdminTime(inq.submittedAt)})</span>
                           </div>
                         </div>
                         <span
@@ -759,7 +759,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </div>
                           <div className="text-xs text-[#6b4c38] flex items-center gap-2">
                             <span>{vol.location} • {vol.availability}</span>
-                            <span className="text-[10px] text-[#8a5b3a]">({getRelativeTime(vol.submittedAt)})</span>
+                            <span className="text-[10px] text-[#8a5b3a]">({formatAdminTime(vol.submittedAt)})</span>
                           </div>
                         </div>
                         <span
@@ -882,10 +882,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <span className="text-xs font-semibold text-[#8a5b3a]">{item.type}</span>
                           <span
                             className="text-[11px] font-medium text-[#8a5b3a] flex items-center gap-1 bg-[#faefe4] px-2.5 py-0.5 rounded-full border border-[#ebd7c3]"
-                            title={formatExactDateTime(item.reportedAt)}
                           >
                             <Clock className="w-3 h-3 text-[#ea8e24]" />
-                            <span>{getRelativeTime(item.reportedAt)}</span>
+                            <span>{formatAdminTime(item.reportedAt)}</span>
                           </span>
                         </div>
 
@@ -1015,9 +1014,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-xs font-bold text-[#8a5b3a]">{inq.id}</span>
-                          <span className="text-[10px] text-[#8a5b3a] flex items-center gap-1" title={formatExactDateTime(inq.submittedAt)}>
+                          <span className="text-[10px] text-[#8a5b3a] flex items-center gap-1">
                             <Clock className="w-3 h-3 text-[#ea8e24]" />
-                            {getRelativeTime(inq.submittedAt)}
+                            {formatAdminTime(inq.submittedAt)}
                           </span>
                         </div>
                         <span
@@ -1186,9 +1185,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </h3>
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-mono text-[#8a5b3a]">{item.id}</span>
-                            <span className="text-[10px] text-[#8a5b3a] flex items-center gap-1" title={formatExactDateTime(item.submittedAt || item.date)}>
+                            <span className="text-[10px] text-[#8a5b3a] flex items-center gap-1">
                               <Clock className="w-3 h-3 text-[#ea8e24]" />
-                              {getRelativeTime(item.submittedAt || item.date)}
+                              {formatAdminTime(item.submittedAt || item.date)}
                             </span>
                           </div>
                         </div>
@@ -1273,9 +1272,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-xs font-bold text-[#8a5b3a]">{vol.id}</span>
-                          <span className="text-[10px] text-[#8a5b3a] flex items-center gap-1" title={formatExactDateTime(vol.submittedAt)}>
+                          <span className="text-[10px] text-[#8a5b3a] flex items-center gap-1">
                             <Clock className="w-3 h-3 text-[#ea8e24]" />
-                            {getRelativeTime(vol.submittedAt)}
+                            {formatAdminTime(vol.submittedAt)}
                           </span>
                         </div>
                         <span
@@ -1395,9 +1394,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-xs font-bold text-[#8a5b3a]">{don.id}</span>
-                          <span className="text-[10px] text-[#8a5b3a] flex items-center gap-1" title={formatExactDateTime(don.submittedAt)}>
+                          <span className="text-[10px] text-[#8a5b3a] flex items-center gap-1">
                             <Clock className="w-3 h-3 text-[#ea8e24]" />
-                            {getRelativeTime(don.submittedAt)}
+                            {formatAdminTime(don.submittedAt)}
                           </span>
                         </div>
                         <span
@@ -1526,9 +1525,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             <span className="w-2.5 h-2.5 rounded-full bg-[#d94141] animate-ping"></span>
                             {sos.id}
                           </span>
-                          <span className="text-[10px] text-[#8a5b3a] flex items-center gap-1" title={formatExactDateTime(sos.submittedAt)}>
+                          <span className="text-[10px] text-[#8a5b3a] flex items-center gap-1">
                             <Clock className="w-3 h-3 text-[#ea8e24]" />
-                            {getRelativeTime(sos.submittedAt)}
+                            {formatAdminTime(sos.submittedAt)}
                           </span>
                         </div>
                         <span className="bg-[#fee2e2] text-[#991b1b] text-xs font-fredoka font-bold px-3 py-0.5 rounded-full border border-[#fca5a5]">
@@ -1769,10 +1768,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <div className="text-right flex items-center gap-1.5">
                       <span
                         className="font-mono text-xs text-[#8a5b3a] bg-white px-2.5 py-1 rounded-lg border border-[#ebd7c3] flex items-center gap-1"
-                        title={formatExactDateTime(log.timestamp)}
                       >
                         <Clock className="w-3 h-3 text-[#ea8e24]" />
-                        <span>{getRelativeTime(log.timestamp)}</span>
+                        <span>{formatAdminTime(log.timestamp)}</span>
                       </span>
                     </div>
                   </div>
@@ -1852,7 +1850,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <span className="bg-white border border-[#ebd7c3] text-[#8a5b3a] font-mono px-3 py-1 rounded-full flex items-center gap-1.5 shadow-xs">
                       <Clock className="w-3.5 h-3.5 text-[#ea8e24]" />
                       <span>
-                        Submitted: {formatExactDateTime(selectedDetails.data.reportedAt || selectedDetails.data.submittedAt || selectedDetails.data.timestamp || selectedDetails.data.date)} ({getRelativeTime(selectedDetails.data.reportedAt || selectedDetails.data.submittedAt || selectedDetails.data.timestamp || selectedDetails.data.date)})
+                        Submitted: {formatAdminTime(selectedDetails.data.reportedAt || selectedDetails.data.submittedAt || selectedDetails.data.timestamp || selectedDetails.data.date)}
                       </span>
                     </span>
                   )}
@@ -1947,8 +1945,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <div className="flex-1 bg-[#fbf6f0] p-3 rounded-xl border border-[#ebd7c3]/60">
                           <div className="flex items-center justify-between text-[10px] text-[#8a5b3a] font-bold mb-1">
                             <span>{up.author}</span>
-                            <span title={formatExactDateTime(up.time)}>
-                              {getRelativeTime(up.time)}
+                            <span>
+                              {formatAdminTime(up.time)}
                             </span>
                           </div>
                           <p className="text-[#352018]">{up.text}</p>
